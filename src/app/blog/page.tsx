@@ -8,8 +8,8 @@ import { getAllBlogPostsMeta } from "@/lib/blog";
 import { BookOpen, Clock, Calendar, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "Blog",
-  description: "Articles, guides, and insights about open-source LLMs.",
+  title: "LLM Blog — Guides, Comparisons & AI Insights",
+  description: "Expert guides on open-source LLMs: model comparisons, benchmark analysis, local deployment tips & industry insights. Updated weekly.",
   canonical: canonicalUrl("/blog"),
 });
 

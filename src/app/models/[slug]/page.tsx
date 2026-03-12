@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ModelDetailPage } from "./model-detail-client";
 import { SoftwareApplicationJsonLd, BreadcrumbJsonLd, FaqPageJsonLd } from "@/components/seo/structured-data";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import { serverCaller } from "@/server/api/caller";
 
 export async function generateMetadata({
@@ -13,15 +14,13 @@ export async function generateMetadata({
 
   try {
     const model = await serverCaller.models.get({ slug });
-    return {
-      title: `${model.name} (${model.parameterCount})`,
-      description: model.description,
-      openGraph: {
-        title: `${model.name} (${model.parameterCount}) | LLM Trust`,
-        description: model.description,
-        type: "article",
-      },
-    };
+    const title = `${model.name} (${model.parameterCount}) — Specs & Benchmarks`;
+    return generatePageMetadata({
+      title,
+      description: `${model.name} by ${model.parameterCount} parameters. ${model.description.slice(0, 100)}... Compare benchmarks & download on LLM Trust.`,
+      canonical: canonicalUrl(`/models/${slug}`),
+      type: "article",
+    });
   } catch {
     return { title: "Model Not Found" };
   }
@@ -52,6 +51,7 @@ export default async function ModelPage({
 
   // Transform to match the client component interface
   const modelData = {
+    id: model.id,
     slug: model.slug,
     name: model.name,
     description: model.description,

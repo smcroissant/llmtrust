@@ -39,6 +39,7 @@ export function ModelsPageClient() {
 
   // Transform DB models to match the model card interface
   const models = data?.models.map((m) => ({
+    id: m.id,
     slug: m.slug,
     name: m.name,
     description: m.description,

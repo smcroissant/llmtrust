@@ -19,7 +19,7 @@ export function Header() {
               Models
             </Link>
             <Link
-              href="/models"
+              href="/categories"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Categories
@@ -29,6 +29,12 @@ export function Header() {
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Compare
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Blog
             </Link>
           </nav>
         </div>

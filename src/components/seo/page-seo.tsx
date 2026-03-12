@@ -29,7 +29,7 @@ export function generatePageMetadata({
     : `${title} | ${SITE_NAME}`;
 
   const url = canonical ?? BASE_URL;
-  const imageUrl = ogImage ?? `${BASE_URL}/og-default.png`;
+  const imageUrl = ogImage ?? `${BASE_URL}/og-default.svg`;
 
   return {
     title: fullTitle,

@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
+import { canonicalUrl } from "@/components/seo/page-seo";
 
 export const metadata: Metadata = {
   title: "Authentication",
+  description: "Sign in or create your LLM Trust account.",
   robots: {
     index: false,
     follow: false,
+  },
+  alternates: {
+    canonical: canonicalUrl("/auth/sign-in"),
   },
 };
 

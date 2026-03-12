@@ -1,6 +1,7 @@
-import { ModelCard } from "./model-card";
+import { ModelCardEnhanced } from "./model-card-enhanced";
 
 interface Model {
+  id: string;
   slug: string;
   name: string;
   description: string;
@@ -28,8 +29,8 @@ export function ModelGrid({ models, emptyMessage = "No models found." }: ModelGr
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {models.map((model) => (
-        <ModelCard key={model.slug} model={model} />
+      {models.map((model, index) => (
+        <ModelCardEnhanced key={model.slug} model={model} delay={index % 4} />
       ))}
     </div>
   );

@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { TopBar } from "@/components/layout/top-bar";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import { ModelsPageClient } from "./models-client";
 
-export const metadata: Metadata = {
-  title: "Browse Open-Source LLMs",
+export const metadata: Metadata = generatePageMetadata({
+  title: "Browse Open-Source LLMs — Compare 200+ AI Models",
   description:
-    "Discover and compare open-source large language models. Filter by architecture, size, category, and more. Find the perfect model for your project.",
-  openGraph: {
-    title: "Browse Open-Source LLMs | LLM Trust",
-    description:
-      "Discover and compare open-source large language models. Filter by architecture, size, category, and more.",
-  },
-};
+    "Explore 200+ open-source LLMs by architecture, size & category. Compare benchmarks, download counts & find the perfect model for your project.",
+  canonical: canonicalUrl("/models"),
+  type: "website",
+});
 
 export default function ModelsPage() {
   return (

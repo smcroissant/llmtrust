@@ -1,23 +1,23 @@
 import Link from "next/link";
 
 const footerLinks = {
-  Platform: [
-    { name: "Models", href: "/models" },
+  Models: [
+    { name: "All Models", href: "/models" },
     { name: "Categories", href: "/categories" },
-    { name: "Compare", href: "/compare" },
-    { name: "API Docs", href: "/docs/api" },
+    { name: "Compare LLMs", href: "/compare" },
+    { name: "Latest Additions", href: "/models?sort=newest" },
   ],
   Resources: [
-    { name: "Documentation", href: "/docs" },
     { name: "Blog", href: "/blog" },
+    { name: "Documentation", href: "/docs" },
+    { name: "API Reference", href: "/docs/api" },
     { name: "Changelog", href: "/changelog" },
-    { name: "Status", href: "/status" },
   ],
-  Company: [
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-    { name: "Privacy", href: "/privacy" },
-    { name: "Terms", href: "/terms" },
+  Categories: [
+    { name: "Text Generation", href: "/categories/text-generation" },
+    { name: "Code", href: "/categories/code" },
+    { name: "Vision", href: "/categories/vision" },
+    { name: "Embeddings", href: "/categories/embedding" },
   ],
 };
 

@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "Terms of Service",
+  description: "LLM Trust terms of service. Usage guidelines, user responsibilities & legal terms for using our LLM discovery platform.",
+  canonical: canonicalUrl("/terms"),
+  noIndex: true,
+});
 
 export default function TermsPage() {
   return (

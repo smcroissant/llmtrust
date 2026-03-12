@@ -102,6 +102,26 @@ export const userRouter = createTRPCRouter({
   }),
 
   // ============================================
+  // IS FAVORITE — Check if model is favorited
+  // ============================================
+  isFavorite: protectedProcedure
+    .input(z.object({ modelId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [existing] = await db
+        .select()
+        .from(favorite)
+        .where(
+          and(
+            eq(favorite.userId, ctx.userId),
+            eq(favorite.modelId, input.modelId),
+          ),
+        )
+        .limit(1);
+
+      return { favorited: !!existing };
+    }),
+
+  // ============================================
   // TOGGLE FAVORITE — Add/remove from favorites
   // ============================================
   toggleFavorite: protectedProcedure

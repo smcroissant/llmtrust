@@ -421,4 +421,4 @@ The key is matching your hardware to the right model size and quantization level
 
 **Want to compare Llama 3 against other models?** Use our [comparison tool](/compare) to see how Llama 3 stacks up against GPT-4, Claude, Mistral, and more.
 
-**Looking for the right model for your setup?** [Browse our model catalog](/models) filtered by hardware requirements, or [sign up for LLM Trust](/signup) to get personalized recommendations based on your specific needs.
+**Looking for the right model for your setup?** [Browse our model catalog](/models) filtered by hardware requirements, or [sign up for LLM Trust](/auth/sign-up) to get personalized recommendations based on your specific needs.

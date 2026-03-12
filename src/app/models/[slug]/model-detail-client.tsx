@@ -1,9 +1,17 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { trpc } from "@/lib/trpc";
+import { useSession } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Download,
   ExternalLink,
@@ -13,11 +21,17 @@ import {
   Ruler,
   Scale,
   Clock,
+  Heart,
+  GitCompareArrows,
+  Loader2,
+  Send,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface ModelDetailProps {
   model: {
+    id: string;
     slug: string;
     name: string;
     description: string;
@@ -31,6 +45,8 @@ interface ModelDetailProps {
     downloadUrl: string;
     author: string;
     contextLength: number;
+    avgRating: number;
+    reviewCount: number;
   };
 }
 
@@ -66,17 +82,18 @@ export function ModelDetailPage({ model }: ModelDetailProps) {
             ))}
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          <FavoriteButton modelId={model.id} />
           <a href={model.downloadUrl} target="_blank" rel="noopener noreferrer">
             <Button>
               <Download className="mr-2 h-4 w-4" />
-              Download on HuggingFace
+              Download
             </Button>
           </a>
           <a href={model.downloadUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="outline">
               <ExternalLink className="mr-2 h-4 w-4" />
-              View Source
+              Source
             </Button>
           </a>
         </div>
@@ -128,7 +145,7 @@ export function ModelDetailPage({ model }: ModelDetailProps) {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="specs">Specifications</TabsTrigger>
           <TabsTrigger value="usage">Usage</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsTrigger value="reviews">Reviews ({model.reviewCount})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -238,32 +255,300 @@ export function ModelDetailPage({ model }: ModelDetailProps) {
         </TabsContent>
 
         <TabsContent value="reviews">
-          <Card>
-            <CardHeader>
-              <CardTitle>Community Reviews</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-center">
-                  <p className="text-3xl font-bold">4.5</p>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${i <= 4 ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">100 reviews</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                Reviews are coming soon. Sign up to be notified when you can leave reviews.
-              </p>
-            </CardContent>
-          </Card>
+          <ReviewsSection modelId={model.id} modelName={model.name} avgRating={model.avgRating} reviewCount={model.reviewCount} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// ============================================
+// Favorite Button Component
+// ============================================
+function FavoriteButton({ modelId }: { modelId: string }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const { data: favData, refetch } = trpc.user.isFavorite.useQuery(
+    { modelId },
+    { enabled: !!session }
+  );
+
+  const toggleFavorite = trpc.user.toggleFavorite.useMutation({
+    onSuccess: (data) => {
+      refetch();
+      toast.success(data.favorited ? "Added to favorites" : "Removed from favorites");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session) {
+      router.push("/auth/sign-in");
+      return;
+    }
+    toggleFavorite.mutate({ modelId });
+  };
+
+  const isFav = favData?.favorited ?? false;
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleToggle}
+      disabled={toggleFavorite.isPending}
+      className={isFav ? "text-red-500 border-red-500/30 hover:text-red-600" : ""}
+    >
+      {toggleFavorite.isPending ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+      )}
+    </Button>
+  );
+}
+
+// ============================================
+// Reviews Section Component
+// ============================================
+function ReviewsSection({
+  modelId,
+  modelName,
+  avgRating,
+  reviewCount,
+}: {
+  modelId: string;
+  modelName: string;
+  avgRating: number;
+  reviewCount: number;
+}) {
+  const { data: session } = useSession();
+  const utils = trpc.useUtils();
+
+  const { data: reviewsData, isLoading } = trpc.reviews.list.useQuery({
+    modelId,
+    limit: 20,
+  });
+
+  const createReview = trpc.reviews.create.useMutation({
+    onSuccess: () => {
+      utils.reviews.list.invalidate({ modelId });
+      setRating(0);
+      setContent("");
+      toast.success("Review submitted!");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [content, setContent] = useState("");
+
+  const handleSubmit = () => {
+    if (rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    createReview.mutate({
+      modelId,
+      rating,
+      content: content.trim() || undefined,
+    });
+  };
+
+  const roundedAvg = Math.round(avgRating * 10) / 10;
+
+  return (
+    <div className="space-y-6">
+      {/* Rating Summary */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-4xl font-bold">{roundedAvg.toFixed(1)}</p>
+              <div className="flex gap-0.5 mt-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i <= Math.round(avgRating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {reviewCount} review{reviewCount !== 1 ? "s" : ""}
+              </p>
+            </div>
+            <Separator orientation="vertical" className="h-16" />
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">
+                Community reviews help others discover great models. Share your experience with {modelName}.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Write Review Form */}
+      {session ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Write a Review</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Star Rating Input */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Rating</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="p-0.5 transition-transform hover:scale-110"
+                    onMouseEnter={() => setHoverRating(i)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setRating(i)}
+                  >
+                    <Star
+                      className={`h-6 w-6 transition-colors ${
+                        i <= (hoverRating || rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  </button>
+                ))}
+                {rating > 0 && (
+                  <span className="ml-2 text-sm text-muted-foreground self-center">
+                    {rating}/5
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Review (optional)</label>
+              <Textarea
+                placeholder={`Share your experience with ${modelName}...`}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                maxLength={5000}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {content.length}/5000 characters
+              </p>
+            </div>
+
+            <Button onClick={handleSubmit} disabled={createReview.isPending || rating === 0}>
+              {createReview.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              Submit Review
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground mb-3">
+              Sign in to write a review
+            </p>
+            <Button variant="outline" render={<Link href="/auth/sign-in" />}>
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reviews List */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <div className="flex gap-4">
+                  <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-full bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-2/3 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : reviewsData && reviewsData.reviews.length > 0 ? (
+        <div className="space-y-4">
+          {reviewsData.reviews.map((review) => (
+            <Card key={review.id}>
+              <CardContent className="pt-6">
+                <div className="flex gap-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={review.author.image ?? ""} />
+                    <AvatarFallback>
+                      {review.author.name?.charAt(0)?.toUpperCase() ?? "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-sm">{review.author.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <div className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i <= review.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(review.createdAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {review.content && (
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                        {review.content}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          variant="no-data"
+          title="No reviews yet"
+          description={`Be the first to review ${modelName}!`}
+        />
+      )}
     </div>
   );
 }

@@ -325,4 +325,4 @@ The good news is that these models are increasingly interoperable. Many framewor
 
 **Want to explore all available models?** [Browse our complete catalog](/models) with specs, benchmarks, and deployment guides.
 
-**Get started with LLM Trust** — [sign up free](/signup) to save your comparisons, track model updates, and get personalized recommendations.
+**Get started with LLM Trust** — [sign up free](/auth/sign-up) to save your comparisons, track model updates, and get personalized recommendations.

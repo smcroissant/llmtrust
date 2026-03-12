@@ -25,6 +25,7 @@ export default function FavoritesPage() {
 
   const modelCards =
     favorites?.map((fav) => ({
+      id: fav.model.id,
       slug: fav.model.slug,
       name: fav.model.name,
       description: fav.model.description,

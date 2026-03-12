@@ -44,6 +44,7 @@ export default async function CategoryPage({
   const categoryName = slug.replace(/-/g, " ");
 
   let models: {
+    id: string;
     slug: string;
     name: string;
     description: string;
@@ -87,6 +88,7 @@ export default async function CategoryPage({
   }));
 
   const transformedModels = models.map((m) => ({
+    id: m.id,
     slug: m.slug,
     name: m.name,
     description: m.description,

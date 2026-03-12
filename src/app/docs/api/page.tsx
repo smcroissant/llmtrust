@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "API Reference — LLM Trust REST API",
+  description: "LLM Trust REST API documentation. Endpoints for model data, benchmarks & comparisons. Integrate LLM Trust into your apps.",
+  canonical: canonicalUrl("/docs/api"),
+});
 
 export default function ApiDocsPage() {
   return (

@@ -1,14 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
   GlowCard,
   GlowCardHeader,
   GlowCardContent,
 } from "@/components/ui/glow-card";
-import { Download, Star, Cpu } from "lucide-react";
+import { Download, Star, Cpu, Heart } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { useSession } from "@/lib/auth-client";
 
 interface ModelCardProps {
   model: {
+    id: string;
     slug: string;
     name: string;
     description: string;
@@ -32,8 +38,13 @@ interface ModelCardProps {
  * - Staggered fade-up animation
  * - Architecture + category pills
  * - Download count with icon
+ * - Favorite heart toggle
  */
 export function ModelCardEnhanced({ model, delay = 0 }: ModelCardProps) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const utils = trpc.useUtils();
+
   const delayClass =
     delay === 0
       ? "animate-fade-up"
@@ -43,12 +54,52 @@ export function ModelCardEnhanced({ model, delay = 0 }: ModelCardProps) {
           ? "animate-fade-up-delay-2"
           : "animate-fade-up-delay-3";
 
+  // Favorites
+  const { data: favoriteData } = trpc.user.isFavorite.useQuery(
+    { modelId: model.id },
+    { enabled: !!session?.user }
+  );
+
+  const toggleFavorite = trpc.user.toggleFavorite.useMutation({
+    onSuccess: () => {
+      utils.user.isFavorite.invalidate({ modelId: model.id });
+    },
+  });
+
+  const isFavorite = favoriteData?.favorited ?? false;
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!session?.user) {
+      router.push("/auth/sign-in");
+      return;
+    }
+    toggleFavorite.mutate({ modelId: model.id });
+  };
+
   return (
     <Link href={`/models/${model.slug}`} className="block h-full">
-      <GlowCard className={`h-full cursor-pointer ${delayClass}`}>
+      <GlowCard className={`h-full cursor-pointer relative ${delayClass}`}>
+        {/* Heart button */}
+        <button
+          onClick={handleFavoriteClick}
+          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-background/80 transition-colors z-10"
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`h-4 w-4 transition-colors ${
+              isFavorite
+                ? "fill-red-500 text-red-500"
+                : "text-muted-foreground hover:text-red-400"
+            }`}
+          />
+        </button>
+
         <GlowCardHeader className="pb-3">
           {/* Top row: Name + Param Count */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-2 pr-8">
             <h3 className="text-base font-semibold leading-tight line-clamp-1 tracking-tight">
               {model.name}
             </h3>
@@ -75,11 +126,7 @@ export function ModelCardEnhanced({ model, delay = 0 }: ModelCardProps) {
               </Badge>
             )}
             {model.tags.slice(0, 2).map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="text-xs"
-              >
+              <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
             ))}
