@@ -13,14 +13,18 @@ interface RateLimitEntry {
 const buckets = new Map<string, RateLimitEntry>();
 
 // Clean up expired entries every 5 minutes
-setInterval(() => {
+// Note: .unref() is not available in Edge runtime; guard with typeof check
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of buckets) {
     if (entry.resetAt <= now) {
       buckets.delete(key);
     }
   }
-}, 5 * 60 * 1000).unref();
+}, 5 * 60 * 1000);
+if (typeof cleanupInterval === "object" && "unref" in cleanupInterval && typeof cleanupInterval.unref === "function") {
+  cleanupInterval.unref();
+}
 
 export interface RateLimitConfig {
   /** Maximum requests in the window */

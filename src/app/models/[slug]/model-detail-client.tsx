@@ -67,8 +67,8 @@ export function ModelDetailPage({ model }: ModelDetailProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold">{model.name}</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold">{model.name}</h1>
             <Badge variant="secondary" className="text-sm">
               {model.parameterCount}
             </Badge>
@@ -82,7 +82,7 @@ export function ModelDetailPage({ model }: ModelDetailProps) {
             ))}
           </div>
         </div>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-center">
           <FavoriteButton modelId={model.id} />
           <a href={model.downloadUrl} target="_blank" rel="noopener noreferrer">
             <Button>
@@ -302,12 +302,12 @@ function FavoriteButton({ modelId }: { modelId: string }) {
       size="icon"
       onClick={handleToggle}
       disabled={toggleFavorite.isPending}
-      className={isFav ? "text-red-500 border-red-500/30 hover:text-red-600" : ""}
+      className={`transition-all duration-200 ${isFav ? "text-red-500 border-red-500/30 hover:text-red-600" : ""}`}
     >
       {toggleFavorite.isPending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <Heart className={`h-4 w-4 ${isFav ? "fill-current" : ""}`} />
+        <Heart className={`h-4 w-4 transition-all ${isFav ? "fill-current animate-heart-pulse" : ""}`} />
       )}
     </Button>
   );

@@ -2,6 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
 import * as schema from "./db/schema";
+import {
+  sendWelcomeEmail,
+  sendPasswordReset,
+  sendEmailVerification,
+} from "@/lib/email";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -15,6 +20,39 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordReset({
+        email: user.email,
+        name: user.name ?? "",
+        resetUrl: url,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmailVerification({
+        email: user.email,
+        name: user.name ?? "",
+        verificationUrl: url,
+      });
+    },
+  },
+  // Welcome email on user creation
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Fire-and-forget welcome email
+          sendWelcomeEmail({
+            email: user.email,
+            name: user.name ?? "",
+          }).catch((err: unknown) => {
+            console.error("[auth] Failed to send welcome email:", err);
+          });
+        },
+      },
+    },
   },
   // Session configuration
   session: {

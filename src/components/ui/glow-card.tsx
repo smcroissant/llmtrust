@@ -21,7 +21,7 @@ const GlowCard = React.forwardRef<
       !noGlow && [
         "hover:border-primary/30",
         "hover:shadow-[0_0_0_1px_oklch(0.68_0.24_290_/_0.08),0_8px_24px_oklch(0_0_0_/_0.2),0_0_40px_oklch(0.68_0.24_290_/_0.06)]",
-        "hover:-translate-y-0.5",
+        "hover:-translate-y-0.5 hover:scale-[1.01]",
       ],
       className
     )}

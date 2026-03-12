@@ -14,7 +14,7 @@ export default function FavoritesPage() {
     return (
       <div className="flex flex-1 flex-col gap-6 p-6">
         <div className="h-8 w-40 animate-pulse rounded-md bg-muted" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="h-48 animate-pulse rounded-xl bg-muted" />
           ))}
@@ -54,7 +54,7 @@ export default function FavoritesPage() {
 
       {/* Grid */}
       {modelCards.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {modelCards.map((model, index) => (
             <ModelCardEnhanced
               key={model.slug}
