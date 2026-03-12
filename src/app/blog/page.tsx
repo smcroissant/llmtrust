@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
+import { ItemListJsonLd } from "@/components/seo/structured-data";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import { BookOpen } from "lucide-react";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Blog",
   description: "Articles, guides, and insights about open-source LLMs.",
-};
+  canonical: canonicalUrl("/blog"),
+});
 
 const posts = [
   {
@@ -37,8 +40,19 @@ const posts = [
 ];
 
 export default function BlogPage() {
+  const itemListEntries = posts.map((post) => ({
+    name: post.title,
+    url: `https://llmtrust.com/blog/${post.slug}`,
+    description: post.title,
+  }));
+
   return (
     <>
+      <ItemListJsonLd
+        name="LLM Trust Blog"
+        description="Articles, guides, and insights about open-source LLMs"
+        items={itemListEntries}
+      />
       <TopBar
         breadcrumbs={[
           { label: "Home", href: "/" },

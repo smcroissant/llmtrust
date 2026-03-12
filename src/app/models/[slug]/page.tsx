@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ModelDetailPage } from "./model-detail-client";
-import { SoftwareApplicationJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
+import { SoftwareApplicationJsonLd, BreadcrumbJsonLd, FaqPageJsonLd } from "@/components/seo/structured-data";
 import { serverCaller } from "@/server/api/caller";
 
 export async function generateMetadata({
@@ -87,6 +87,26 @@ export default async function ModelPage({
           { name: "Home", url: "https://llmtrust.com" },
           { name: "Models", url: "https://llmtrust.com/models" },
           { name: model.name, url: `https://llmtrust.com/models/${model.slug}` },
+        ]}
+      />
+      <FaqPageJsonLd
+        faqs={[
+          {
+            question: `What is ${model.name}?`,
+            answer: model.description,
+          },
+          {
+            question: `How do I run ${model.name} locally?`,
+            answer: `You can run ${model.name} locally using tools like Ollama (ollama run ${model.slug}), llama.cpp, or LM Studio. Download the GGUF quantized version for best performance on consumer hardware.`,
+          },
+          {
+            question: `What license is ${model.name} under?`,
+            answer: `${model.name} is released under the ${model.license ?? "open-source"} license. Check the official model page for full license details.`,
+          },
+          {
+            question: `How much RAM do I need for ${model.name}?`,
+            answer: `RAM requirements depend on the quantization. For ${model.parameterCount ?? "this"} parameter models, Q4_K_M typically requires around ${parseInt(model.parameterCount ?? "0") <= 4 ? "4-8 GB" : parseInt(model.parameterCount ?? "0") <= 13 ? "8-16 GB" : "32+ GB"} of RAM.`,
+          },
         ]}
       />
       <ModelDetailPage model={modelData} />
