@@ -5,7 +5,6 @@ import Image from "next/image";
 import { TopBar } from "@/components/layout/top-bar";
 import { ItemListJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
-import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle, GlowCardDescription } from "@/components/ui/glow-card";
 import {
   getAllBlogCategorySlugs,
   categorySlugToName,
@@ -74,134 +73,174 @@ export default async function BlogCategoryPage({
           { label: categoryName },
         ]}
       />
-      <div className="flex flex-1 flex-col gap-8 p-6 md:p-8">
-        {/* Back link */}
-        <div>
-          <Link
-            href="/blog"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Blog
-          </Link>
-        </div>
 
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
-            <Tag className="size-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{categoryName}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {posts.length} article{posts.length !== 1 ? "s" : ""} in this category
-            </p>
-          </div>
-        </div>
+      <div className="flex flex-1 flex-col">
+        {/* ═══════════════════════════════════════════
+            HERO HEADER
+            ═══════════════════════════════════════════ */}
+        <div className="relative overflow-hidden border-b border-border">
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
+            style={{ background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)" }}
+          />
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/blog"
-            className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-muted text-muted-foreground border border-border hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-colors"
-          >
-            All Posts
-          </Link>
-          {allCategories.map((cat) => (
-            <Link
-              key={cat}
-              href={`/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-                cat.toLowerCase() === categoryName.toLowerCase()
-                  ? "bg-primary/10 text-primary border-primary/20"
-                  : "bg-muted text-muted-foreground border-border hover:bg-primary/10 hover:text-primary hover:border-primary/20"
-              }`}
-            >
-              {cat}
-            </Link>
-          ))}
-        </div>
-
-        {/* Decorative line */}
-        <div className="neural-line" />
-
-        {/* Posts Grid */}
-        {posts.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post, index) => (
+          <div className="relative px-6 md:px-8 py-10 md:py-14">
+            <div className="mb-5 animate-fade-up">
               <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="group block animate-fade-up"
-                style={{ animationDelay: `${index * 0.08}s`, animationFillMode: "both" }}
+                href="/blog"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors duration-300 group"
               >
-                <GlowCard className="h-full flex flex-col overflow-hidden">
-                  {post.frontmatter.image && (
-                    <div className="relative aspect-video overflow-hidden bg-muted border-b border-border">
-                      <Image
-                        src={post.frontmatter.image}
-                        alt={post.frontmatter.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
-                  )}
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Back to Blog
+              </Link>
+            </div>
 
-                  <GlowCardHeader>
-                    {(post.frontmatter.categories ?? []).length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-2">
-                        {post.frontmatter.categories!.map((cat) => (
-                          <span
-                            key={cat}
-                            className="inline-flex items-center rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary/80"
-                          >
-                            {cat}
-                          </span>
-                        ))}
+            <div className="flex items-center gap-4 animate-fade-up-delay-1">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+                <Tag className="size-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                  <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                    {categoryName}
+                  </span>
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {posts.length} article{posts.length !== 1 ? "s" : ""} in this category
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 md:px-8 py-8 md:py-10 space-y-8">
+          {/* ═══════════════════════════════════════════
+              CATEGORY PILLS
+              ═══════════════════════════════════════════ */}
+          <div className="flex flex-wrap gap-2 animate-fade-up">
+            <Link
+              href="/blog"
+              className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-medium bg-card border border-border text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300"
+            >
+              All Posts
+            </Link>
+            {allCategories.map((cat) => (
+              <Link
+                key={cat}
+                href={`/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                  cat.toLowerCase() === categoryName.toLowerCase()
+                    ? "bg-primary text-primary-foreground shadow-[0_0_20px_oklch(0.68_0.24_290_/_0.3)]"
+                    : "bg-card border border-border text-muted-foreground hover:border-primary/30 hover:text-primary hover:bg-primary/5"
+                }`}
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
+
+          {/* ═══════════════════════════════════════════
+              POSTS GRID
+              ═══════════════════════════════════════════ */}
+          {posts.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post, index) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group block"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <article
+                    className="relative h-full flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-500 hover:border-primary/30 hover:shadow-[0_0_0_1px_oklch(0.68_0.24_290_/_0.08),0_12px_40px_oklch(0_0_0_/_0.3),0_0_60px_oklch(0.68_0.24_290_/_0.06)] hover:-translate-y-1 animate-fade-up"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
+
+                    {post.frontmatter.image && (
+                      <div className="relative aspect-video overflow-hidden">
+                        <Image
+                          src={post.frontmatter.image}
+                          alt={post.frontmatter.title}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#161224] via-transparent to-transparent" />
+
+                        <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 backdrop-blur-sm px-2.5 py-1 text-[11px] font-medium text-white/90 border border-white/10">
+                          <Clock className="size-3" />
+                          {post.readingTime}
+                        </div>
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                      <span className="flex items-center gap-1">
+                    <div className="flex flex-col flex-1 p-5">
+                      {(post.frontmatter.categories ?? []).length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {post.frontmatter.categories!.map((cat) => (
+                            <span
+                              key={cat}
+                              className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary uppercase tracking-wider"
+                            >
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
                         <Calendar className="size-3" />
                         {new Date(post.frontmatter.date).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
-                      </span>
-                      <span className="text-border">·</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="size-3" />
-                        {post.readingTime}
-                      </span>
+                      </div>
+
+                      <h3 className="text-base font-bold leading-snug mb-2 group-hover:text-primary transition-colors duration-300 line-clamp-2">
+                        {post.frontmatter.title}
+                      </h3>
+
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-4 flex-1">
+                        {post.frontmatter.meta_description ?? ""}
+                      </p>
+
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary/70 group-hover:text-primary transition-all duration-300">
+                        <span>Read article</span>
+                        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
                     </div>
-                    <GlowCardTitle className="text-base leading-snug group-hover:text-primary transition-colors">
-                      {post.frontmatter.title}
-                    </GlowCardTitle>
-                    <GlowCardDescription className="line-clamp-3">
-                      {post.frontmatter.meta_description ?? ""}
-                    </GlowCardDescription>
-                  </GlowCardHeader>
-                  <GlowCardContent className="mt-auto">
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      Read article
-                      <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </GlowCardContent>
-                </GlowCard>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="relative mb-8">
+                <div
+                  className="absolute inset-0 rounded-full blur-3xl opacity-30 scale-150"
+                  style={{
+                    background:
+                      "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
+                  }}
+                />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-primary/20">
+                  <Tag className="h-8 w-8 text-primary/50" />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold tracking-tight mb-2">No articles found</h3>
+              <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                No articles in this category yet.
+              </p>
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+              >
+                View all articles
+                <ArrowRight className="size-3.5" />
               </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-muted-foreground">No articles found in this category.</p>
-            <Link href="/blog" className="mt-4 text-sm text-primary hover:underline">
-              View all articles →
-            </Link>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
