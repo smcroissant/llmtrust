@@ -31,6 +31,7 @@ import { trpc } from "@/lib/trpc";
 const navDashboard = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
   { title: "Favorites", url: "/dashboard/favorites", icon: Heart },
+  { title: "Upload Model", url: "/models/upload", icon: Upload },
 ];
 
 const navAccount = [

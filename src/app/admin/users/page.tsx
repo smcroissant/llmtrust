@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { GlowCard, GlowCardContent } from "@/components/ui/glow-card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,241 +22,225 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Users,
   Search,
+  Loader2,
   ChevronLeft,
   ChevronRight,
-  Loader2,
   Shield,
+  ShieldCheck,
   Star,
   Heart,
-  Crown,
-  User as UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 export default function AdminUsersPage() {
-  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "moderator" | "admin">("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, refetch } = trpc.admin.users.useQuery({
-    role: roleFilter,
+  const utils = trpc.useUtils();
+
+  const { data, isLoading } = trpc.admin.users.useQuery({
     search: search || undefined,
     page,
-    limit: 15,
+    limit: 20,
   });
 
   const updateRole = trpc.admin.updateUserRole.useMutation({
     onSuccess: () => {
+      utils.admin.users.invalidate();
       toast.success("User role updated");
-      refetch();
     },
     onError: (err) => {
       toast.error(err.message);
     },
   });
 
-  const handleRoleChange = (
-    userId: string,
-    newRole: "user" | "moderator" | "admin"
-  ) => {
+  const { data: currentUser } = trpc.user.me.useQuery();
+
+  const handleRoleChange = (userId: string, newRole: "user" | "admin") => {
     updateRole.mutate({ userId, role: newRole });
   };
-
-  const roleBadgeVariant = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "destructive" as const;
-      case "moderator":
-        return "default" as const;
-      default:
-        return "secondary" as const;
-    }
-  };
-
-  const roleIcon = (role: string) => {
-    switch (role) {
-      case "admin":
-        return <Crown className="size-3" />;
-      case "moderator":
-        return <Shield className="size-3" />;
-      default:
-        return <UserIcon className="size-3" />;
-    }
-  };
-
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Users className="size-6 text-primary" />
-          User Management
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          View and manage user accounts and roles
+        <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
+        <p className="text-muted-foreground">
+          View and manage platform users.
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name or email..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="pl-8"
-          />
-        </div>
-        <Select
-          value={roleFilter}
-          onValueChange={(val) => {
-            setRoleFilter(val as typeof roleFilter);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-            <SelectItem value="moderator">Moderator</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Search */}
+      <Card>
+        <CardContent className="pt-4">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search users by name..."
+              className="pl-8"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Users Table */}
-      <GlowCard noGlow>
-        <GlowCardContent className="p-0">
+      <Card>
+        <CardHeader>
+          <CardTitle>Users</CardTitle>
+          <CardDescription>
+            {data?.total ?? 0} user{data?.total !== 1 ? "s" : ""} found
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="size-6 animate-spin text-primary" />
+              <Loader2 className="size-8 animate-spin text-primary" />
             </div>
-          ) : data?.users && data.users.length > 0 ? (
+          ) : data?.users?.length ? (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>User</TableHead>
-                    <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Star className="size-3" /> Reviews
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Heart className="size-3" /> Favorites
-                      </div>
-                    </TableHead>
+                    <TableHead>Reviews</TableHead>
+                    <TableHead>Favorites</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.users.map((u) => (
-                    <TableRow key={u.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 rounded-lg">
-                            <AvatarImage src={u.image ?? ""} alt={u.name} />
-                            <AvatarFallback className="rounded-lg bg-muted text-xs font-semibold">
-                              {getInitials(u.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium">{u.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {u.email}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={roleBadgeVariant(u.role ?? "user")} className="gap-1">
-                          {roleIcon(u.role ?? "user")}
-                          {u.role ?? "user"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {Number(u.reviewCount ?? 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {Number(u.favoriteCount ?? 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-1">
-                          <Select
-                            value={u.role ?? "user"}
-                            onValueChange={(val) =>
-                              handleRoleChange(u.id, val as "user" | "moderator" | "admin")
+                  {data.users.map((u) => {
+                    const initials = u.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2);
+
+                    const isSelf = currentUser?.id === u.id;
+
+                    return (
+                      <TableRow key={u.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="size-8">
+                              <AvatarImage src={u.image ?? ""} alt={u.name} />
+                              <AvatarFallback className="text-xs">
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{u.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {u.email}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              u.role === "admin" ? "default" : "secondary"
                             }
-                            disabled={updateRole.isPending}
                           >
-                            <SelectTrigger className="h-7 w-[110px] text-xs" size="sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="moderator">Moderator</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {u.role === "admin" ? (
+                              <ShieldCheck className="size-3 mr-1" />
+                            ) : null}
+                            {u.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="size-3 text-muted-foreground" />
+                            {u.reviewCount ?? 0}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Heart className="size-3 text-muted-foreground" />
+                            {u.favoriteCount ?? 0}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {u.createdAt
+                              ? formatDistanceToNow(new Date(u.createdAt), {
+                                  addSuffix: true,
+                                })
+                              : "—"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {!isSelf && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleRoleChange(
+                                  u.id,
+                                  u.role === "admin" ? "user" : "admin",
+                                )
+                              }
+                              disabled={updateRole.isPending}
+                            >
+                              {u.role === "admin" ? (
+                                <>
+                                  <Shield className="size-3.5 mr-1" />
+                                  Demote
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="size-3.5 mr-1" />
+                                  Promote
+                                </>
+                              )}
+                            </Button>
+                          )}
+                          {isSelf && (
+                            <span className="text-xs text-muted-foreground">
+                              You
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
 
               {/* Pagination */}
               {data.totalPages > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    {data.total} user{data.total !== 1 ? "s" : ""} total
-                  </p>
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between pt-4">
+                  <span className="text-sm text-muted-foreground">
+                    Page {data.page} of {data.totalPages}
+                  </span>
+                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={page <= 1}
-                      onClick={() => setPage((p) => p - 1)}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
                     >
                       <ChevronLeft className="size-4" />
+                      Previous
                     </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {page} of {data.totalPages}
-                    </span>
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={page >= data.totalPages}
-                      onClick={() => setPage((p) => p + 1)}
+                      onClick={() =>
+                        setPage((p) => Math.min(data.totalPages, p + 1))
+                      }
+                      disabled={page === data.totalPages}
                     >
+                      Next
                       <ChevronRight className="size-4" />
                     </Button>
                   </div>
@@ -258,13 +248,13 @@ export default function AdminUsersPage() {
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Users className="size-10 text-muted-foreground/50 mb-3" />
-              <p className="text-muted-foreground">No users found</p>
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Search className="size-8 mb-2" />
+              <p>No users found</p>
             </div>
           )}
-        </GlowCardContent>
-      </GlowCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

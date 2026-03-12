@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,9 @@ import {
   GlowCardTitle,
   GlowCardDescription,
 } from "@/components/ui/glow-card";
-import { CheckCircle, ArrowRight, Plus, LayoutDashboard, Eye } from "lucide-react";
+import { CheckCircle, Plus, LayoutDashboard, Eye, Loader2 } from "lucide-react";
 
-export default function UploadSuccessPage() {
+function UploadSuccessContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
 
@@ -92,5 +93,19 @@ export default function UploadSuccessPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function UploadSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <UploadSuccessContent />
+    </Suspense>
   );
 }

@@ -7,7 +7,6 @@ import { trpc } from "@/lib/trpc";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { SubmitHandler } from "react-hook-form";
 
 import { Stepper } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
