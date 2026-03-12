@@ -19,7 +19,7 @@ export function Header() {
               Models
             </Link>
             <Link
-              href="/categories"
+              href="/models"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Categories
@@ -33,10 +33,10 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/login">
+          <Link href="/auth/sign-in">
             <Button variant="ghost" size="sm">Sign In</Button>
           </Link>
-          <Link href="/signup">
+          <Link href="/auth/sign-up">
             <Button size="sm">Get Started</Button>
           </Link>
         </div>

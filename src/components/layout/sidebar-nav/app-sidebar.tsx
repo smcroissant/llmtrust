@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -41,7 +42,9 @@ import {
   Eye,
   Hash,
   AudioLines,
+  Loader2,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const navMain = [
   { title: "Home", url: "/", icon: Home },
@@ -54,22 +57,54 @@ const navApp = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
 ];
 
-const categories = [
-  { name: "Text Generation", slug: "text-generation", icon: MessageSquareCode, count: 145 },
-  { name: "Code", slug: "code", icon: Hash, count: 89 },
-  { name: "Vision", slug: "vision", icon: Eye, count: 34 },
-  { name: "Embedding", slug: "embedding", icon: Hash, count: 28 },
-  { name: "Audio", slug: "audio", icon: AudioLines, count: 15 },
-];
-
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { state } = useSidebar();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+
+  // Search models via tRPC
+  const { data: searchResults, isLoading: isSearching } =
+    trpc.models.list.useQuery(
+      { search: searchQuery, limit: 5 },
+      { enabled: searchQuery.length >= 2 }
+    );
+
+  // Fetch categories from DB
+  const { data: categoriesData } = trpc.models.categories.useQuery();
+
+  const categories =
+    categoriesData?.map((c) => ({
+      name: c.name ?? "Unknown",
+      slug: (c.name ?? "unknown").toLowerCase().replace(/\s+/g, "-"),
+      icon: getCategoryIcon(c.name ?? ""),
+      count: c.count,
+    })) ?? [];
 
   const isActive = (url: string) => {
     if (url === "/") return pathname === "/";
     return pathname.startsWith(url);
   };
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && searchQuery.trim()) {
+        router.push(`/models?search=${encodeURIComponent(searchQuery.trim())}`);
+        setShowResults(false);
+        setSearchQuery("");
+      }
+      if (e.key === "Escape") {
+        setShowResults(false);
+      }
+    },
+    [searchQuery, router]
+  );
+
+  const handleResultClick = useCallback(() => {
+    setShowResults(false);
+    setSearchQuery("");
+  }, []);
 
   return (
     <Sidebar collapsible="icon">
@@ -96,14 +131,67 @@ export function AppSidebar() {
 
         {/* Search Bar */}
         {state === "expanded" && (
-          <div className="px-3 pb-2">
+          <div className="px-3 pb-2 relative">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <Input
                 placeholder="Search models..."
                 className="h-8 pl-8 text-sm"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowResults(e.target.value.length >= 2);
+                }}
+                onKeyDown={handleSearchKeyDown}
+                onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
+                onBlur={() => setTimeout(() => setShowResults(false), 200)}
               />
+              {isSearching && (
+                <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3 animate-spin text-muted-foreground" />
+              )}
             </div>
+
+            {/* Search Results Dropdown */}
+            {showResults && searchResults && searchResults.models.length > 0 && (
+              <div className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg border border-border bg-popover shadow-lg overflow-hidden">
+                <div className="p-1">
+                  {searchResults.models.map((model) => (
+                    <Link
+                      key={model.slug}
+                      href={`/models/${model.slug}`}
+                      onClick={handleResultClick}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent text-sm transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{model.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {model.architecture} · {model.parameterCount}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px] shrink-0">
+                        {model.category?.replace("-", " ")}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+                {searchResults.total > 5 && (
+                  <Link
+                    href={`/models?search=${encodeURIComponent(searchQuery)}`}
+                    onClick={handleResultClick}
+                    className="block px-3 py-2 text-xs text-center text-primary hover:bg-accent border-t transition-colors"
+                  >
+                    View all {searchResults.total} results
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* No results */}
+            {showResults && searchResults && searchResults.models.length === 0 && searchQuery.length >= 2 && !isSearching && (
+              <div className="absolute left-3 right-3 top-full mt-1 z-50 rounded-lg border border-border bg-popover shadow-lg p-3 text-center">
+                <p className="text-sm text-muted-foreground">No models found</p>
+              </div>
+            )}
           </div>
         )}
       </SidebarHeader>
@@ -151,7 +239,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Popular Categories */}
+        {/* Categories from DB */}
         <SidebarGroup>
           <SidebarGroupLabel>Categories</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -212,7 +300,7 @@ export function AppSidebar() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/login" />}>
+                <DropdownMenuItem render={<Link href="/auth/sign-in" />}>
                   <LogOut className="mr-2 size-4" />
                   Sign In
                 </DropdownMenuItem>
@@ -225,4 +313,14 @@ export function AppSidebar() {
       <SidebarRail />
     </Sidebar>
   );
+}
+
+function getCategoryIcon(name: string) {
+  const lower = name.toLowerCase().replace(/\s+/g, "-");
+  if (lower.includes("text") || lower.includes("generation")) return MessageSquareCode;
+  if (lower.includes("code")) return Hash;
+  if (lower.includes("vision")) return Eye;
+  if (lower.includes("embedding")) return Hash;
+  if (lower.includes("audio")) return AudioLines;
+  return Hash;
 }

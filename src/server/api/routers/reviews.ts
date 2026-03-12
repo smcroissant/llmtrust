@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { review, user } from "../../db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { sanitize } from "@/lib/sanitize";
 
 export const reviewsRouter = createTRPCRouter({
   // ============================================
@@ -82,13 +83,16 @@ export const reviewsRouter = createTRPCRouter({
         });
       }
 
+      // Sanitize review content before storage
+      const sanitizedContent = input.content ? sanitize(input.content, 5000) : null;
+
       const [newReview] = await db
         .insert(review)
         .values({
           modelId: input.modelId,
           userId: ctx.userId,
           rating: input.rating,
-          content: input.content,
+          content: sanitizedContent,
         })
         .returning();
 
@@ -107,11 +111,14 @@ export const reviewsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Sanitize review content before storage
+      const sanitizedContent = input.content ? sanitize(input.content, 5000) : undefined;
+
       const [updated] = await db
         .update(review)
         .set({
           rating: input.rating,
-          content: input.content,
+          ...(sanitizedContent !== undefined && { content: sanitizedContent }),
           updatedAt: new Date(),
         })
         .where(and(eq(review.id, input.id), eq(review.userId, ctx.userId)))

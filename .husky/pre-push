@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+echo "🔍 Pre-push: running typecheck and build..."
+npx tsc --noEmit && npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Pre-push check failed. Push aborted."
+  exit 1
+fi
+echo "✅ Pre-push checks passed."

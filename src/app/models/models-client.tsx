@@ -5,80 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ModelGrid } from "@/components/models/model-grid";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 
-// Static model data for MVP (will be replaced by tRPC)
-const allModels = [
-  {
-    slug: "llama-3-8b",
-    name: "Llama 3 8B",
-    description: "Meta's latest open-source LLM with strong performance across benchmarks.",
-    parameterCount: "8B",
-    architecture: "llama",
-    category: "text-generation",
-    downloadCount: 125000,
-    license: "Llama 3",
-    tags: ["chat", "code", "reasoning"],
-  },
-  {
-    slug: "mistral-7b",
-    name: "Mistral 7B",
-    description: "Efficient 7B parameter model with strong reasoning capabilities.",
-    parameterCount: "7B",
-    architecture: "mistral",
-    category: "text-generation",
-    downloadCount: 98000,
-    license: "Apache 2.0",
-    tags: ["efficient", "reasoning"],
-  },
-  {
-    slug: "phi-3-mini",
-    name: "Phi-3 Mini",
-    description: "Microsoft's compact model that punches above its weight class.",
-    parameterCount: "3.8B",
-    architecture: "phi",
-    category: "text-generation",
-    downloadCount: 75000,
-    license: "MIT",
-    tags: ["compact", "efficient"],
-  },
-  {
-    slug: "gemma-2b",
-    name: "Gemma 2B",
-    description: "Google's lightweight model for on-device AI applications.",
-    parameterCount: "2B",
-    architecture: "gemma",
-    category: "text-generation",
-    downloadCount: 62000,
-    license: "Gemma",
-    tags: ["lightweight", "on-device"],
-  },
-  {
-    slug: "codellama-13b",
-    name: "Code Llama 13B",
-    description: "Meta's code-specialized model for programming tasks and code generation.",
-    parameterCount: "13B",
-    architecture: "llama",
-    category: "code",
-    downloadCount: 54000,
-    license: "Llama 2",
-    tags: ["code", "programming"],
-  },
-  {
-    slug: "stable-diffusion-xl",
-    name: "Stable Diffusion XL",
-    description: "Stability AI's flagship image generation model with stunning quality.",
-    parameterCount: "3.5B",
-    architecture: "diffusion",
-    category: "vision",
-    downloadCount: 210000,
-    license: "OpenRAIL++",
-    tags: ["image-generation", "creative"],
-  },
-];
-
-const categories = ["All", "Text Generation", "Code", "Vision", "Embedding", "Audio"];
-const architectures = ["All", "llama", "mistral", "phi", "gemma", "diffusion"];
+const categories = ["All", "text-generation", "code", "vision", "embedding"];
 const sortOptions = [
   { value: "popular", label: "Most Popular" },
   { value: "newest", label: "Newest" },
@@ -89,21 +19,36 @@ const sortOptions = [
 export function ModelsPageClient() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedArchitecture, setSelectedArchitecture] = useState("All");
-  const [sortBy, setSortBy] = useState("popular");
+  const [sortBy, setSortBy] = useState<"popular" | "newest" | "downloads" | "name">("popular");
+  const [page, setPage] = useState(1);
 
-  const filteredModels = allModels
-    .filter((m) => {
-      if (search && !m.name.toLowerCase().includes(search.toLowerCase())) return false;
-      if (selectedCategory !== "All" && m.category !== selectedCategory.toLowerCase().replace(" ", "-")) return false;
-      if (selectedArchitecture !== "All" && m.architecture !== selectedArchitecture) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      if (sortBy === "downloads") return b.downloadCount - a.downloadCount;
-      if (sortBy === "name") return a.name.localeCompare(b.name);
-      return b.downloadCount - a.downloadCount; // default: popular
-    });
+  const { data, isLoading, error } = trpc.models.list.useQuery({
+    category: selectedCategory !== "All" ? selectedCategory : undefined,
+    search: search || undefined,
+    sort: sortBy,
+    page,
+    limit: 20,
+  });
+
+  // Get architectures for filter
+  const { data: categoriesData } = trpc.models.categories.useQuery();
+
+  const architectures = categoriesData
+    ?.map((c) => c.name)
+    .filter(Boolean) ?? [];
+
+  // Transform DB models to match the model card interface
+  const models = data?.models.map((m) => ({
+    slug: m.slug,
+    name: m.name,
+    description: m.description,
+    parameterCount: m.parameterCount ?? "",
+    architecture: m.architecture ?? "",
+    category: m.category ?? "",
+    downloadCount: m.downloadCount,
+    license: m.license ?? "",
+    tags: (m.tags as string[]) ?? [],
+  })) ?? [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -122,13 +67,19 @@ export function ModelsPageClient() {
             <Input
               placeholder="Search models..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="pl-10"
             />
           </div>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              setSortBy(e.target.value as typeof sortBy);
+              setPage(1);
+            }}
             className="px-3 py-2 border rounded-md text-sm bg-background"
           >
             {sortOptions.map((opt) => (
@@ -145,36 +96,68 @@ export function ModelsPageClient() {
             <Badge
               key={cat}
               variant={selectedCategory === cat ? "default" : "outline"}
-              className="cursor-pointer"
-              onClick={() => setSelectedCategory(cat)}
+              className="cursor-pointer capitalize"
+              onClick={() => {
+                setSelectedCategory(cat);
+                setPage(1);
+              }}
             >
-              {cat}
-            </Badge>
-          ))}
-        </div>
-
-        {/* Architecture badges */}
-        <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-muted-foreground mr-2">Architecture:</span>
-          {architectures.map((arch) => (
-            <Badge
-              key={arch}
-              variant={selectedArchitecture === arch ? "secondary" : "outline"}
-              className="cursor-pointer"
-              onClick={() => setSelectedArchitecture(arch)}
-            >
-              {arch}
+              {cat === "All" ? "All" : cat.replace("-", " ")}
             </Badge>
           ))}
         </div>
       </div>
+
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="text-center py-20">
+          <p className="text-destructive mb-2">Failed to load models</p>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
+        </div>
+      )}
 
       {/* Results */}
-      <div className="mb-4 text-sm text-muted-foreground">
-        {filteredModels.length} model{filteredModels.length !== 1 ? "s" : ""} found
-      </div>
+      {!isLoading && !error && (
+        <>
+          <div className="mb-4 text-sm text-muted-foreground">
+            {data?.total ?? 0} model{(data?.total ?? 0) !== 1 ? "s" : ""} found
+          </div>
 
-      <ModelGrid models={filteredModels} />
+          <ModelGrid models={models} />
+
+          {/* Pagination */}
+          {data && data.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {data.page} of {data.totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= data.totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

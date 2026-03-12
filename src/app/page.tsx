@@ -12,61 +12,8 @@ import {
   GlowCardContent,
 } from "@/components/ui/glow-card";
 import { ArrowRight, Search, Download, Zap } from "lucide-react";
-
-const featuredModels = [
-  {
-    slug: "llama-3-8b",
-    name: "Llama 3 8B",
-    description: "Meta's latest open-source LLM with strong performance across benchmarks.",
-    parameterCount: "8B",
-    architecture: "llama",
-    category: "text-generation",
-    downloadCount: 125000,
-    license: "Llama 3",
-    tags: ["chat", "code", "reasoning"],
-  },
-  {
-    slug: "mistral-7b",
-    name: "Mistral 7B",
-    description: "Efficient 7B parameter model with strong reasoning capabilities.",
-    parameterCount: "7B",
-    architecture: "mistral",
-    category: "text-generation",
-    downloadCount: 98000,
-    license: "Apache 2.0",
-    tags: ["efficient", "reasoning"],
-  },
-  {
-    slug: "phi-3-mini",
-    name: "Phi-3 Mini",
-    description: "Microsoft's compact model that punches above its weight class.",
-    parameterCount: "3.8B",
-    architecture: "phi",
-    category: "text-generation",
-    downloadCount: 75000,
-    license: "MIT",
-    tags: ["compact", "efficient"],
-  },
-  {
-    slug: "gemma-2b",
-    name: "Gemma 2B",
-    description: "Google's lightweight model for on-device AI applications.",
-    parameterCount: "2B",
-    architecture: "gemma",
-    category: "text-generation",
-    downloadCount: 62000,
-    license: "Gemma",
-    tags: ["lightweight", "on-device"],
-  },
-];
-
-const categories = [
-  { name: "Text Generation", count: 145, icon: "💬" },
-  { name: "Code", count: 89, icon: "💻" },
-  { name: "Vision", count: 34, icon: "👁️" },
-  { name: "Embedding", count: 28, icon: "🔢" },
-  { name: "Audio", count: 15, icon: "🎵" },
-];
+import { serverCaller } from "@/server/api/caller";
+import { LatestModels } from "./latest-models";
 
 const features = [
   {
@@ -89,7 +36,52 @@ const features = [
   },
 ];
 
-export default function HomePage() {
+type FeaturedModel = {
+  slug: string;
+  name: string;
+  description: string;
+  parameterCount: string;
+  architecture: string;
+  category: string;
+  downloadCount: number;
+  license: string;
+  tags: string[];
+};
+
+export default async function HomePage() {
+  // Fetch data from DB via tRPC
+  const [featuredData, categoriesData, statsData] = await Promise.all([
+    serverCaller.models.list({ featured: true, limit: 4, sort: "popular" }).catch(() => null),
+    serverCaller.models.categories().catch(() => []),
+    serverCaller.models.stats().catch(() => ({ totalModels: 0, totalDownloads: 0 })),
+  ]);
+
+  const featuredModels: FeaturedModel[] = (featuredData?.models ?? []).map((m: { slug: string; name: string; description: string; parameterCount: string | null; architecture: string | null; category: string | null; downloadCount: number; license: string | null; tags: unknown }) => ({
+    slug: m.slug,
+    name: m.name,
+    description: m.description,
+    parameterCount: m.parameterCount ?? "",
+    architecture: m.architecture ?? "",
+    category: m.category ?? "",
+    downloadCount: m.downloadCount,
+    license: m.license ?? "",
+    tags: (m.tags as string[]) ?? [],
+  })) ?? [];
+
+  const categoryIcons: Record<string, string> = {
+    "text-generation": "💬",
+    "code": "💻",
+    "vision": "👁️",
+    "embedding": "🔢",
+    "audio": "🎵",
+  };
+
+  const categories: { name: string; count: number; icon: string }[] = categoriesData.map((c: { name: string | null; count: number }) => ({
+    name: c.name ?? "Unknown",
+    count: c.count,
+    icon: categoryIcons[c.name?.toLowerCase().replace(/\s+/g, "-") ?? ""] ?? "📦",
+  }));
+
   return (
     <>
       <TopBar breadcrumbs={[{ label: "Home" }]} />
@@ -111,7 +103,7 @@ export default function HomePage() {
               Built by developers, for developers. Everything you need to discover and run open-source AI.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {features.map((feature, i) => (
+              {features.map((feature) => (
                 <GlowCard key={feature.title} className="text-center p-6">
                   <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                     <feature.icon className="h-6 w-6 text-primary" />
@@ -129,90 +121,84 @@ export default function HomePage() {
         </section>
 
         {/* Featured Models */}
+        {featuredModels.length > 0 && (
+          <section className="py-20">
+            <div className="container mx-auto px-6">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Featured Models
+                  </h2>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Hand-picked models trusted by the community
+                  </p>
+                </div>
+                <Link href="/models">
+                  <Button variant="ghost" className="gap-2">
+                    View all
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {featuredModels.map((model, i) => (
+                  <ModelCardEnhanced key={model.slug} model={model} delay={i} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Categories */}
+        {categories.length > 0 && (
+          <section className="py-20 bg-surface border-y border-border/60">
+            <div className="container mx-auto px-6">
+              <h2 className="text-2xl font-bold mb-2 text-center tracking-tight">
+                Browse by Category
+              </h2>
+              <p className="text-muted-foreground text-center text-sm mb-10">
+                Find models by use case
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.name}
+                    href={`/models?category=${cat.name.toLowerCase().replace(/\s+/g, "-")}`}
+                  >
+                    <GlowCard className="text-center py-6 px-4 cursor-pointer">
+                      <span className="text-3xl mb-3 block">{cat.icon}</span>
+                      <p className="font-medium text-sm capitalize">{cat.name.replace("-", " ")}</p>
+                      <p className="text-xs text-muted-foreground mt-1 tabular-nums">
+                        {cat.count} model{cat.count !== 1 ? "s" : ""}
+                      </p>
+                    </GlowCard>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Latest Additions */}
         <section className="py-20">
           <div className="container mx-auto px-6">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">
-                  Featured Models
+                  Latest Additions
                 </h2>
-                <p className="text-muted-foreground text-sm mt-1">
-                  Hand-picked models trusted by the community
+                <p className="text-muted-foreground text-sm">
+                  Recently added models to the platform
                 </p>
               </div>
-              <Link href="/models">
+              <Link href="/models?sort=newest">
                 <Button variant="ghost" className="gap-2">
                   View all
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featuredModels.map((model, i) => (
-                <ModelCardEnhanced key={model.slug} model={model} delay={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <section className="py-20 bg-surface border-y border-border/60">
-          <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-2 text-center tracking-tight">
-              Browse by Category
-            </h2>
-            <p className="text-muted-foreground text-center text-sm mb-10">
-              Find models by use case
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.name}
-                  href={`/models?category=${cat.name.toLowerCase().replace(" ", "-")}`}
-                >
-                  <GlowCard className="text-center py-6 px-4 cursor-pointer">
-                    <span className="text-3xl mb-3 block">{cat.icon}</span>
-                    <p className="font-medium text-sm">{cat.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-                      {cat.count} models
-                    </p>
-                  </GlowCard>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Latest Additions */}
-        <section className="py-20">
-          <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-2 tracking-tight">
-              Latest Additions
-            </h2>
-            <p className="text-muted-foreground text-sm mb-8">
-              Recently added models to the platform
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { name: "Qwen 2.5 72B", params: "72B", date: "2 days ago", arch: "qwen" },
-                { name: "DeepSeek Coder V2", params: "236B", date: "5 days ago", arch: "deepseek" },
-                { name: "Command R+", params: "104B", date: "1 week ago", arch: "cohere" },
-              ].map((item) => (
-                <GlowCard key={item.name} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {item.arch} · {item.params}
-                      </p>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {item.date}
-                    </Badge>
-                  </div>
-                </GlowCard>
-              ))}
-            </div>
+            <LatestModels />
           </div>
         </section>
 
