@@ -6,6 +6,8 @@ import { WebsiteJsonLd } from "@/components/seo/structured-data";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar-nav/app-sidebar";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -77,6 +79,8 @@ export default function RootLayout({
             </SidebarProvider>
           </TooltipProvider>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -1,12 +1,75 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "../../db";
-import { favorite, model, apiKey } from "../../db/schema";
+import { user as userTable, favorite, model, apiKey, review } from "../../db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { randomBytes, createHash } from "crypto";
 
 export const userRouter = createTRPCRouter({
+  // ============================================
+  // ME — Current user profile + stats
+  // ============================================
+  me: protectedProcedure.query(async ({ ctx }) => {
+    const [currentUser] = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.id, ctx.userId))
+      .limit(1);
+
+    if (!currentUser) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    // Get stats
+    const [favCount] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(favorite)
+      .where(eq(favorite.userId, ctx.userId));
+
+    const [reviewCount] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(review)
+      .where(eq(review.userId, ctx.userId));
+
+    return {
+      ...currentUser,
+      stats: {
+        favorites: Number(favCount?.count ?? 0),
+        reviews: Number(reviewCount?.count ?? 0),
+        uploads: 0,
+      },
+    };
+  }),
+
+  // ============================================
+  // UPDATE PROFILE — Update name, image, bio
+  // ============================================
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100).optional(),
+        image: z.string().url().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await db
+        .update(userTable)
+        .set({
+          ...(input.name && { name: input.name }),
+          ...(input.image !== undefined && { image: input.image }),
+          updatedAt: new Date(),
+        })
+        .where(eq(userTable.id, ctx.userId))
+        .returning();
+
+      if (!updated) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      return updated;
+    }),
+
   // ============================================
   // FAVORITES — List user's favorited models
   // ============================================

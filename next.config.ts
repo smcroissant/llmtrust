@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import { type NextConfig } from "next";
 
 const securityHeaders = [
   {
@@ -21,11 +21,6 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
-  // HSTS — uncomment in production after verifying HTTPS works
-  // {
-  //   key: "Strict-Transport-Security",
-  //   value: "max-age=63072000; includeSubDomains; preload",
-  // },
 ];
 
 const nextConfig: NextConfig = {
@@ -33,10 +28,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      // Add allowed image domains here
-      // { protocol: "https", hostname: "images.unsplash.com" },
-    ],
+    remotePatterns: [],
   },
 
   async headers() {
