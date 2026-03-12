@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { TopBar } from "@/components/layout/top-bar";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle, GlowCardDescription } from "@/components/ui/glow-card";
-import { getAllBlogSlugs, getBlogPost, getRelatedPosts } from "@/lib/blog";
-import { ArrowLeft, Clock, Calendar, User, ArrowRight, List } from "lucide-react";
+import { getAllBlogSlugs, getBlogPost, getRelatedByCategory } from "@/lib/blog";
+import { ArrowLeft, Clock, Calendar, User, ArrowRight, List, Share2, Twitter, Linkedin, LinkIcon } from "lucide-react";
+import { ReadingProgress } from "./reading-progress";
+import { ShareButtons } from "./share-buttons";
 
 export async function generateMetadata({
   params,
@@ -24,6 +27,7 @@ export async function generateMetadata({
     title: post.frontmatter.meta_title ?? post.frontmatter.title,
     description: post.frontmatter.meta_description ?? "",
     canonical: canonicalUrl(`/blog/${slug}`),
+    ogImage: post.frontmatter.image,
     type: "article",
   });
 }
@@ -44,7 +48,7 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const relatedPosts = getRelatedPosts(slug, 3);
+  const relatedPosts = getRelatedByCategory(slug, 3);
 
   return (
     <>
@@ -54,6 +58,7 @@ export default async function BlogPostPage({
         slug={slug}
         datePublished={post.frontmatter.date}
         authorName={post.frontmatter.author}
+        image={post.frontmatter.image}
       />
       <BreadcrumbJsonLd
         items={[
@@ -62,6 +67,10 @@ export default async function BlogPostPage({
           { name: post.frontmatter.title, url: `https://llmtrust.com/blog/${slug}` },
         ]}
       />
+
+      {/* Reading Progress Bar */}
+      <ReadingProgress />
+
       <TopBar
         breadcrumbs={[
           { label: "Home", href: "/" },
@@ -84,6 +93,21 @@ export default async function BlogPostPage({
                 Back to Blog
               </Link>
             </div>
+
+            {/* Categories */}
+            {(post.frontmatter.categories ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {post.frontmatter.categories!.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/blog/category/${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="inline-flex items-center rounded-full bg-primary/8 px-2.5 py-0.5 text-xs font-medium text-primary border border-primary/15 hover:bg-primary/15 transition-colors"
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Header */}
             <header className="mb-10">
@@ -121,6 +145,20 @@ export default async function BlogPostPage({
               <div className="neural-line mt-6" />
             </header>
 
+            {/* Cover Image */}
+            {post.frontmatter.image && (
+              <div className="relative aspect-video rounded-2xl overflow-hidden mb-10 border border-border">
+                <Image
+                  src={post.frontmatter.image}
+                  alt={post.frontmatter.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  priority
+                />
+              </div>
+            )}
+
             {/* Rendered Content */}
             <div
               className="prose prose-neutral dark:prose-invert max-w-none
@@ -141,6 +179,12 @@ export default async function BlogPostPage({
                 prose-td:border-border prose-th:border-border
                 prose-hr:border-border"
               dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+
+            {/* Share Buttons */}
+            <ShareButtons
+              title={post.frontmatter.title}
+              slug={slug}
             />
           </article>
 
@@ -187,8 +231,31 @@ export default async function BlogPostPage({
                     href={`/blog/${related.slug}`}
                     className="group block"
                   >
-                    <GlowCard className="h-full">
+                    <GlowCard className="h-full overflow-hidden">
+                      {related.frontmatter.image && (
+                        <div className="relative aspect-video overflow-hidden bg-muted border-b border-border">
+                          <Image
+                            src={related.frontmatter.image}
+                            alt={related.frontmatter.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          />
+                        </div>
+                      )}
                       <GlowCardHeader>
+                        {(related.frontmatter.categories ?? []).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-1">
+                            {related.frontmatter.categories!.map((cat) => (
+                              <span
+                                key={cat}
+                                className="inline-flex items-center rounded-full bg-primary/8 px-2 py-0.5 text-[10px] font-medium text-primary/80"
+                              >
+                                {cat}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                           <Calendar className="size-3" />
                           {new Date(related.frontmatter.date).toLocaleDateString("en-US", {
