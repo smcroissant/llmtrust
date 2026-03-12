@@ -1,9 +1,17 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TopBar } from "@/components/layout/top-bar";
-import { ArrowRight, Download, Zap, Search } from "lucide-react";
+import { HeroSection } from "@/components/hero-section";
+import { StatsBar } from "@/components/stats-bar";
+import { ModelCardEnhanced } from "@/components/models/model-card-enhanced";
+import {
+  GlowCard,
+  GlowCardHeader,
+  GlowCardTitle,
+  GlowCardContent,
+} from "@/components/ui/glow-card";
+import { ArrowRight, Search, Download, Zap } from "lucide-react";
 
 const featuredModels = [
   {
@@ -60,11 +68,25 @@ const categories = [
   { name: "Audio", count: 15, icon: "🎵" },
 ];
 
-const stats = [
-  { value: "200+", label: "Open-Source Models" },
-  { value: "500K+", label: "Downloads" },
-  { value: "15+", label: "Architectures" },
-  { value: "100%", label: "Free & Open" },
+const features = [
+  {
+    icon: Search,
+    title: "Curated Discovery",
+    description:
+      "Find the right model for your use case with detailed specs, benchmarks, and community reviews.",
+  },
+  {
+    icon: Download,
+    title: "Direct Downloads",
+    description:
+      "Download models directly from HuggingFace. No hosting fees, always the latest versions.",
+  },
+  {
+    icon: Zap,
+    title: "Run Locally",
+    description:
+      "Use our CLI to download and run models locally with one command. Privacy-first.",
+  },
 ];
 
 export default function HomePage() {
@@ -74,148 +96,72 @@ export default function HomePage() {
 
       <div className="flex-1 overflow-auto">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/30 py-16 md:py-24">
-          <div className="container mx-auto px-6 text-center">
-            <Badge variant="secondary" className="mb-4">
-              🚀 200+ Open-Source Models
-            </Badge>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              Discover & Run{" "}
-              <span className="bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-                Open-Source LLMs
-              </span>{" "}
-              Locally
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-              The trusted platform for discovering, comparing, and running AI models.
-              Browse curated models, read community reviews, and download directly from HuggingFace.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/models">
-                <Button size="lg">
-                  Browse Models <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/docs/api">
-                <Button size="lg" variant="outline">API Documentation</Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HeroSection />
 
         {/* Stats Bar */}
-        <section className="border-y bg-muted/20 py-8">
+        <StatsBar />
+
+        {/* Features */}
+        <section className="py-20 border-b border-border/60">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p className="text-3xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-                    {stat.value}
+            <h2 className="text-2xl font-bold text-center mb-4 tracking-tight">
+              Why LLM Trust?
+            </h2>
+            <p className="text-muted-foreground text-center max-w-lg mx-auto mb-12">
+              Built by developers, for developers. Everything you need to discover and run open-source AI.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {features.map((feature, i) => (
+                <GlowCard key={feature.title} className="text-center p-6">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <GlowCardTitle className="justify-center mb-2">
+                    {feature.title}
+                  </GlowCardTitle>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {feature.description}
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                </div>
+                </GlowCard>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="py-16 border-b">
-          <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold text-center mb-10">
-              Why LLM Trust?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Search className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Curated Discovery</h3>
-                <p className="text-sm text-muted-foreground">
-                  Find the right model for your use case with detailed specs, benchmarks, and community reviews.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Download className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Direct Downloads</h3>
-                <p className="text-sm text-muted-foreground">
-                  Download models directly from HuggingFace. No hosting fees, always the latest versions.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="mx-auto h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Run Locally</h3>
-                <p className="text-sm text-muted-foreground">
-                  Use our Electron app to download and run models locally with one click. Privacy-first.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Featured Models */}
-        <section className="py-16">
+        <section className="py-20">
           <div className="container mx-auto px-6">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold">Featured Models</h2>
+                <h2 className="text-2xl font-bold tracking-tight">
+                  Featured Models
+                </h2>
                 <p className="text-muted-foreground text-sm mt-1">
                   Hand-picked models trusted by the community
                 </p>
               </div>
               <Link href="/models">
-                <Button variant="ghost">
-                  View all <ArrowRight className="ml-2 h-4 w-4" />
+                <Button variant="ghost" className="gap-2">
+                  View all
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featuredModels.map((model) => (
-                <Link key={model.slug} href={`/models/${model.slug}`}>
-                  <Card className="h-full transition-all hover:shadow-lg hover:border-primary/50 cursor-pointer">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-lg">{model.name}</CardTitle>
-                        <Badge variant="secondary">{model.parameterCount}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                        {model.description}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {model.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Download className="h-3 w-3" />
-                          {model.downloadCount.toLocaleString()}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {model.architecture}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+              {featuredModels.map((model, i) => (
+                <ModelCardEnhanced key={model.slug} model={model} delay={i} />
               ))}
             </div>
           </div>
         </section>
 
         {/* Categories */}
-        <section className="py-16 bg-muted/30 border-y">
+        <section className="py-20 bg-surface border-y border-border/60">
           <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-2 text-center">Browse by Category</h2>
-            <p className="text-muted-foreground text-center text-sm mb-8">
+            <h2 className="text-2xl font-bold mb-2 text-center tracking-tight">
+              Browse by Category
+            </h2>
+            <p className="text-muted-foreground text-center text-sm mb-10">
               Find models by use case
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -224,21 +170,25 @@ export default function HomePage() {
                   key={cat.name}
                   href={`/models?category=${cat.name.toLowerCase().replace(" ", "-")}`}
                 >
-                  <Card className="text-center py-6 transition-all hover:shadow-md hover:border-primary/50 cursor-pointer">
-                    <span className="text-3xl mb-2 block">{cat.icon}</span>
+                  <GlowCard className="text-center py-6 px-4 cursor-pointer">
+                    <span className="text-3xl mb-3 block">{cat.icon}</span>
                     <p className="font-medium text-sm">{cat.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{cat.count} models</p>
-                  </Card>
+                    <p className="text-xs text-muted-foreground mt-1 tabular-nums">
+                      {cat.count} models
+                    </p>
+                  </GlowCard>
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Latest Models Preview */}
-        <section className="py-16">
+        {/* Latest Additions */}
+        <section className="py-20">
           <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-2">Latest Additions</h2>
+            <h2 className="text-2xl font-bold mb-2 tracking-tight">
+              Latest Additions
+            </h2>
             <p className="text-muted-foreground text-sm mb-8">
               Recently added models to the platform
             </p>
@@ -248,38 +198,58 @@ export default function HomePage() {
                 { name: "DeepSeek Coder V2", params: "236B", date: "5 days ago", arch: "deepseek" },
                 { name: "Command R+", params: "104B", date: "1 week ago", arch: "cohere" },
               ].map((item) => (
-                <Card key={item.name} className="p-4">
+                <GlowCard key={item.name} className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.arch} · {item.params}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.arch} · {item.params}
+                      </p>
                     </div>
-                    <Badge variant="secondary">{item.date}</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {item.date}
+                    </Badge>
                   </div>
-                </Card>
+                </GlowCard>
               ))}
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="py-20 bg-gradient-to-b from-muted/30 to-background border-t">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold mb-4">
+        <section className="relative py-24 border-t border-border/60 overflow-hidden">
+          {/* Background glow */}
+          <div
+            className="hero-glow hero-glow-primary"
+            style={{
+              width: 600,
+              height: 600,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              opacity: 0.3,
+            }}
+          />
+          <div className="relative container mx-auto px-6 text-center">
+            <h2 className="text-3xl font-bold mb-4 tracking-tight">
               Ready to explore open-source AI?
             </h2>
-            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+            <p className="text-muted-foreground mb-10 max-w-lg mx-auto">
               Join thousands of developers discovering and running open-source AI models locally.
               Free forever, no credit card required.
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link href="/models">
-                <Button size="lg">
-                  Explore Models <ArrowRight className="ml-2 h-4 w-4" />
+                <Button
+                  size="lg"
+                  className="gap-2 px-6 shadow-[0_0_20px_oklch(0.68_0.24_290_/_0.2)]"
+                >
+                  Explore Models
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/docs">
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="ghost" className="px-6">
                   Read the Docs
                 </Button>
               </Link>
@@ -287,17 +257,19 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Footer (inline) */}
-        <footer className="border-t py-8">
+        {/* Footer */}
+        <footer className="border-t border-border/60 py-8">
           <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} LLM Trust. All rights reserved.</p>
+            <p className="font-medium text-foreground/80">
+              LLM Trust
+            </p>
             <p className="mt-1">
-              Models sourced from{" "}
+              © {new Date().getFullYear()} · Models sourced from{" "}
               <a
                 href="https://huggingface.co"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-foreground"
+                className="link-underline text-primary"
               >
                 HuggingFace
               </a>
