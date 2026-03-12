@@ -8,6 +8,13 @@
       "when": 1773352355358,
       "tag": "0000_burly_ezekiel_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773355464475,
+      "tag": "0001_open_lethal_legion",
+      "breakpoints": true
     }
   ]
 }

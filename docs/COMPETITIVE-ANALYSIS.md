@@ -1,278 +1,373 @@
-# Veille Concurrentielle — LLM Trust
-**Date:** 2026-03-12 | **Analyste:** Atlas (Head of Product)
+# 🔍 LLM Trust — Analyse Concurrentielle
+
+**Date :** 12 mars 2026
+**Auteur :** Atlas (Head of Product)
+**Objectif :** Identifier les opportunités de différenciation et features à copier/améliorer
 
 ---
 
-## Vue d'ensemble
+## Table des matières
 
-| Plateforme | Positionnement | Cible principale | Modèle business |
-|---|---|---|---|
-| HuggingFace | Hub central de l'open-source ML | Researchers, Devs, Entreprises | Freemium (storage + compute) |
-| Ollama | Runner local simplifié | Devs, Hobbyists, Startups | Gratuit / Open Source |
-| Replicate | Cloud API pour modèles ML | Devs, Startups, Entreprises | Pay-per-use |
-| LM Studio | Desktop app pour LLMs locaux | Hobbyists, Devs, Non-techniques | Gratuit (Pro à venir) |
+1. [HuggingFace](#1-huggingface)
+2. [Ollama](#2-ollama)
+3. [Replicate](#3-replicate)
+4. [LM Studio](#4-lm-studio)
+5. [Synthèse : 5 features à copier](#5-features-à-copier)
+6. [Synthèse : 5 features différenciantes](#5-features-différenciantes)
+7. [Synthèse : 3 opportunités SEO](#3-opportunités-seo-ratées)
 
 ---
 
-## 1. HuggingFace (huggingface.co)
+## 1. HuggingFace
 
-### Positionnement et cible
-"The AI community building the future." — Plateforme centralisatrice de l'écosystème open-source ML. Cible aussi bien les researchers que les entreprises qui veulent déployer des modèles.
+### Positionnement & cible
+
+**"The AI community building the future"** — Plateforme centralisée pour tout l'écosystème ML. Cible : chercheurs ML, développeurs, entreprises. Hub de collaboration pour modèles, datasets, et applications.
 
 ### Features clés
-- **Hub de modèles/datasets/Spaces** : 45 000+ modèles hébergés, versionnés via Git
-- **Inference Providers** : API unifiée vers 10+ providers d'inférence (sans frais de service)
-- **Inference Endpoints** : Déploiement dédié autoscaling (CPU/GPU/TPU/Neuron)
-- **Spaces** : Démos Gradio/Streamlit hébergées avec GPU gratuit (ZeroGPU H200)
-- **Bibliothèques open-source** : Transformers, Diffusers, PEFT, TRL, smolagents, Tokenizers
-- **AutoTrain** : Entraînement no-code de modèles
-- **Storage Hub** : Stockage de modèles/datasets à $8-18/TB/mo
 
-### Points forts
-- **Monopole de facto** sur l'hébergement de modèles open-source
-- **Effet réseau massif** : tout le monde publie sur HF
-- **Stack open-source complète** (training → inference → deployment)
-- **Community GPU grants** pour les side projects
-- **ZeroGPU gratuit** pour les Spaces (H200 dynamique)
-- **Intégrations cloud** (AWS, GCP, Azure)
+| Feature | Description |
+|---------|-------------|
+| **Model Hub** | 500K+ modèles, versioning Git-like, cards, tags, filtres |
+| **Datasets Hub** | 250K+ datasets partagés par la communauté |
+| **Spaces** | Démo d'applications ML hébergées (Gradio/Streamlit) |
+| **Inference API** | API gratuite (rate-limited) + Endpoints dédiés payants |
+| **Transformers Library** | Bibliothèque open-source leader (157K+ stars) |
+| **Community** | Discussions, likes, forks, organisations, badges |
+| **Compute** | Spaces Hardware (GPU à la demande), Inference Endpoints |
+| **Enterprise** | Hub privé, SSO, audit logs, support dédié |
 
-### Points faibles (opportunités pour LLM Trust)
-- **Complexité énorme** : interface overwhelming pour non-experts
-- **Pas de solution "out of the box"** pour entreprise : il faut assembler les pièces
-- **Pas de focus sur la sécurité/trust** : pas de scoring de confiance, pas de vérification de modèle
-- **Pas de governance** : pas de traçabilité fine des outputs, pas d'audit trail
-- **Inference via 3rd parties** = risque de sécurité pour entreprises sensibles
-- **Pas de monitoring qualité** des outputs en production
+### Points forts ✅
+
+- **Écosystème lock-in** : tout le monde y publie → effet réseau massif
+- **Versioning Git** : familier pour les devs, tracking complet
+- **Open-source core** : Transformers, Diffusers, Tokenizers = standard de l'industrie
+- **Diversité modalités** : texte, image, audio, vidéo, 3D
+- **Gratuité généreuse** : Hub public gratuit, Inference API gratuite
+
+### Points faibles (opportunités) 🔴
+
+- **UX overwhelmante** : interface surchargée, difficile pour les débutants
+- **Pas de reviews structurées** : discussions oui, mais pas de système de rating/étoiles
+- **Pas de comparaison side-by-side** : impossible de comparer 2 modèles facilement
+- **Pas de "quel modèle choisir ?"** : zéro guidance, tu te débrouilles
+- **SEO faible sur le contenu éditorial** : pas de blog, pas de guides "best LLM for X"
+- **Inference pricing opaque** : difficile de prévoir les coûts entre providers
+- **Trust/safety non centralisé** : pas de score de confiance, de biais documentés
 
 ### Modèle business
-- Freemium : Hub gratuit, Storage payant ($12-18/TB/mo)
-- Compute : Spaces GPU à la demande ($0.40-$74/h)
-- Inference Endpoints : $0.03-$80/h selon hardware
-- Enterprise : pricing sur mesure (SSO, access controls, support dédié)
-- **Revenue estimé : $100M+ ARR**
 
-### Présence SEO
-- **Extrêmement forte** — Domain Authority quasi maximal dans le ML
-- Chaque modèle = page indexée avec métriques, README, datasets
-- Blog technique très actif, docs complètes
-- Tutos, leaderboards, papers → backlinks naturels massifs
-- **Défense quasi impossible en SEO direct** sur les termes de modèles
+- **Freemium** : Hub gratuit → payant pour stockage privé, compute, enterprise
+- **Storage** : $8-18/TB/mo selon public/privé
+- **Compute** : GPU à la demande ($0.40-$40/h selon hardware)
+- **Enterprise** : custom pricing
+- **Revenue 2025** : estimé $100M+ ARR (levé $235M à $4.5B valuation)
+
+### SEO
+
+- **Domain authority** : 90+ (massif)
+- **Mots-clés dominés** : "download [model]", "[model] huggingface", "transformers python"
+- **Faiblesses** : pas de contenu éditorial, pas de comparaisons, pas de "best of"
 
 ---
 
-## 2. Ollama (ollama.com)
+## 2. Ollama
 
-### Positionnement et cible
-"Run any app or agent with open models." — Le plus simple moyen de faire tourner des LLMs en local. Cible les développeurs qui veulent un outil CLI-first pour intégrer des modèles dans leurs apps.
+### Positionnement & cible
+
+**"The easiest way to run LLMs locally"** — Desktop-first, simplicité absolue. Cible : développeurs qui veulent du local/privé, hobbyists, prototypage rapide.
 
 ### Features clés
-- **CLI simple** : `ollama run llama3`, `ollama pull`, `ollama serve`
-- **Modèles pré-packagés** : Format Modelfile (similaire à Dockerfile)
-- **API locale OpenAI-compatible** : endpoint sur localhost:11434
-- **Cross-platform** : macOS, Windows, Linux
-- **Bibliothèques officielles** : Python, JavaScript/TypeScript
-- **20+ libraries communautaires**
-- **Ollama Cloud** : modèles cloud plus gros avec meilleures perfs
-- **Support MCP** (Model Context Protocol)
 
-### Points forts
-- **Simplicité radicale** : une commande pour lancer un modèle
-- **Communauté massive** (100K+ GitHub stars)
-- **Open-source complet**
-- **Modèle Docker-like** : partage facile de configs
-- **Derniers modèles supportés rapidement** (gpt-oss, DeepSeek-R1, Qwen3, Gemma 3)
-- **Gratuit et local** = zéro risque de data leakage
+| Feature | Description |
+|---------|-------------|
+| **One-command run** | `ollama run llama3` — installation et inférence en 1 ligne |
+| **Model Library** | Catalogue curaté de modèles populaires (GGUF format) |
+| **Local API** | API OpenAI-compatible sur localhost:11434 |
+| **Cross-platform** | macOS, Windows, Linux |
+| **Custom Modelfiles** | Dockerfile-like pour customiser les modèles |
+| **Ollama Cloud** | Nouveau : modèles cloud pour modèles trop gros pour le local |
+| **Integrations** | 20+ librairies communautaires (Python, JS, Go, etc.) |
 
-### Points faibles (opportunités pour LLM Trust)
-- **Pas de UI graphique** : inaccessible aux non-développeurs
-- **Pas de gestion multi-utilisateurs** : c'est du local, pas d'équipe
-- **Pas de monitoring/observability** : aucun métrique de qualité
-- **Pas de sécurité enterprise** : pas d'audit, pas de compliance
-- **Limité au local** : pas de solution cloud scalable (le cloud est récent et basique)
-- **Pas de fine-tuning intégré** : on consomme les modèles tels quels
-- **Pas de comparaison de modèles** : pas d'outils d'évaluation
+### Points forts ✅
+
+- **Simplicité UX** : 1 commande = LLM qui tourne. Aucune config.
+- **Privacy-first** : tout tourne en local, zéro data qui sort
+- **Open-source** : code ouvert, communauté active (Discord, Reddit)
+- **Écosystème intégrations** : LangChain, LlamaIndex, Open WebUI
+- **Offline** : fonctionne sans internet une fois le modèle téléchargé
+
+### Points faibles (opportunités) 🔴
+
+- **Pas de système de découverte** : pas de trending, pas de "what's new"
+- **Pas de reviews/ratings** : zéro feedback communautaire sur les modèles
+- **Pas de benchmarks** : aucune comparaison de performance
+- **Doc minimaliste** : pas de guides, pas de tutoriels, pas de blog
+- **Pas de version tracking visible** : difficile de savoir quels changements entre versions
+- **SEO quasi nul** : pas de contenu indexable, tout est dans l'app
+- **Hardware requirements pas clairs** : combien de RAM ? quelle GPU ? → devine
 
 ### Modèle business
-- **Gratuit et open-source** — le produit principal est free
-- **Ollama Cloud** (nouveau) : probablement payant pour modèles plus gros
-- Funding de VC (a levé ~$60M)
-- Monétisation future probable : cloud compute, enterprise features
-- **Revenue actuel : probablement très faible** (pre-revenue stage)
 
-### Présence SEO
-- **Forte sur les termes "local LLM", "run LLM locally"**
-- GitHub stars = signal SEO massif
-- Docs minimalistes mais efficaces
-- Pas de blog, peu de contenu éducatif
-- **Faible sur les termes comparatifs** ("best LLM platform", "LLM hosting")
+- **Open-source gratuit** : produit principal gratuit
+- **Ollama Cloud** (nouveau) : probablement pay-as-you-go pour modèles cloud
+- **Funding** : levé $64M (a16z, Sequoia)
+- **Monétisation future** : probablement cloud inference, enterprise features
+
+### SEO
+
+- **Domain authority** : ~60
+- **Mots-clés** : "run llama locally", "ollama", "local llm"
+- **Problème** : site quasi vide en contenu, tout dans l'app → Google ne voit rien
 
 ---
 
-## 3. Replicate (replicate.com)
+## 3. Replicate
 
-### Positionnement et cible
-"Run AI with an API." — Cloud API pour exécuter des modèles ML open-source et custom. Cible les développeurs et startups qui veulent inférer des modèles sans gérer l'infra. **Récemment acquis par Cloudflare.**
+### Positionnement & cible
+
+**"Run AI with an API"** — Cloud inference as a service. Cible : développeurs qui veulent intégrer des modèles dans leurs apps sans gérer l'infra.
 
 ### Features clés
-- **API one-line** : `replicate.run()` pour exécuter n'importe quel modèle
-- **Catalogue de modèles publics** : images, LLMs, audio, vidéo
-- **Déploiement de modèles custom** via Cog (outil open-source)
-- **Fine-tuning intégré**
-- **Billed by time** ou **billed by input/output** selon le modèle
-- **SDK multi-langages** : Python, JavaScript, HTTP
-- **Dédié hardware** pour modèles privés
-- **Acquisition Cloudflare** : intégration edge computing à venir
 
-### Points forts
-- **DX exceptionnelle** : la plus simple API cloud pour l'AI
-- **Catalogue large** : LLMs + multimodal (images Flux, vidéo Wan, etc.)
-- **Pay-per-use pur** : pas de minimum, pas de commitment
-- **Fine-tuning facile** : entrainer et déployer un custom model
-- **Scale automatique** : pas de gestion d'infra
-- **Cloudflare backing** : edge deployment imminent = latence ultra-faible
-- **Cog open-source** : packaging standard des modèles
+| Feature | Description |
+|---------|-------------|
+| **One-line API** | `replicate.run("model")` — inférence cloud en 1 ligne de code |
+| **Model Marketplace** | Milliers de modèles déployés, prêts à l'emploi |
+| **Pay-per-use** | Facturation à la seconde ou au token/image |
+| **Custom Models** | Déployer ton propre modèle sur leur infra |
+| **Fine-tuning** | Fine-tune des modèles directement sur la plateforme |
+| **Webhooks** | Async processing avec callbacks |
+| **Hardware tiers** | T4, A100, H100 — scaled selon le besoin |
+| **Playground** | UI web pour tester les modèles avant de coder |
 
-### Points faibles (opportunités pour LLM Trust)
-- **Pas de local** : tout est cloud = data sovereignty impossible
-- **Pas de comparaison de modèles** : pas d'outils d'évaluation/ranking
-- **Pas de governance enterprise** : pas d'audit trail, pas de compliance dashboard
-- **Coût imprévisible** : pay-per-use peut devenir cher en production
-- **Lock-in potentiel** : Cog est leur format propriétaire
-- **Pas de monitoring qualité** : zéro visibilité sur les outputs
-- **Focalisé sur l'inférence** : pas d'outils pour la confiance/sécurité des outputs
+### Points forts ✅
+
+- **DX exceptionnelle** : 1 ligne de code, SDKs dans tous les langages
+- **Pay-per-use** : zéro commitment, facturation granulaire
+- **Playground** : tester sans code avant d'intégrer
+- **Fine-tuning intégré** : pipeline complet sur la plateforme
+- **Docs excellentes** : guides clairs, exemples dans chaque langage
+
+### Points faibles (opportunités) 🔴
+
+- **Pas de comparaison de modèles** : tu cherches toi-même, aucune aide
+- **Pas de reviews communautaires** : zéro retour utilisateur sur la qualité
+- **Pricing pas comparable** : chaque modèle a son propre pricing, impossible de comparer le coût
+- **Pas de benchmarks intégrés** : pas de "ce modèle est 3x plus rapide que celui-là"
+- **Acquis par Cloudflare** → incertitude sur la roadmap indépendante
+- **Focus image/vidéo** : moins fort sur les LLMs text
+- **Pas de contenu SEO** : pas de blog, pas de guides comparatifs
 
 ### Modèle business
-- **Pay-per-use** : billing à la seconde ou par token/image
-- Hardware pricing variable (T4 $0.50/h → H100 $10/h)
-- Modèles privés : dedicated hardware = payé quand l'instance tourne
-- Enterprise : pricing custom, hardware dédié
-- **Revenue estimé : $20-50M ARR** (pré-acquisition Cloudflare)
 
-### Présence SEO
-- **Forte sur les termes de modèles spécifiques** ("run flux", "flux api")
-- Chaque modèle = landing page optimisée avec runs count (social proof)
-- Blog technique régulier
-- **Faible sur les termes génériques LLM** ("LLM platform", "AI hosting")
-- Docs bonnes mais pas exhaustive
+- **Pay-per-use pur** : pas d'abonnement
+- **Pricing** : $0.000225/sec (T4) à $0.002625/sec (A100)
+- **Modèles populaires** : prix fixe par image/token
+- **Revenue** : estimé $30M+ ARR avant acquisition Cloudflare
+- **Maintenant** : partie de Cloudflare ($3.5B acquisition)
+
+### SEO
+
+- **Domain authority** : ~75
+- **Mots-clés** : "[model] api", "run [model] online", "replicate"
+- **Faiblesse** : pages modèles rankent bien, mais pas de contenu éditorial
 
 ---
 
-## 4. LM Studio (lmstudio.ai)
+## 4. LM Studio
 
-### Positionnement et cible
-"Local AI on your computer." — Application desktop pour faire tourner des LLMs localement avec une belle UI. Cible les non-techniques et les développeurs qui veulent une expérience desktop polie.
+### Positionnement & cible
+
+**"Local AI on your computer"** — App desktop pour faire tourner des LLMs localement. Cible : power users, privacy-conscious, ceux qui veulent une UI agréable sans ligne de commande.
 
 ### Features clés
-- **App desktop native** : macOS, Windows, Linux
-- **Model browser** intégré (cherche via HuggingFace)
-- **Chat UI** : interface de conversation polie
-- **RAG local** : chat avec documents offline
-- **Serveur API local** : endpoints OpenAI-compatibles
-- **MCP client** : connecte des serveurs MCP aux modèles locaux
-- **LM Link** : connexion à des instances distantes
-- **SDK** : JavaScript (`@lmstudio/sdk`) et Python (`lmstudio`)
-- **Support MLX** (Apple Silicon) + llama.cpp (GGUF)
-- **LM Studio Hub** : partage de configurations
 
-### Points forts
-- **UI/UX la plus soignée** du marché local LLM
-- **Accessible aux non-techniques** : télécharger et utiliser
-- **RAG intégré** : chat with documents out of the box
-- **Privacy totale** : tout reste local
-- **MCP support** : connecté à l'écosystème d'outils
-- **LM Link** : bon pont entre local et remote
+| Feature | Description |
+|---------|-------------|
+| **Desktop App** | UI native (Electron) pour macOS/Windows/Linux |
+| **Model Catalog** | Catalogue de modèles avec téléchargement 1-click |
+| **Chat Interface** | Interface chat type ChatGPT pour interagir avec les modèles |
+| **LM Link** | Connexion à des instances distantes, usage comme si c'était local |
+| **MCP Client** | Support du Model Context Protocol |
+| **SDK** | SDKs Python et JS pour intégration programmatique |
+| **Local API** | API OpenAI-compatible locale |
+| **MLX Support** | Optimisé Apple Silicon via MLX |
 
-### Points faibles (opportunités pour LLM Trust)
-- **Desktop only** : pas de web, pas de mobile, pas de collaboration
-- **Pas de multi-utilisateur** : un seul user par machine
-- **Pas de monitoring/observability** : aucune métrique de qualité
-- **Pas de sécurité enterprise** : zéro compliance, zéro audit
-- **Pas de comparaison de modèles** : pas d'évaluation objective
-- **Closed-source** : le produit lui-même n'est pas open
-- **Pas de fine-tuning** : on consomme, on ne traine pas
-- **Pas de versioning/prompt management** avancé
+### Points forts ✅
+
+- **UI/UX premium** : design soigné, expérience native fluide
+- **Model Catalog curaté** : modèles sélectionnés, avec downloads counts et descriptions
+- **Zéro config** : installe, lance, choisis un modèle, parle
+- **Privacy-first** : 100% local
+- **LM Link** : feature intelligente pour accès distant
+
+### Points faibles (opportunités) 🔴
+
+- **Pas de reviews/ratings** : downloads visibles, mais zéro feedback qualité
+- **Pas de benchmarks** : aucune métrique de performance
+- **Pas de comparaison** : impossible de comparer 2 modèles
+- **Filtres basiques** : pas de filtres avancés (licence, use case, langage)
+- **SEO inexistant** : le catalogue est rendu côté client, Google ne l'indexe pas
+- **Pas de contenu éditorial** : pas de blog, pas de guides
+- **Hardware requirements flous** : "varies by model" → pas d'aide concrète
 
 ### Modèle business
-- **Gratuit** pour l'instant
-- **Pro/paid features à venir** (mentionné mais pas encore lancé)
-- Company : Element Labs, Inc.
-- Probablement freemium futur : features avancées payantes
-- **Revenue actuel : $0** (pre-monetization)
 
-### Présence SEO
-- **Modéré** : bien positionné sur "local AI", "run LLM locally"
-- Docs simples et claires
-- Pas de blog visible
-- Présence sociale active (Discord, Twitter, LinkedIn, GitHub)
-- **Faible sur contenu long-form** : peu de guides, pas de comparatifs
-- Hub récent = peu de pages indexées
+- **Gratuit** : app 100% gratuite actuellement
+- **Monétisation** : non publique, probablement enterprise features ou cloud à terme
+- **Funding** : levé $25M+
+
+### SEO
+
+- **Domain authority** : ~45
+- **Mots-clés** : "lm studio", "local ai chat", "run llm on mac"
+- **Problème** : tout le contenu est dans l'app, pas de pages indexables
 
 ---
 
-## Synthèse Croisée
+## 5. Features à copier
 
-### Matrice des forces
+Ces features existent chez nos concurrents et devraient être dans LLM Trust ASAP.
 
-| Critère | HuggingFace | Ollama | Replicate | LM Studio |
-|---|---|---|---|---|
-| Facilité d'usage | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Catalogue modèles | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Enterprise ready | ⭐⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐ |
-| Local/Privacy | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ | ⭐⭐⭐⭐⭐ |
-| DX / API | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Monitoring/Trust | ⭐⭐ | ⭐ | ⭐ | ⭐ |
-| Community | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+### 1. 🔄 Playground interactif (Replicate)
 
-### Espace vide dans le marché
-**Aucune plateforme ne propose de couche de "trust"** : scoring de confiance, monitoring qualité, audit trail, compliance dashboard, comparaison objective de modèles.
+**Copier de :** Replicate
+**Description :** Permettre aux users de tester un modèle directement dans le browser sans s'inscrire.
+**Pourquoi :** Réduit le friction à zéro. Le user voit la qualité → s'inscrit.
+**Implémentation :** Intégrer une API d'inférence (Together.ai, Replicate) pour offrir 5 free prompts/modèle.
+**Effort :** Moyen (Sprint 2-3)
 
----
+### 2. 📊 Download/usage counts visibles (LM Studio + HuggingFace)
 
-## Recommandations Stratégiques
+**Copier de :** LM Studio, HuggingFace
+**Description :** Afficher le nombre de downloads, likes, reviews sur chaque model card.
+**Pourquoi :** Social proof = signal de confiance. "10K downloads" > rien.
+**Implémentation :** Compteur tRPC (déjà partiellement fait), afficher sur model cards.
+**Effort :** Faible (Sprint 1)
 
-### 5 Features à Copier
+### 3. 🏷️ Tags et filtres avancés (HuggingFace)
 
-1. **API one-line de Replicate** — `llmtrust.run(model, input)` : la DX doit être aussi simple que Replicate. Réduire le friction à zéro.
+**Copier de :** HuggingFace
+**Description :** Système de tags (modality, license, language, use case) avec filtres combinables.
+**Pourquoi :** 200+ modèles sans filtres = chaos. Les users doivent pouvoir trouver "LLM open-source pour du code, qui tourne sur 16GB RAM".
+**Implémentation :** Tags dans le schema DB, UI de filtres sidebar.
+**Effort :** Moyen (Sprint 2)
 
-2. **Model Hub d'Ollama/HuggingFace** — Catalogue centralisé avec fiches modèles, métriques, et reviews. Chaque modèle doit avoir une page riche.
+### 4. 📖 Model Cards structurés (HuggingFace)
 
-3. **RAG local de LM Studio** — Chat with documents offline. Feature table-stake pour 2026.
+**Copier de :** HuggingFace
+**Description :** Format standardisé pour les fiches modèle : description, intended use, limitations, training data, evaluation.
+**Pourquoi :** C'est le standard de l'industrie. Les users attendent cette structure.
+**Implémentation :** Template MDX pour model cards, rendu structuré.
+**Effort :** Moyen (Sprint 1-2)
 
-4. **Inference Providers unifiés de HuggingFace** — Une seule API qui route vers plusieurs providers (OpenAI, Anthropic, local, etc.) avec comparaison automatique.
+### 5. 🔌 API OpenAI-compatible (Ollama + LM Studio)
 
-5. **Pay-per-use de Replicate** — Pas de commitment, pas de minimum. L'utilisateur paye ce qu'il consomme.
-
-### 5 Différenciateurs pour LLM Trust
-
-1. **Trust Score™** — Score de confiance par modèle (hallucination rate, factual accuracy, safety, latency). Aucun concurrent ne le fait.
-
-2. **Audit Trail complet** — Qui a demandé quoi, quel modèle a répondu, quel était le trust score. Critical pour enterprise compliance.
-
-3. **Comparaison objective de modèles** — A/B testing automatique sur les mêmes prompts avec métriques de qualité. Pas juste "runs count" comme Replicate.
-
-4. **Output Quality Monitoring** — Surveillance continue en production : drift de qualité, détection d'hallucinations, alertes. Le "Datadog des LLMs".
-
-5. **Compliance Dashboard** — GDPR, SOC2, HIPAA readiness. Mapping automatique des données sensibles dans les outputs. Aucun concurrent ne le fait.
-
-### 3 Opportunités SEO qu'ils ratent
-
-1. **"LLM comparison" / "compare LLM models" / "best LLM for [use case]"** — Aucun des 4 ne domine ces requêtes. HuggingFace a les leaderboards mais pas le contenu comparatif orienté business. Créer des comparateurs interactifs avec Trust Scores.
-
-2. **"LLM security" / "LLM trust" / "safe AI deployment" / "AI compliance"** — Volume croissant, zéro compétition directe de ces 4 plateformes. Ils sont tous sur le "how to run" et personne sur le "how to trust".
-
-3. **"LLM monitoring" / "LLM observability" / "LLM quality metrics"** — Marché émergent. Des startups comme Braintrust, LangSmith commencent mais aucun des 4 concurrents principaux n'y est. Contenu technique + outils gratuits = acquisition organique.
+**Copier de :** Ollama, LM Studio
+**Description :** Exposer les données LLM Trust via une API REST avec format OpenAI-compatible.
+**Pourquoi :** Permet l'intégration dans les workflows existants des devs. Croissance virale.
+**Implémentation :** Endpoints REST, clés API dans dashboard, rate limiting.
+**Effort :** Élevé (Phase 2)
 
 ---
 
-## Prochaines Étapes
+## 5. Features différenciantes
 
-- [ ] Valider le Trust Score™ avec 5 prospects enterprise
-- [ ] Benchmark technique : mesurer l'hallucination rate de 10 modèles populaires
-- [ ] Créer une landing page "LLM Trust Score" pour capturer du SEO
-- [ ] Analyser les pricing pages en détail pour calibrer notre pricing
-- [ ] Contacter 3 entreprises qui utilisent 2+ de ces plateformes pour comprendre leurs pain points
+Ces features n'existent chez **aucun** concurrent et seraient nos armes secrètes.
+
+### 1. ⭐ Système de reviews et ratings communautaires
+
+**Unique à LLM Trust**
+**Description :** Système complet d'avis : étoiles (1-5), review textuelle, critères par axe (qualité, speed, cost, ease of use), upvotes sur les reviews.
+**Différenciation :** Aucun concurrent n'a de reviews structurées. HuggingFace a des "discussions" mais pas de ratings. C'est NOTRE raison d'être.
+**Status :** En cours de dev (Sprint 2)
+
+### 2. 🆚 Comparaison side-by-side de modèles
+
+**Unique à LLM Trust**
+**Description :** Comparer 2+ modèles côte à côte : specs, benchmarks, prix, reviews, use cases recommandés.
+**Différenciation :** Personne ne le fait bien. HuggingFace ne le fait pas du tout. Replicate non plus.
+**Status :** Sprint 2 dans la roadmap
+
+### 3. 🎯 Recommandation "Quel modèle choisir ?"
+
+**Unique à LLM Trust**
+**Description :** Quiz/outil interactif : réponds à 5 questions (use case, budget, hardware, privacy, langage) → reçois 3 recommandations personnalisées.
+**Différenciation :** Personne ne guide le choix. Tout le monde montre un catalogue et "débrouille-toi". C'est la killer feature SEO (cf. opportunités).
+**Effort :** Moyen — quiz → moteur de règles → résultats
+
+### 4. 📈 Scores de confiance (Trust Score)
+
+**Unique à LLM Trust**
+**Description :** Score composite (0-100) par modèle basé sur : transparence du provider, sécurité, biais documentés, licence claire, audit indépendant.
+**Différenciation :** Notre nom est "LLM Trust" → on DOIT livrer ça. C'est notre raison d'être et ce que personne d'autre ne fait.
+**Effort :** Élevé — nécessite recherche, métriques, process d'évaluation
+
+### 5. 📝 Contenu éditorial de qualité (Blog + Guides)
+
+**Unique à LLM Trust**
+**Description :** Blog SEO avec comparaisons, guides, analyses. "GPT-4 vs Claude 3", "Best LLMs for Code", "LLM Pricing Guide 2026".
+**Différenciation :** Aucun concurrent ne fait de contenu éditorial. HuggingFace n'a pas de blog. Ollama non plus. Replicate non plus. LM Studio non plus. C'est un océan bleu SEO.
+**Status :** Blog MDX ✅ livré, contenu en cours (8 articles Phase 1)
 
 ---
 
-*Document produit par Atlas — Head of Product, LLM Trust*
-*Prochaine revue : 2026-04-12*
+## 3. Opportunités SEO ratées
+
+Ces mots-clés et types de contenu ne sont captés par AUCUN concurrent.
+
+### 1. 🔍 "Best LLM for [use case]"
+
+**Volume estimé :** 10K-50K recherches/mois (toutes variantes combinées)
+**Exemples :** "best llm for coding", "best llm for summarization", "best llm for customer support", "best llm for math"
+**Qui rate ça :** Tout le monde. HuggingFace a le catalogue mais pas le contenu. Ollama/Replicate/LM Studio n'ont pas de blog.
+**Notre plan :** 1 article ciblé par use case majeur. 10 articles = couvrir 80% du traffic.
+
+### 2. 🔍 "[Model A] vs [Model B]" comparisons
+
+**Volume estimé :** 5K-20K recherches/mois
+**Exemples :** "gpt-4 vs claude 3", "llama 3 vs mistral", "gemini vs gpt-4", "claude vs chatgpt"
+**Qui rate ça :** Personne ne fait ça de manière structurée et à jour. Les résultats actuels sont des articles Medium randoms ou des Reddit threads.
+**Notre plan :** Pages comparaisons dynamiques (notre feature #2) + articles blog dédiés. Chaque comparaison = page indexable unique.
+
+### 3. 🔍 "[Model] pricing / cost / comparison"
+
+**Volume estimé :** 3K-10K recherches/mois
+**Exemples :** "gpt-4 pricing", "claude api cost", "cheapest llm api", "llm cost comparison"
+**Qui rate ça :** Replicate a du pricing mais pas comparatif. HuggingFace a l'inference pricing mais pas de vue d'ensemble. Personne ne fait le comparatif multi-provider.
+**Notre plan :** Page de comparaison pricing interactive (tous les providers, tous les modèles, calculateur de coût selon usage). MAJ mensuelle. Page hautement linkable.
+
+---
+
+## 📋 Synthèse : Notre stratégie concurrentielle
+
+### On ne combat pas HuggingFace sur son terrain
+HF = hub de modèles, Git pour ML. On ne sera jamais mieux qu'eux là-dessus.
+**Notre terrain :** La couche **décision et confiance** au-dessus de tout l'écosystème.
+
+### Positionnement recommandé
+
+```
+HuggingFace = "Where models live"
+Ollama = "Run models locally"
+Replicate = "Run models in the cloud"
+LM Studio = "Beautiful local AI"
+LM Trust = "Find the right model with confidence"
+```
+
+### Matrice différenciation
+
+| | Catalogue | Reviews | Compare | Guides | Trust |
+|---|---|---|---|---|---|
+| HuggingFace | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Ollama | 🟡 | ❌ | ❌ | ❌ | ❌ |
+| Replicate | ✅ | ❌ | ❌ | ❌ | ❌ |
+| LM Studio | 🟡 | ❌ | ❌ | ❌ | ❌ |
+| **LLM Trust** | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+**On est le seul à cocher toutes les cases. C'est notre moat.**
+
+---
+
+_Document v1.0 — À mettre à jour trimestriellement_

@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { model, like, favorite, review } from "../../db/schema";
 import { eq, and, desc, asc, sql, ilike, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { nanoid } from "nanoid";
 
 export const modelsRouter = createTRPCRouter({
   // ============================================
@@ -236,4 +237,66 @@ export const modelsRouter = createTRPCRouter({
       totalDownloads: Number(downloadTotal?.total ?? 0),
     };
   }),
+
+  // ============================================
+  // CREATE — Upload a new model (protected)
+  // ============================================
+  create: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(255),
+        slug: z
+          .string()
+          .min(1)
+          .max(255)
+          .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase alphanumeric with hyphens"),
+        description: z.string().min(1),
+        longDescription: z.string().optional(),
+        architecture: z.string().max(100).optional(),
+        parameterCount: z.string().max(50).optional(),
+        contextLength: z.number().int().positive().optional(),
+        license: z.string().max(100).optional(),
+        category: z.string().max(100).optional(),
+        downloadUrl: z.string().url("Must be a valid URL"),
+        tags: z.array(z.string()).default([]),
+        format: z.enum(["gguf", "safetensors", "pytorch", "onnx"]).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Check slug uniqueness
+      const [existing] = await db
+        .select({ id: model.id })
+        .from(model)
+        .where(eq(model.slug, input.slug))
+        .limit(1);
+
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A model with this slug already exists",
+        });
+      }
+
+      const [newModel] = await db
+        .insert(model)
+        .values({
+          name: input.name,
+          slug: input.slug,
+          authorId: ctx.userId,
+          description: input.description,
+          longDescription: input.longDescription ?? null,
+          architecture: input.architecture ?? null,
+          parameterCount: input.parameterCount ?? null,
+          contextLength: input.contextLength ?? null,
+          license: input.license ?? null,
+          category: input.category ?? null,
+          downloadUrl: input.downloadUrl,
+          tags: input.tags,
+          status: "pending",
+          localExecution: input.format ? { format: input.format } : null,
+        })
+        .returning({ id: model.id, slug: model.slug });
+
+      return newModel;
+    }),
 });
