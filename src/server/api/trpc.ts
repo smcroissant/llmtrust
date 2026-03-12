@@ -38,6 +38,7 @@ const t = initTRPC.context<CreateContextOptions>().create({
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
+export const createCallerFactory = t.createCallerFactory;
 
 // Protected procedure — requires authentication (web session or API key)
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
