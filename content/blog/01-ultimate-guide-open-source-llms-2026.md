@@ -244,4 +244,4 @@ The open source LLM ecosystem in 2026 is thriving. From Meta's Llama 3.3 to Deep
 
 The models on this list represent the best of what's available today, but the landscape moves fast. New models, architectures, and training techniques emerge regularly, so staying informed is crucial.
 
-**Ready to find your perfect open source LLM?** [Sign up for LLM Trust](/signup) to get personalized model recommendations, track new releases, and compare the latest models with real benchmark data. Join thousands of developers and ML engineers who trust LLM Trust for their model discovery needs.
+**Ready to find your perfect open source LLM?** [Sign up for LLM Trust](/auth/sign-up) to get personalized model recommendations, track new releases, and compare the latest models with real benchmark data. Join thousands of developers and ML engineers who trust LLM Trust for their model discovery needs.

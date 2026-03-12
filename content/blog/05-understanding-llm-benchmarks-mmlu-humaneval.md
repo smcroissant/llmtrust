@@ -341,4 +341,4 @@ As the field evolves, benchmarks evolve too. Stay current with new evaluation me
 
 **Want to explore specific models?** [Browse our catalog](/models) with comprehensive benchmark data, specs, and deployment information.
 
-**Stay ahead of the curve** — [sign up for LLM Trust](/signup) to track benchmark updates, get notified when new models are released, and make data-driven decisions about your AI stack.
+**Stay ahead of the curve** — [sign up for LLM Trust](/auth/sign-up) to track benchmark updates, get notified when new models are released, and make data-driven decisions about your AI stack.

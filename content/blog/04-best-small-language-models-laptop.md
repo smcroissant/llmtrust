@@ -361,4 +361,4 @@ The landscape is evolving rapidly — models are getting smaller, faster, and mo
 
 **Want to compare SLMs head-to-head?** Use our [comparison tool](/compare) to see detailed benchmark data.
 
-**Join LLM Trust** — [sign up free](/signup) to get personalized model recommendations, track new releases, and stay ahead of the curve in the fast-moving world of small language models.
+**Join LLM Trust** — [sign up free](/auth/sign-up) to get personalized model recommendations, track new releases, and stay ahead of the curve in the fast-moving world of small language models.

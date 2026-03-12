@@ -295,7 +295,7 @@ export function AppSidebar() {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem render={<Link href="/settings" />}>
+                <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
                   <Settings className="mr-2 size-4" />
                   Settings
                 </DropdownMenuItem>

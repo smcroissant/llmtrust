@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,21 @@ export default function SettingsPage() {
 
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Sync state when data loads
+  useEffect(() => {
+    if (userData) {
+      setName(userData.name ?? "");
+      setImage(userData.image ?? "");
+    }
+  }, [userData]);
+
   const displayName = name || userData?.name || "";
-  const displayImage = image || userData?.image || "";
+  const displayImage = image;
 
   const initials = userData?.name
     ? userData.name
@@ -46,6 +57,48 @@ export default function SettingsPage() {
     if (displayImage !== (userData?.image ?? "")) updates.image = displayImage;
     if (Object.keys(updates).length > 0) {
       updateProfile.mutate(updates);
+    } else {
+      toast.info("No changes to save");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword) {
+      toast.error("Please enter your current password");
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      // Better Auth exposes changePassword as a client method
+      const result = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!result.ok) {
+        const data = await result.json().catch(() => ({}));
+        toast.error(data.message || "Failed to change password");
+      } else {
+        toast.success("Password changed successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to change password";
+      toast.error(message);
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -94,7 +147,7 @@ export default function SettingsPage() {
                 </Avatar>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{displayName}</p>
-                  <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
+                  <p className="text-xs text-muted-foreground">Enter a URL below to set your avatar</p>
                 </div>
               </div>
 
@@ -106,7 +159,7 @@ export default function SettingsPage() {
                 <Input
                   id="name"
                   placeholder={userData?.name ?? "Your name"}
-                  value={displayName}
+                  value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
@@ -117,7 +170,7 @@ export default function SettingsPage() {
                 <Input
                   id="image"
                   placeholder="https://example.com/avatar.jpg"
-                  value={displayImage}
+                  value={image}
                   onChange={(e) => setImage(e.target.value)}
                 />
               </div>
@@ -169,6 +222,8 @@ export default function SettingsPage() {
                     id="current-password"
                     type="password"
                     placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -176,7 +231,9 @@ export default function SettingsPage() {
                   <Input
                     id="new-password"
                     type="password"
-                    placeholder="Enter new password"
+                    placeholder="Enter new password (min 8 characters)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -185,14 +242,23 @@ export default function SettingsPage() {
                     id="confirm-password"
                     type="password"
                     placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
                   />
                 </div>
-                <Button variant="outline" disabled>
+                <Button
+                  variant="outline"
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword}
+                >
+                  {isChangingPassword ? (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  ) : (
+                    <Lock className="mr-2 size-4" />
+                  )}
                   Update Password
                 </Button>
-                <p className="text-xs text-muted-foreground">
-                  Password change via Better Auth coming soon.
-                </p>
               </div>
 
               <Separator />

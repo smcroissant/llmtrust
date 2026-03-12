@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "Documentation — Get Started with Open-Source LLMs",
+  description: "Learn how to discover, download & run open-source LLMs locally. Install guides for Ollama, llama.cpp, vLLM & more.",
+  canonical: canonicalUrl("/docs"),
+});
 
 export default function DocsPage() {
   return (

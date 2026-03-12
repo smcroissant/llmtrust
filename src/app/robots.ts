@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/admin/", "/_next/"],
+        disallow: ["/api/", "/admin/", "/dashboard/", "/_next/"],
       },
     ],
     sitemap: "https://llmtrust.com/sitemap.xml",

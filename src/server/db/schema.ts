@@ -20,6 +20,7 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
+  role: text("role").notNull().default("user"), // user | admin
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -217,5 +218,109 @@ export const favorite = pgTable(
   },
   (table) => [
     index("favorite_user_model_idx").on(table.userId, table.modelId),
+  ],
+);
+
+// ============================================
+// BADGES — Gamification system
+// ============================================
+
+export const badge = pgTable(
+  "badge",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: varchar("slug", { length: 100 }).notNull().unique(), // e.g. "first_review"
+    name: varchar("name", { length: 150 }).notNull(),
+    description: text("description").notNull(),
+    icon: varchar("icon", { length: 50 }).notNull(), // emoji or lucide icon name
+    category: varchar("category", { length: 50 }).notNull(), // review | upload | download | community | streak
+    tier: integer("tier").notNull().default(1), // 1=bronze, 2=silver, 3=gold, 4=platinum
+    pointsReward: integer("points_reward").notNull().default(0),
+    criteria: jsonb("criteria").$type<{
+      type: string;
+      threshold?: number;
+      description: string;
+    }>().notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("badge_slug_idx").on(table.slug),
+    index("badge_category_idx").on(table.category),
+  ],
+);
+
+export const userBadge = pgTable(
+  "user_badge",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    badgeId: uuid("badge_id")
+      .notNull()
+      .references(() => badge.id, { onDelete: "cascade" }),
+    awardedAt: timestamp("awarded_at").notNull().defaultNow(),
+    isNew: boolean("is_new").notNull().default(true), // for "new badge" notification
+  },
+  (table) => [
+    index("user_badge_user_idx").on(table.userId),
+    index("user_badge_badge_idx").on(table.badgeId),
+    index("user_badge_unique_idx").on(table.userId, table.badgeId), // one badge per user
+  ],
+);
+
+// ============================================
+// USER PROFILE — Gamification stats & levels
+// ============================================
+
+export const userStats = pgTable(
+  "user_stats",
+  {
+    userId: text("user_id")
+      .primaryKey()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Counts
+    reviewCount: integer("review_count").notNull().default(0),
+    uploadCount: integer("upload_count").notNull().default(0),
+    totalDownloads: integer("total_downloads").notNull().default(0),
+    likesReceived: integer("likes_received").notNull().default(0),
+    // Points & Level
+    totalPoints: integer("total_points").notNull().default(0),
+    level: varchar("level", { length: 30 }).notNull().default("newcomer"),
+    // Streaks
+    currentStreak: integer("current_streak").notNull().default(0),
+    longestStreak: integer("longest_streak").notNull().default(0),
+    lastActivityAt: timestamp("last_activity_at"),
+    // Ambassador
+    isAmbassador: boolean("is_ambassador").notNull().default(false),
+    ambassadorSince: timestamp("ambassador_since"),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("user_stats_points_idx").on(table.totalPoints),
+    index("user_stats_level_idx").on(table.level),
+    index("user_stats_ambassador_idx").on(table.isAmbassador),
+  ],
+);
+
+// ============================================
+// POINTS LEDGER — Track point transactions
+// ============================================
+
+export const pointsLedger = pgTable(
+  "points_ledger",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    points: integer("points").notNull(), // positive or negative
+    reason: varchar("reason", { length: 100 }).notNull(), // review_created, upload_published, badge_earned, streak_bonus, etc.
+    metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("points_ledger_user_idx").on(table.userId),
+    index("points_ledger_created_idx").on(table.createdAt),
   ],
 );

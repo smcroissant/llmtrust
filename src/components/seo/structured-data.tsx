@@ -120,3 +120,140 @@ export function BreadcrumbJsonLd({
     />
   );
 }
+
+// ============================================
+// FAQPage — for model detail pages
+// ============================================
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export function FaqPageJsonLd({ faqs }: { faqs: FaqItem[] }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
+  return (
+    <Script
+      id="jsonld-faq"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ============================================
+// ItemList — for category pages
+// ============================================
+
+interface ItemListEntry {
+  name: string;
+  url: string;
+  description?: string;
+}
+
+export function ItemListJsonLd({
+  name,
+  description,
+  items,
+}: {
+  name: string;
+  description?: string;
+  items: ItemListEntry[];
+}) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    ...(description && { description }),
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: item.url,
+      name: item.name,
+      ...(item.description && { description: item.description }),
+    })),
+  };
+
+  return (
+    <Script
+      id="jsonld-itemlist"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
+// ============================================
+// Article — for blog posts
+// ============================================
+
+export function ArticleJsonLd({
+  title,
+  description,
+  slug,
+  datePublished,
+  dateModified,
+  authorName,
+  image,
+}: {
+  title: string;
+  description: string;
+  slug: string;
+  datePublished: string;
+  dateModified?: string;
+  authorName?: string;
+  image?: string;
+}) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    url: `https://llmtrust.com/blog/${slug}`,
+    datePublished,
+    dateModified: dateModified ?? datePublished,
+    author: {
+      "@type": "Organization",
+      name: authorName ?? "LLM Trust",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "LLM Trust",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://llmtrust.com/logo.png",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://llmtrust.com/blog/${slug}`,
+    },
+    ...(image && {
+      image: {
+        "@type": "ImageObject",
+        url: image,
+      },
+    }),
+  };
+
+  return (
+    <Script
+      id={`jsonld-article-${slug}`}
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}

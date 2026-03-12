@@ -37,6 +37,7 @@ const features = [
 ];
 
 type FeaturedModel = {
+  id: string;
   slug: string;
   name: string;
   description: string;
@@ -56,7 +57,8 @@ export default async function HomePage() {
     serverCaller.models.stats().catch(() => ({ totalModels: 0, totalDownloads: 0 })),
   ]);
 
-  const featuredModels: FeaturedModel[] = (featuredData?.models ?? []).map((m: { slug: string; name: string; description: string; parameterCount: string | null; architecture: string | null; category: string | null; downloadCount: number; license: string | null; tags: unknown }) => ({
+  const featuredModels: FeaturedModel[] = (featuredData?.models ?? []).map((m: { id: string; slug: string; name: string; description: string; parameterCount: string | null; architecture: string | null; category: string | null; downloadCount: number; license: string | null; tags: unknown }) => ({
+    id: m.id,
     slug: m.slug,
     name: m.name,
     description: m.description,

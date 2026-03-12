@@ -1,44 +1,81 @@
 import type { MetadataRoute } from "next";
+import { serverCaller } from "@/server/api/caller";
+import { getAllBlogPostsMeta } from "@/lib/blog";
+
+const BASE_URL = "https://llmtrust.com";
 
 // Static pages for sitemap
-const staticPages = [
-  { url: "/", priority: 1.0, changeFrequency: "daily" as const },
-  { url: "/models", priority: 0.9, changeFrequency: "daily" as const },
-  { url: "/categories", priority: 0.7, changeFrequency: "weekly" as const },
-  { url: "/compare", priority: 0.7, changeFrequency: "weekly" as const },
-  { url: "/docs", priority: 0.6, changeFrequency: "monthly" as const },
-  { url: "/docs/api", priority: 0.8, changeFrequency: "monthly" as const },
-  { url: "/about", priority: 0.4, changeFrequency: "monthly" as const },
-  { url: "/contact", priority: 0.3, changeFrequency: "monthly" as const },
-  { url: "/privacy", priority: 0.2, changeFrequency: "yearly" as const },
-  { url: "/terms", priority: 0.2, changeFrequency: "yearly" as const },
+const staticPages: {
+  url: string;
+  priority: number;
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
+}[] = [
+  { url: "/", priority: 1.0, changeFrequency: "daily" },
+  { url: "/models", priority: 0.9, changeFrequency: "daily" },
+  { url: "/categories", priority: 0.7, changeFrequency: "weekly" },
+  { url: "/compare", priority: 0.7, changeFrequency: "weekly" },
+  { url: "/compare/llama-3-70b-vs-gpt-4", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/compare/mistral-large-vs-claude-3-opus", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/compare/phi-3-mini-vs-gemma-2-9b", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/best/open-source-llms", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/best/code-llms", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/best/small-llms", priority: 0.8, changeFrequency: "weekly" },
+  { url: "/blog", priority: 0.7, changeFrequency: "weekly" },
+  { url: "/docs", priority: 0.6, changeFrequency: "monthly" },
+  { url: "/docs/api", priority: 0.8, changeFrequency: "monthly" },
+  { url: "/privacy", priority: 0.2, changeFrequency: "yearly" },
+  { url: "/terms", priority: 0.2, changeFrequency: "yearly" },
 ];
 
-// Static model slugs (will be replaced by DB query)
-const modelSlugs = [
-  "llama-3-8b",
-  "mistral-7b",
-  "phi-3-mini",
-  "gemma-2b",
-  "codellama-13b",
-];
-
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://llmtrust.com";
-
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Static entries
   const staticEntries = staticPages.map((page) => ({
-    url: `${baseUrl}${page.url}`,
+    url: `${BASE_URL}${page.url}`,
     lastModified: new Date(),
     changeFrequency: page.changeFrequency,
     priority: page.priority,
   }));
 
-  const modelEntries = modelSlugs.map((slug) => ({
-    url: `${baseUrl}/models/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
+  // Model entries from DB
+  let modelEntries: MetadataRoute.Sitemap = [];
+  try {
+    const { models } = await serverCaller.models.list({ limit: 100 });
+    modelEntries = models.map((m) => ({
+      url: `${BASE_URL}/models/${m.slug}`,
+      lastModified: m.updatedAt ? new Date(m.updatedAt) : new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
+  } catch {
+    // Fallback: no model entries if DB is unavailable
+  }
+
+  // Category entries from DB
+  let categoryEntries: MetadataRoute.Sitemap = [];
+  try {
+    const categories = await serverCaller.models.categories();
+    categoryEntries = categories.map((cat) => ({
+      url: `${BASE_URL}/categories/${cat.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+  } catch {
+    // Fallback
+  }
+
+  // Blog entries (dynamic from content/blog/ files)
+  const blogEntries: MetadataRoute.Sitemap = getAllBlogPostsMeta().map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.frontmatter.date),
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
   }));
 
-  return [...staticEntries, ...modelEntries];
+  return [
+    ...staticEntries,
+    ...modelEntries,
+    ...categoryEntries,
+    ...blogEntries,
+  ];
 }

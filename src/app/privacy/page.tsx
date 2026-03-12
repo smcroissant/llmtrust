@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "Privacy Policy",
+  description: "LLM Trust privacy policy. Learn how we collect, use & protect your data. We never sell personal information.",
+  canonical: canonicalUrl("/privacy"),
+  noIndex: true,
+});
 
 export default function PrivacyPage() {
   return (

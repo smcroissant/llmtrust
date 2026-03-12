@@ -18,11 +18,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://llmtrust.com"),
   title: {
-    default: "LLM Trust — Discover & Run Open-Source LLMs Locally",
+    default: "LLM Trust — Discover & Compare Open-Source LLMs",
     template: "%s | LLM Trust",
   },
   description:
-    "The trusted platform for discovering, comparing, and running open-source LLMs locally. Browse models, read reviews, and get started with AI.",
+    "Compare 200+ open-source LLMs with real benchmarks. GPT-4, Claude, Llama, Gemma — all models ranked. Find the best AI model for your project. Free.",
   keywords: [
     "LLM",
     "large language models",
@@ -34,20 +34,32 @@ export const metadata: Metadata = {
     "GPT alternatives",
     "Ollama",
     "GGUF",
+    "LLM comparison",
+    "AI benchmarks",
+    "run LLM locally",
   ],
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "LLM Trust",
-    title: "LLM Trust — Discover & Run Open-Source LLMs Locally",
+    title: "LLM Trust — Discover & Compare Open-Source LLMs",
     description:
-      "The trusted platform for discovering, comparing, and running open-source LLMs locally.",
+      "Compare 200+ open-source LLMs with real benchmarks. Find the best AI model for your project.",
+    images: [
+      {
+        url: "/og-default.svg",
+        width: 1200,
+        height: 630,
+        alt: "LLM Trust — Discover & Compare Open-Source LLMs",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LLM Trust — Discover & Run Open-Source LLMs Locally",
+    title: "LLM Trust — Discover & Compare Open-Source LLMs",
     description:
-      "The trusted platform for discovering, comparing, and running open-source LLMs locally.",
+      "Compare 200+ open-source LLMs with real benchmarks. Find the best AI model for your project.",
+    images: ["/og-default.svg"],
   },
   robots: {
     index: true,
@@ -59,6 +71,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  alternates: {
+    canonical: "https://llmtrust.com",
   },
 };
 

@@ -102,6 +102,26 @@ export const userRouter = createTRPCRouter({
   }),
 
   // ============================================
+  // IS FAVORITE — Check if model is favorited
+  // ============================================
+  isFavorite: protectedProcedure
+    .input(z.object({ modelId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [existing] = await db
+        .select()
+        .from(favorite)
+        .where(
+          and(
+            eq(favorite.userId, ctx.userId),
+            eq(favorite.modelId, input.modelId),
+          ),
+        )
+        .limit(1);
+
+      return { favorited: !!existing };
+    }),
+
+  // ============================================
   // TOGGLE FAVORITE — Add/remove from favorites
   // ============================================
   toggleFavorite: protectedProcedure
@@ -131,6 +151,31 @@ export const userRouter = createTRPCRouter({
         return { favorited: true };
       }
     }),
+
+  // ============================================
+  // RECENT REVIEWS — Last 5 reviews by user
+  // ============================================
+  recentReviews: protectedProcedure.query(async ({ ctx }) => {
+    const reviews = await db
+      .select({
+        id: review.id,
+        rating: review.rating,
+        content: review.content,
+        createdAt: review.createdAt,
+        model: {
+          id: model.id,
+          slug: model.slug,
+          name: model.name,
+        },
+      })
+      .from(review)
+      .innerJoin(model, eq(review.modelId, model.id))
+      .where(eq(review.userId, ctx.userId))
+      .orderBy(desc(review.createdAt))
+      .limit(5);
+
+    return reviews;
+  }),
 
   // ============================================
   // API KEYS — For Electron app authentication
