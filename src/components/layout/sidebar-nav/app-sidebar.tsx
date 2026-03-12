@@ -38,6 +38,7 @@ import {
   ChevronUp,
   Sparkles,
   Search,
+  Mail,
   MessageSquareCode,
   Eye,
   Hash,
@@ -51,6 +52,7 @@ const navMain = [
   { title: "Models", url: "/models", icon: LayoutGrid },
   { title: "Compare", url: "/compare", icon: GitCompareArrows },
   { title: "Blog", url: "/blog", icon: BookOpen },
+  { title: "Newsletter", url: "/newsletter", icon: Mail },
 ];
 
 const navApp = [

@@ -304,6 +304,25 @@ export const userStats = pgTable(
 );
 
 // ============================================
+// NEWSLETTER SUBSCRIBERS
+// ============================================
+
+export const newsletterSubscriber = pgTable(
+  "newsletter_subscriber",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull().unique(),
+    confirmToken: text("confirm_token").notNull(),
+    confirmed: boolean("confirmed").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("newsletter_email_idx").on(table.email),
+    index("newsletter_token_idx").on(table.confirmToken),
+  ],
+);
+
+// ============================================
 // POINTS LEDGER — Track point transactions
 // ============================================
 

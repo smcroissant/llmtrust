@@ -6,6 +6,8 @@ slug: /blog/run-llama-3-locally-complete-guide
 keywords: [run llama 3 locally, llama 3 download, ollama llama 3, local llama 3, llama 3 local setup]
 date: 2026-03-12
 author: Pulse
+categories: [Tutorials]
+image: /blog/og-run-llama3.svg
 ---
 
 # How to Run Llama 3 Locally: Complete Guide

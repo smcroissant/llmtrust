@@ -6,6 +6,8 @@ slug: /blog/gpt-4-vs-claude-3-vs-llama-3-comparison
 keywords: [gpt-4 vs claude 3, best llm comparison, llm benchmark comparison, claude vs gpt, best llm 2026]
 date: 2026-03-12
 author: Pulse
+categories: [Comparisons]
+image: /blog/og-comparison.svg
 ---
 
 # GPT-4 vs Claude 3 vs Llama 3: Which LLM Should You Use?

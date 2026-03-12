@@ -11,6 +11,7 @@ const footerLinks = {
     { name: "Blog", href: "/blog" },
     { name: "Documentation", href: "/docs" },
     { name: "API Reference", href: "/docs/api" },
+    { name: "Newsletter", href: "/newsletter" },
     { name: "Changelog", href: "/changelog" },
   ],
   Categories: [

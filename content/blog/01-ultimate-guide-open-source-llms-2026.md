@@ -6,6 +6,8 @@ slug: /blog/ultimate-guide-open-source-llms-2026
 keywords: [open source llm, best open source llm, free llm, open source large language models]
 date: 2026-03-12
 author: Pulse
+categories: [Getting Started]
+image: /blog/og-ultimate-guide.svg
 ---
 
 # The Ultimate Guide to Open Source LLMs in 2026

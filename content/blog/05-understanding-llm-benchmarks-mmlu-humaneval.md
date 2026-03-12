@@ -6,6 +6,8 @@ slug: /blog/understanding-llm-benchmarks-mmlu-humaneval
 keywords: [llm benchmarks, mmlu benchmark, humaneval, llm evaluation, llm leaderboard, how to compare llms]
 date: 2026-03-12
 author: Pulse
+categories: [Guides]
+image: /blog/og-benchmarks.svg
 ---
 
 # Understanding LLM Benchmarks: MMLU, HumanEval & More

@@ -287,3 +287,94 @@ export function getRelatedPosts(
 
   return [...result, ...remaining];
 }
+
+// ============================================
+// Category Functions
+// ============================================
+
+/**
+ * Get all unique blog categories
+ */
+export function getAllBlogCategories(): string[] {
+  const posts = getAllBlogPostsMeta();
+  const categories = new Set<string>();
+  for (const post of posts) {
+    for (const cat of post.frontmatter.categories ?? []) {
+      categories.add(cat);
+    }
+  }
+  return Array.from(categories).sort();
+}
+
+/**
+ * Get all blog category slugs (URL-safe) for generateStaticParams
+ */
+export function getAllBlogCategorySlugs(): string[] {
+  return getAllBlogCategories().map((cat) =>
+    cat.toLowerCase().replace(/\s+/g, "-")
+  );
+}
+
+/**
+ * Convert category slug back to display name
+ */
+export function categorySlugToName(slug: string): string {
+  const categories = getAllBlogCategories();
+  const found = categories.find(
+    (cat) => cat.toLowerCase().replace(/\s+/g, "-") === slug
+  );
+  return found ?? slug.replace(/-/g, " ");
+}
+
+/**
+ * Get blog posts filtered by category
+ */
+export function getPostsByCategory(category: string): BlogPostMeta[] {
+  const posts = getAllBlogPostsMeta();
+  return posts.filter((post) =>
+    (post.frontmatter.categories ?? []).some(
+      (cat) => cat.toLowerCase() === category.toLowerCase()
+    )
+  );
+}
+
+/**
+ * Get related posts by category (same category, excluding current)
+ */
+export function getRelatedByCategory(
+  currentSlug: string,
+  limit = 3
+): BlogPostMeta[] {
+  const allPosts = getAllBlogPostsMeta();
+  const current = allPosts.find((p) => p.slug === currentSlug);
+  if (!current) return [];
+
+  const currentCategories = (current.frontmatter.categories ?? []).map((c) =>
+    c.toLowerCase()
+  );
+
+  if (currentCategories.length === 0) {
+    return getRelatedPosts(currentSlug, limit);
+  }
+
+  // First try same category
+  const sameCategory = allPosts.filter(
+    (p) =>
+      p.slug !== currentSlug &&
+      (p.frontmatter.categories ?? []).some((cat) =>
+        currentCategories.includes(cat.toLowerCase())
+      )
+  );
+
+  if (sameCategory.length >= limit) {
+    return sameCategory.slice(0, limit);
+  }
+
+  // Fill with keyword-based related posts
+  const result = [...sameCategory];
+  const remaining = getRelatedPosts(currentSlug, limit + sameCategory.length)
+    .filter((p) => !result.find((r) => r.slug === p.slug))
+    .slice(0, limit - result.length);
+
+  return [...result, ...remaining];
+}

@@ -6,6 +6,8 @@ slug: /blog/best-small-language-models-laptop
 keywords: [small language models, slm, llm on laptop, local llm, run llm locally, best small llm]
 date: 2026-03-12
 author: Pulse
+categories: [Guides]
+image: /blog/og-small-lms.svg
 ---
 
 # Best Small Language Models You Can Run on a Laptop
