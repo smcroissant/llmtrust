@@ -5,6 +5,7 @@ import { user as userTable, favorite, model, apiKey, review } from "../../db/sch
 import { eq, and, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { randomBytes, createHash } from "crypto";
+import { sanitize, sanitizeUrl } from "@/lib/sanitize";
 
 export const userRouter = createTRPCRouter({
   // ============================================
@@ -53,11 +54,15 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Sanitize inputs
+      const sanitizedName = input.name ? sanitize(input.name, 100) : undefined;
+      const sanitizedImage = input.image !== undefined ? sanitizeUrl(input.image) : undefined;
+
       const [updated] = await db
         .update(userTable)
         .set({
-          ...(input.name && { name: input.name }),
-          ...(input.image !== undefined && { image: input.image }),
+          ...(sanitizedName && { name: sanitizedName }),
+          ...(sanitizedImage !== undefined && { image: sanitizedImage }),
           updatedAt: new Date(),
         })
         .where(eq(userTable.id, ctx.userId))

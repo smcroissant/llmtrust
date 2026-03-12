@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { validatePasswordStrength } from "@/server/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +18,32 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (mode === "sign-up" && value.length > 0) {
+      const result = validatePasswordStrength(value);
+      setPasswordErrors(result.errors);
+    } else {
+      setPasswordErrors([]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Client-side password validation for sign-up
+    if (mode === "sign-up") {
+      const result = validatePasswordStrength(password);
+      if (!result.valid) {
+        setPasswordErrors(result.errors);
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -70,6 +92,8 @@ export function AuthForm({ mode }: AuthFormProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            maxLength={100}
+            autoComplete="name"
             className="bg-surface border-border/60 focus:border-primary/50 focus:ring-primary/20 h-11"
           />
         </div>
@@ -86,6 +110,8 @@ export function AuthForm({ mode }: AuthFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="email"
+          maxLength={254}
           className="bg-surface border-border/60 focus:border-primary/50 focus:ring-primary/20 h-11"
         />
       </div>
@@ -99,11 +125,23 @@ export function AuthForm({ mode }: AuthFormProps) {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => handlePasswordChange(e.target.value)}
           required
           minLength={8}
+          maxLength={128}
+          autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
           className="bg-surface border-border/60 focus:border-primary/50 focus:ring-primary/20 h-11"
         />
+        {mode === "sign-up" && passwordErrors.length > 0 && (
+          <ul className="text-xs text-destructive space-y-1 mt-1">
+            {passwordErrors.map((err, i) => (
+              <li key={i}>• {err}</li>
+            ))}
+          </ul>
+        )}
+        {mode === "sign-up" && password.length > 0 && passwordErrors.length === 0 && (
+          <p className="text-xs text-green-600 mt-1">✓ Password meets requirements</p>
+        )}
       </div>
 
       {error && (
