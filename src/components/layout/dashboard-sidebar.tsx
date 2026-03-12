@@ -25,6 +25,7 @@ import {
   Sparkles,
   Star,
   Upload,
+  Key,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
@@ -36,6 +37,7 @@ const navDashboard = [
 
 const navAccount = [
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "API Keys", url: "/dashboard/api-keys", icon: Key },
 ];
 
 export function DashboardSidebar() {

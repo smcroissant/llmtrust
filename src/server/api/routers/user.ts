@@ -153,6 +153,31 @@ export const userRouter = createTRPCRouter({
     }),
 
   // ============================================
+  // RECENT REVIEWS — Last 5 reviews by user
+  // ============================================
+  recentReviews: protectedProcedure.query(async ({ ctx }) => {
+    const reviews = await db
+      .select({
+        id: review.id,
+        rating: review.rating,
+        content: review.content,
+        createdAt: review.createdAt,
+        model: {
+          id: model.id,
+          slug: model.slug,
+          name: model.name,
+        },
+      })
+      .from(review)
+      .innerJoin(model, eq(review.modelId, model.id))
+      .where(eq(review.userId, ctx.userId))
+      .orderBy(desc(review.createdAt))
+      .limit(5);
+
+    return reviews;
+  }),
+
+  // ============================================
   // API KEYS — For Electron app authentication
   // ============================================
   apiKeys: protectedProcedure.query(async ({ ctx }) => {

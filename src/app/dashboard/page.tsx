@@ -15,13 +15,16 @@ import {
   ArrowRight,
   Clock,
   Sparkles,
+  MessageSquare,
 } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: userData, isLoading } = trpc.user.me.useQuery();
   const { data: favorites } = trpc.user.favorites.useQuery();
+  const { data: recentReviews } = trpc.user.recentReviews.useQuery();
 
   const recentFavorites = favorites?.slice(0, 3) ?? [];
+  const reviews = recentReviews ?? [];
 
   if (isLoading) {
     return (
@@ -96,15 +99,15 @@ export default function DashboardPage() {
         </GlowCard>
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Favorites */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Activity className="size-4 text-primary" />
+            <Heart className="size-4 text-primary" />
             Recent Favorites
           </h2>
           {recentFavorites.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={() => { window.location.href = "/dashboard/favorites"; }}>
+            <Button variant="ghost" size="sm" render={<Link href="/dashboard/favorites" />}>
               View all
               <ArrowRight className="ml-1 size-3" />
             </Button>
@@ -148,6 +151,72 @@ export default function DashboardPage() {
                 variant="no-data"
                 title="No favorites yet"
                 description="Start exploring models and save your favorites here."
+                action={
+                  <Button render={<Link href="/models" />}>
+                    <Sparkles className="mr-2 size-4" />
+                    Browse Models
+                  </Button>
+                }
+              />
+            </GlowCardContent>
+          </GlowCard>
+        )}
+      </div>
+
+      {/* Recent Reviews */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <MessageSquare className="size-4 text-primary" />
+            Recent Reviews
+          </h2>
+        </div>
+
+        {reviews.length > 0 ? (
+          <div className="space-y-3">
+            {reviews.map((rev) => (
+              <GlowCard key={rev.id}>
+                <Link href={`/models/${rev.model.slug}`}>
+                  <GlowCardContent className="pt-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm font-semibold">{rev.model.name}</h3>
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`size-3 ${
+                                  i < rev.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-muted-foreground/30"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {rev.content && (
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {rev.content}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(rev.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </GlowCardContent>
+                </Link>
+              </GlowCard>
+            ))}
+          </div>
+        ) : (
+          <GlowCard>
+            <GlowCardContent className="pt-6">
+              <EmptyState
+                variant="no-data"
+                title="No reviews yet"
+                description="Share your thoughts on models you've tried."
                 action={
                   <Button render={<Link href="/models" />}>
                     <Sparkles className="mr-2 size-4" />
