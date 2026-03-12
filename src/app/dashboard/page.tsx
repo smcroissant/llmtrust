@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
+import { QuickTour } from "@/components/onboarding/quick-tour";
 import {
   Heart,
   Star,
@@ -41,6 +42,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
+      {/* Onboarding Quick Tour — shows once after first sign-up */}
+      <QuickTour />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
@@ -52,7 +56,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <GlowCard>
           <GlowCardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -115,7 +119,7 @@ export default function DashboardPage() {
         </div>
 
         {recentFavorites.length > 0 ? (
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {recentFavorites.map((fav) => (
               <GlowCard key={fav.id} className="cursor-pointer">
                 <Link href={`/models/${fav.model.slug}`}>

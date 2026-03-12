@@ -85,13 +85,13 @@ export function ModelCardEnhanced({ model, delay = 0 }: ModelCardProps) {
         {/* Heart button */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-background/80 transition-colors z-10"
+          className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-background/80 transition-all duration-200 z-10 hover:scale-110"
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           <Heart
-            className={`h-4 w-4 transition-colors ${
+            className={`h-4 w-4 transition-all duration-200 ${
               isFavorite
-                ? "fill-red-500 text-red-500"
+                ? "fill-red-500 text-red-500 animate-heart-pulse"
                 : "text-muted-foreground hover:text-red-400"
             }`}
           />

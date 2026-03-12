@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,14 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        {/* Mobile header with sidebar trigger */}
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b md:hidden">
+          <SidebarTrigger className="ml-2" />
+          <span className="font-semibold text-sm">Dashboard</span>
+        </header>
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -379,3 +379,265 @@ If you didn't request a password reset, you can safely ignore this email. Your p
     text,
   });
 }
+
+// ─── Onboarding Email Sequence ────────────────────────────────────────────
+
+interface FeaturedModel {
+  name: string;
+  slug: string;
+  description: string;
+}
+
+/**
+ * Day 3 email: Reminder to complete onboarding + featured models.
+ * Sent 3 days after sign-up if user hasn't activated (saved a model, left a review, or submitted a model).
+ */
+export async function sendDay3Reminder(params: {
+  email: string;
+  name: string;
+  featuredModels?: FeaturedModel[];
+}) {
+  const { email, name, featuredModels = [] } = params;
+  const firstName = name?.split(" ")[0] ?? "there";
+
+  const featuredModelsHtml = featuredModels.length > 0
+    ? featuredModels
+        .map(
+          (m) => `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+      <tr>
+        <td style="background-color:#f9fafb;border-radius:10px;padding:16px 20px;border:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">${m.name}</p>
+          <p style="margin:4px 0 8px;font-size:14px;color:#6b7280;line-height:1.5;">${m.description}</p>
+          <a href="${APP_URL}/models/${m.slug}" style="font-size:14px;color:#6366f1;text-decoration:none;font-weight:500;">View model →</a>
+        </td>
+      </tr>
+    </table>`,
+        )
+        .join("")
+    : `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+      <tr>
+        <td style="background-color:#f9fafb;border-radius:10px;padding:16px 20px;border:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">🔥 Qwen 2.5 72B</p>
+          <p style="margin:4px 0 8px;font-size:14px;color:#6b7280;line-height:1.5;">Top-rated for general tasks with excellent multilingual support.</p>
+          <a href="${APP_URL}/models/qwen-2-5-72b" style="font-size:14px;color:#6366f1;text-decoration:none;font-weight:500;">View model →</a>
+        </td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+      <tr>
+        <td style="background-color:#f9fafb;border-radius:10px;padding:16px 20px;border:1px solid #e5e7eb;">
+          <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">⚡ DeepSeek Coder V2</p>
+          <p style="margin:4px 0 8px;font-size:14px;color:#6b7280;line-height:1.5;">Best open-source code model with 236B MoE architecture.</p>
+          <a href="${APP_URL}/models/deepseek-coder-v2" style="font-size:14px;color:#6366f1;text-decoration:none;font-weight:500;">View model →</a>
+        </td>
+      </tr>
+    </table>`;
+
+  const body = `
+    <p style="font-size:16px;color:#374151;margin:0 0 16px;line-height:1.6;">
+      Hey <strong>${firstName}</strong> 👋,
+    </p>
+    <p style="font-size:16px;color:#374151;margin:0 0 24px;line-height:1.6;">
+      You signed up for LLM Trust a few days ago — we don&apos;t want you to miss out! Here are a couple of things you can do right now:
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="background-color:#f0f0ff;border-radius:10px;padding:20px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="48" valign="top">
+                <div style="width:40px;height:40px;background-color:#6366f1;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">⭐</div>
+              </td>
+              <td style="padding-left:12px;">
+                <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">Save a model to your dashboard</p>
+                <p style="margin:4px 0 0;font-size:14px;color:#6b7280;line-height:1.5;">Click the heart icon on any model to start building your library.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+      <tr>
+        <td style="background-color:#f0f0ff;border-radius:10px;padding:20px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="48" valign="top">
+                <div style="width:40px;height:40px;background-color:#6366f1;border-radius:10px;text-align:center;line-height:40px;font-size:20px;">📝</div>
+              </td>
+              <td style="padding-left:12px;">
+                <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">Leave your first review</p>
+                <p style="margin:4px 0 0;font-size:14px;color:#6b7280;line-height:1.5;">Share your experience with a model you&apos;ve used and help the community.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-size:16px;color:#374151;margin:0 0 16px;line-height:1.6;">
+      <strong>🔥 Featured models this week:</strong>
+    </p>
+
+    ${featuredModelsHtml}
+
+    ${ctaButton(`${APP_URL}/models`, "Explore All Models →")}
+  `;
+
+  const html = emailLayout({
+    title: "Don't miss out on LLM Trust",
+    emoji: "👋",
+    preheader: "Save models, write reviews, and discover the best LLMs.",
+    body,
+  });
+
+  const text = `Don't miss out on LLM Trust 👋
+
+Hey ${firstName},
+
+You signed up for LLM Trust a few days ago — here's what you can do right now:
+
+⭐ Save a model to your dashboard → ${APP_URL}/models
+📝 Leave your first review → ${APP_URL}/models
+
+Featured models this week:
+${featuredModels.map((m) => `• ${m.name}: ${m.description} → ${APP_URL}/models/${m.slug}`).join("\n") || "• Qwen 2.5 72B → " + APP_URL + "/models/qwen-2-5-72b\n• DeepSeek Coder V2 → " + APP_URL + "/models/deepseek-coder-v2"}
+
+Explore all models: ${APP_URL}/models
+
+— The LLM Trust Team`;
+
+  return sendEmail({
+    to: email,
+    subject: "Still curious about LLMs? Here are this week's picks 🔥",
+    html,
+    text,
+  });
+}
+
+/**
+ * Day 7 email: Discover comparisons.
+ * Sent 7 days after sign-up to re-engage users and introduce the comparison feature.
+ */
+export async function sendDay7DiscoverComparisons(params: {
+  email: string;
+  name: string;
+}) {
+  const { email, name } = params;
+  const firstName = name?.split(" ")[0] ?? "there";
+
+  const comparisons = [
+    {
+      modelA: "Llama 3 70B",
+      modelB: "GPT-4",
+      slug: "llama-3-70b-vs-gpt-4",
+      description: "The open-source contender vs. the industry standard.",
+    },
+    {
+      modelA: "Mistral Large",
+      modelB: "Claude 3 Opus",
+      slug: "mistral-large-vs-claude-3-opus",
+      description: "European efficiency meets Anthropic's safety-first approach.",
+    },
+    {
+      modelA: "Phi-3 Mini",
+      modelB: "Gemma 2 9B",
+      slug: "phi-3-mini-vs-gemma-2-9b",
+      description: "Small but mighty — which compact model wins?",
+    },
+  ];
+
+  const comparisonsHtml = comparisons
+    .map(
+      (c) => `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+      <tr>
+        <td style="background-color:#f0f0ff;border-radius:10px;padding:16px 20px;">
+          <p style="margin:0;font-size:15px;font-weight:600;color:#111827;">⚡ ${c.modelA} vs ${c.modelB}</p>
+          <p style="margin:4px 0 8px;font-size:14px;color:#6b7280;line-height:1.5;">${c.description}</p>
+          <a href="${APP_URL}/compare/${c.slug}" style="font-size:14px;color:#6366f1;text-decoration:none;font-weight:500;">Compare now →</a>
+        </td>
+      </tr>
+    </table>`,
+    )
+    .join("");
+
+  const body = `
+    <p style="font-size:16px;color:#374151;margin:0 0 16px;line-height:1.6;">
+      Hey <strong>${firstName}</strong> 🔍,
+    </p>
+    <p style="font-size:16px;color:#374151;margin:0 0 24px;line-height:1.6;">
+      It&apos;s been a week since you joined LLM Trust! One of our most powerful features is
+      <strong>side-by-side model comparisons</strong> — and we think you&apos;ll love it.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+      <tr>
+        <td style="background-color:#f9fafb;border-radius:10px;padding:20px 24px;">
+          <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:#111827;">How it works:</p>
+          <p style="margin:0 0 4px;font-size:14px;color:#374151;line-height:1.6;">1️⃣ Pick any two models</p>
+          <p style="margin:0 0 4px;font-size:14px;color:#374151;line-height:1.6;">2️⃣ See specs, benchmarks & reviews side-by-side</p>
+          <p style="margin:0;font-size:14px;color:#374151;line-height:1.6;">3️⃣ Make the right choice for your project</p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="font-size:16px;color:#374151;margin:0 0 16px;line-height:1.6;">
+      <strong>⚡ Popular comparisons:</strong>
+    </p>
+
+    ${comparisonsHtml}
+
+    ${ctaButton(`${APP_URL}/compare`, "Compare Models →")}
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+      <tr>
+        <td style="background-color:#f0f0ff;border-radius:10px;padding:20px 24px;">
+          <p style="margin:0 0 4px;font-size:14px;color:#6b7280;">💡 <strong>Pro tip:</strong></p>
+          <p style="margin:0;font-size:14px;color:#6b7280;line-height:1.5;">
+            You can bookmark any comparison URL to share with your team. Try comparing your
+            current production model against a new open-source alternative!
+          </p>
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const html = emailLayout({
+    title: "Compare LLMs side-by-side",
+    emoji: "⚡",
+    preheader: "Our most powerful feature — see how models stack up against each other.",
+    body,
+  });
+
+  const text = `Compare LLMs side-by-side ⚡
+
+Hey ${firstName},
+
+It's been a week since you joined LLM Trust! Discover our comparison feature:
+
+How it works:
+1. Pick any two models
+2. See specs, benchmarks & reviews side-by-side
+3. Make the right choice for your project
+
+Popular comparisons:
+${comparisons.map((c) => `• ${c.modelA} vs ${c.modelB}: ${c.description} → ${APP_URL}/compare/${c.slug}`).join("\n")}
+
+Compare models: ${APP_URL}/compare
+
+💡 Pro tip: Bookmark any comparison URL to share with your team!
+
+— The LLM Trust Team`;
+
+  return sendEmail({
+    to: email,
+    subject: "The best way to choose an LLM — compare them ⚡",
+    html,
+    text,
+  });
+}

@@ -69,6 +69,7 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-fade-up: fade-up 0.5s ease-out;
   --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-heart-pulse: heart-pulse 0.8s ease-in-out;
 }
 
 /* ============================================
@@ -217,6 +218,14 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+@keyframes heart-pulse {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
 }
 
 /* ============================================
@@ -446,6 +455,11 @@
   /* Scale in for modals/overlays */
   .animate-scale-in {
     animation: scale-in 0.2s ease-out both;
+  }
+
+  /* Heart pulse for favorite button */
+  .animate-heart-pulse {
+    animation: heart-pulse 0.8s ease-in-out;
   }
 
   /* Neural connection line decoration */
