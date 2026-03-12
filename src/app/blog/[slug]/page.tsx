@@ -4,69 +4,9 @@ import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
-import { ArrowLeft } from "lucide-react";
-
-// Blog post data (would come from CMS/DB in production)
-const posts: Record<
-  string,
-  { title: string; date: string; description: string; content: string }
-> = {
-  "ultimate-guide-open-source-llms-2026": {
-    title: "The Ultimate Guide to Open-Source LLMs in 2026",
-    date: "2026-01-15",
-    description:
-      "Everything you need to know about open-source large language models in 2026. From Llama to Mistral, discover the best models for your projects.",
-    content: `<p>The landscape of open-source large language models has evolved dramatically. In this comprehensive guide, we cover the most important models, benchmarks, and how to get started.</p>
-<h2>Top Models in 2026</h2>
-<p>From Meta's Llama series to Mistral and beyond, open-source LLMs now rival proprietary models in many benchmarks while offering full control and privacy.</p>
-<h2>Getting Started</h2>
-<p>Running LLMs locally has never been easier. Tools like Ollama, LM Studio, and llama.cpp make it simple to download and run models on consumer hardware.</p>`,
-  },
-  "run-llama-3-locally-complete-guide": {
-    title: "Run Llama 3 Locally: Complete Guide",
-    date: "2026-01-20",
-    description:
-      "Step-by-step guide to running Llama 3 locally on your machine using Ollama, llama.cpp, and other popular tools.",
-    content: `<p>Llama 3 is one of the most capable open-source models available. This guide walks you through running it locally.</p>
-<h2>Prerequisites</h2>
-<p>You'll need at least 8GB of RAM for smaller quantizations. For the full model, 32GB+ is recommended.</p>
-<h2>Using Ollama</h2>
-<p>The simplest way to run Llama 3 is with Ollama. Just run: <code>ollama run llama3</code></p>`,
-  },
-  "gpt-4-vs-claude-3-vs-llama-3-comparison": {
-    title: "GPT-4 vs Claude 3 vs Llama 3: Comparison",
-    date: "2026-02-01",
-    description:
-      "A detailed comparison of GPT-4, Claude 3, and Llama 3 across key benchmarks, capabilities, and use cases.",
-    content: `<p>How do the top AI models compare? We break down GPT-4, Claude 3, and Llama 3 across multiple dimensions.</p>
-<h2>Performance Benchmarks</h2>
-<p>On MMLU, GPT-4 leads with 86.4%, followed by Claude 3 at 84.9%, and Llama 3 70B at 82.0%.</p>
-<h2>Cost and Accessibility</h2>
-<p>Llama 3 wins on cost—it's free and runs locally. GPT-4 and Claude 3 require API access with per-token pricing.</p>`,
-  },
-  "best-small-language-models-laptop": {
-    title: "Best Small Language Models for Your Laptop",
-    date: "2026-02-10",
-    description:
-      "Discover the best small language models (under 7B parameters) that run smoothly on consumer laptops.",
-    content: `<p>Not everyone has a GPU cluster. Here are the best small language models that run well on regular laptops.</p>
-<h2>Phi-3 Mini (3.8B)</h2>
-<p>Microsoft's Phi-3 punches well above its weight, rivaling models 5x its size.</p>
-<h2>Gemma 2B</h2>
-<p>Google's Gemma 2B is incredibly efficient for its size, perfect for edge deployment.</p>`,
-  },
-  "understanding-llm-benchmarks-mmlu-humaneval": {
-    title: "Understanding LLM Benchmarks: MMLU, HumanEval & More",
-    date: "2026-02-20",
-    description:
-      "A deep dive into LLM benchmarks—what MMLU, HumanEval, GSM8K, and other metrics actually measure.",
-    content: `<p>Benchmarks are how we compare LLMs, but they can be confusing. Here's what each one measures.</p>
-<h2>MMLU (Massive Multitask Language Understanding)</h2>
-<p>MMLU tests knowledge across 57 subjects from STEM to humanities. It's the most widely cited benchmark.</p>
-<h2>HumanEval</h2>
-<p>HumanEval measures code generation ability by testing whether generated code passes unit tests.</p>`,
-  },
-};
+import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle, GlowCardDescription } from "@/components/ui/glow-card";
+import { getAllBlogSlugs, getBlogPost, getRelatedPosts } from "@/lib/blog";
+import { ArrowLeft, Clock, Calendar, User, ArrowRight, List } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -74,22 +14,22 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts[slug];
+  const post = await getBlogPost(slug);
 
   if (!post) {
     return { title: "Post Not Found" };
   }
 
   return generatePageMetadata({
-    title: post.title,
-    description: post.description,
+    title: post.frontmatter.meta_title ?? post.frontmatter.title,
+    description: post.frontmatter.meta_description ?? "",
     canonical: canonicalUrl(`/blog/${slug}`),
     type: "article",
   });
 }
 
 export async function generateStaticParams() {
-  return Object.keys(posts).map((slug) => ({ slug }));
+  return getAllBlogSlugs().map((slug) => ({ slug }));
 }
 
 export default async function BlogPostPage({
@@ -98,62 +38,189 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = posts[slug];
+  const post = await getBlogPost(slug);
 
   if (!post) {
     notFound();
   }
 
+  const relatedPosts = getRelatedPosts(slug, 3);
+
   return (
     <>
       <ArticleJsonLd
-        title={post.title}
-        description={post.description}
+        title={post.frontmatter.title}
+        description={post.frontmatter.meta_description ?? ""}
         slug={slug}
-        datePublished={post.date}
+        datePublished={post.frontmatter.date}
+        authorName={post.frontmatter.author}
       />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "https://llmtrust.com" },
           { name: "Blog", url: "https://llmtrust.com/blog" },
-          { name: post.title, url: `https://llmtrust.com/blog/${slug}` },
+          { name: post.frontmatter.title, url: `https://llmtrust.com/blog/${slug}` },
         ]}
       />
       <TopBar
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Blog", href: "/blog" },
-          { label: post.title },
+          { label: post.frontmatter.title },
         ]}
       />
-      <article className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-6">
-          <Link
-            href="/blog"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Blog
-          </Link>
+
+      <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 gap-8 p-6 md:p-8 max-w-7xl mx-auto w-full">
+          {/* Main Content */}
+          <article className="flex-1 min-w-0 max-w-3xl">
+            {/* Back link */}
+            <div className="mb-6">
+              <Link
+                href="/blog"
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Blog
+              </Link>
+            </div>
+
+            {/* Header */}
+            <header className="mb-10">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-4">
+                {post.frontmatter.title}
+              </h1>
+
+              {/* Meta */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="size-4" />
+                  {new Date(post.frontmatter.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+                <span className="text-border">·</span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="size-4" />
+                  {post.readingTime}
+                </span>
+                {post.frontmatter.author && (
+                  <>
+                    <span className="text-border">·</span>
+                    <span className="flex items-center gap-1.5">
+                      <User className="size-4" />
+                      {post.frontmatter.author}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Decorative line */}
+              <div className="neural-line mt-6" />
+            </header>
+
+            {/* Rendered Content */}
+            <div
+              className="prose prose-neutral dark:prose-invert max-w-none
+                prose-headings:scroll-mt-20
+                prose-h2:text-2xl prose-h2:font-bold prose-h2:tracking-tight prose-h2:mt-12 prose-h2:mb-4
+                prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-3
+                prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-6 prose-h4:mb-2
+                prose-p:leading-relaxed prose-p:text-muted-foreground
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-foreground
+                prose-code:text-primary prose-code:bg-primary/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
+                prose-pre:bg-card prose-pre:border prose-pre:border-border prose-pre:rounded-xl
+                prose-img:rounded-xl prose-img:border prose-img:border-border
+                prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:rounded-r-xl prose-blockquote:py-1
+                prose-li:text-muted-foreground
+                prose-table:text-sm
+                prose-th:bg-muted prose-th:font-semibold prose-th:text-foreground
+                prose-td:border-border prose-th:border-border
+                prose-hr:border-border"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          </article>
+
+          {/* Table of Contents Sidebar */}
+          {post.toc.length > 0 && (
+            <aside className="hidden xl:block w-64 shrink-0">
+              <nav className="sticky top-20">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-4">
+                  <List className="size-4" />
+                  On this page
+                </div>
+                <ul className="space-y-1.5 border-l border-border pl-4">
+                  {post.toc.map((entry) => (
+                    <li key={entry.id}>
+                      <a
+                        href={`#${entry.id}`}
+                        className={`block text-sm transition-colors hover:text-primary ${
+                          entry.level === 2
+                            ? "text-muted-foreground font-medium"
+                            : entry.level === 3
+                              ? "text-muted-foreground/70 pl-3"
+                              : "text-muted-foreground/50 pl-6"
+                        }`}
+                      >
+                        {entry.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </aside>
+          )}
         </div>
 
-        <header className="mb-8">
-          <time className="text-sm text-muted-foreground">
-            {new Date(post.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </time>
-          <h1 className="text-3xl font-bold mt-2 mb-4">{post.title}</h1>
-          <p className="text-lg text-muted-foreground">{post.description}</p>
-        </header>
-
-        <div
-          className="prose prose-neutral dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-      </article>
+        {/* Related Articles */}
+        {relatedPosts.length > 0 && (
+          <section className="border-t border-border p-6 md:p-8">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="text-xl font-bold tracking-tight mb-6">Related Articles</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {relatedPosts.map((related) => (
+                  <Link
+                    key={related.slug}
+                    href={`/blog/${related.slug}`}
+                    className="group block"
+                  >
+                    <GlowCard className="h-full">
+                      <GlowCardHeader>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                          <Calendar className="size-3" />
+                          {new Date(related.frontmatter.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          <span className="text-border">·</span>
+                          <Clock className="size-3" />
+                          {related.readingTime}
+                        </div>
+                        <GlowCardTitle className="text-sm leading-snug group-hover:text-primary transition-colors">
+                          {related.frontmatter.title}
+                        </GlowCardTitle>
+                        <GlowCardDescription className="line-clamp-2 text-xs">
+                          {related.frontmatter.meta_description}
+                        </GlowCardDescription>
+                      </GlowCardHeader>
+                      <GlowCardContent>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                          Read article
+                          <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+                        </span>
+                      </GlowCardContent>
+                    </GlowCard>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
     </>
   );
 }

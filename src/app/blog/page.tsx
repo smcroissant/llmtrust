@@ -3,7 +3,9 @@ import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
 import { ItemListJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
-import { BookOpen } from "lucide-react";
+import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle, GlowCardDescription } from "@/components/ui/glow-card";
+import { getAllBlogPostsMeta } from "@/lib/blog";
+import { BookOpen, Clock, Calendar, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Blog",
@@ -11,39 +13,13 @@ export const metadata: Metadata = generatePageMetadata({
   canonical: canonicalUrl("/blog"),
 });
 
-const posts = [
-  {
-    slug: "ultimate-guide-open-source-llms-2026",
-    title: "The Ultimate Guide to Open-Source LLMs in 2026",
-    date: "2026-01-15",
-  },
-  {
-    slug: "run-llama-3-locally-complete-guide",
-    title: "Run Llama 3 Locally: Complete Guide",
-    date: "2026-01-20",
-  },
-  {
-    slug: "gpt-4-vs-claude-3-vs-llama-3-comparison",
-    title: "GPT-4 vs Claude 3 vs Llama 3: Comparison",
-    date: "2026-02-01",
-  },
-  {
-    slug: "best-small-language-models-laptop",
-    title: "Best Small Language Models for Your Laptop",
-    date: "2026-02-10",
-  },
-  {
-    slug: "understanding-llm-benchmarks-mmlu-humaneval",
-    title: "Understanding LLM Benchmarks: MMLU, HumanEval & More",
-    date: "2026-02-20",
-  },
-];
-
 export default function BlogPage() {
+  const posts = getAllBlogPostsMeta();
+
   const itemListEntries = posts.map((post) => ({
-    name: post.title,
+    name: post.frontmatter.title,
     url: `https://llmtrust.com/blog/${post.slug}`,
-    description: post.title,
+    description: post.frontmatter.meta_description ?? post.frontmatter.title,
   }));
 
   return (
@@ -59,36 +35,64 @@ export default function BlogPage() {
           { label: "Blog" },
         ]}
       />
-      <div className="flex flex-1 flex-col gap-6 p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-            <BookOpen className="size-5 text-primary" />
+      <div className="flex flex-1 flex-col gap-8 p-6 md:p-8">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
+            <BookOpen className="size-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Blog</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Guides, comparisons, and insights about open-source LLMs
             </p>
           </div>
         </div>
 
-        <div className="grid gap-4">
-          {posts.map((post) => (
+        {/* Decorative line */}
+        <div className="neural-line" />
+
+        {/* Posts Grid */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post, index) => (
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="group flex flex-col gap-1 rounded-xl border p-5 transition-colors hover:bg-muted/50"
+              className={`group block animate-fade-up animate-fade-up-delay-${Math.min(index, 3)}`}
+              style={{ animationDelay: `${index * 0.08}s`, animationFillMode: "both" }}
             >
-              <h2 className="font-semibold group-hover:text-primary transition-colors">
-                {post.title}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {new Date(post.date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
+              <GlowCard className="h-full flex flex-col">
+                <GlowCardHeader>
+                  {/* Date + Reading Time */}
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="size-3" />
+                      {new Date(post.frontmatter.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    <span className="text-border">·</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="size-3" />
+                      {post.readingTime}
+                    </span>
+                  </div>
+                  <GlowCardTitle className="text-base leading-snug group-hover:text-primary transition-colors">
+                    {post.frontmatter.title}
+                  </GlowCardTitle>
+                  <GlowCardDescription className="line-clamp-3">
+                    {post.frontmatter.meta_description ?? ""}
+                  </GlowCardDescription>
+                </GlowCardHeader>
+                <GlowCardContent className="mt-auto">
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                    Read article
+                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </GlowCardContent>
+              </GlowCard>
             </Link>
           ))}
         </div>

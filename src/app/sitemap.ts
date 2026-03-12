@@ -1,16 +1,8 @@
 import type { MetadataRoute } from "next";
 import { serverCaller } from "@/server/api/caller";
+import { getAllBlogPostsMeta } from "@/lib/blog";
 
 const BASE_URL = "https://llmtrust.com";
-
-// Blog posts (would come from DB/CMS in production)
-const blogSlugs = [
-  "ultimate-guide-open-source-llms-2026",
-  "run-llama-3-locally-complete-guide",
-  "gpt-4-vs-claude-3-vs-llama-3-comparison",
-  "best-small-language-models-laptop",
-  "understanding-llm-benchmarks-mmlu-humaneval",
-];
 
 // Static pages for sitemap
 const staticPages: {
@@ -66,10 +58,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fallback
   }
 
-  // Blog entries
-  const blogEntries: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url: `${BASE_URL}/blog/${slug}`,
-    lastModified: new Date(),
+  // Blog entries (dynamic from content/blog/ files)
+  const blogEntries: MetadataRoute.Sitemap = getAllBlogPostsMeta().map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.frontmatter.date),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
