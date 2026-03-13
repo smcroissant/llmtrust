@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import { CompareClientPage } from "./compare-client";
+
+function slugToName(slug: string) {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export async function generateMetadata({
   params,
@@ -8,8 +13,8 @@ export async function generateMetadata({
   params: Promise<{ slugA: string; slugB: string }>;
 }): Promise<Metadata> {
   const { slugA, slugB } = await params;
-  const nameA = slugA.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const nameB = slugB.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const nameA = slugToName(slugA);
+  const nameB = slugToName(slugB);
 
   return generatePageMetadata({
     title: `${nameA} vs ${nameB} — LLM Comparison`,
@@ -24,6 +29,40 @@ export default async function ComparePage({
   params: Promise<{ slugA: string; slugB: string }>;
 }) {
   const { slugA, slugB } = await params;
+  const nameA = slugToName(slugA);
+  const nameB = slugToName(slugB);
+  const compareUrl = `https://llmtrust.com/compare/${slugA}/vs/${slugB}`;
 
-  return <CompareClientPage slugA={slugA} slugB={slugB} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${nameA} vs ${nameB} — LLM Comparison`,
+    description: `Side-by-side comparison of ${nameA} and ${nameB} language models.`,
+    numberOfItems: 2,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        url: `https://llmtrust.com/models/${slugA}`,
+        name: nameA,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        url: `https://llmtrust.com/models/${slugB}`,
+        name: nameB,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <Script
+        id="jsonld-compare"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <CompareClientPage slugA={slugA} slugB={slugB} />
+    </>
+  );
 }

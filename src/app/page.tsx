@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TopBar } from "@/components/layout/top-bar";
@@ -14,6 +15,17 @@ import {
 import { ArrowRight, Search, Download, Zap } from "lucide-react";
 import { serverCaller } from "@/server/api/caller";
 import { LatestModels } from "./latest-models";
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "LLM Trust",
+  url: "https://llmtrust.com",
+  logo: "https://llmtrust.com/logo.png",
+  description:
+    "Discover, compare, and run open-source LLMs. The trusted platform for AI model discovery and local execution.",
+  sameAs: [],
+};
 
 const features = [
   {
@@ -86,6 +98,11 @@ export default async function HomePage() {
 
   return (
     <>
+      <Script
+        id="jsonld-organization"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <TopBar breadcrumbs={[{ label: "Home" }]} />
 
       <div className="flex-1 overflow-auto">

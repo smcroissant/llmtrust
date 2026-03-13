@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { TopBar } from "@/components/layout/top-bar";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+import { BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import {
   GlowCard,
   GlowCardContent,
@@ -218,6 +219,13 @@ export default function BestOpenSourceLlmsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://llmtrust.com" },
+          { name: "Best Of", url: "https://llmtrust.com/best" },
+          { name: "Open-Source LLMs", url: "https://llmtrust.com/best/open-source-llms" },
+        ]}
+      />
       <TopBar
         breadcrumbs={[
           { label: "Home", href: "/" },

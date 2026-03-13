@@ -25,6 +25,8 @@ const staticPages: {
   { url: "/docs/api", priority: 0.8, changeFrequency: "monthly" },
   { url: "/privacy", priority: 0.2, changeFrequency: "yearly" },
   { url: "/terms", priority: 0.2, changeFrequency: "yearly" },
+  { url: "/newsletter", priority: 0.5, changeFrequency: "monthly" },
+  { url: "/cookies", priority: 0.2, changeFrequency: "yearly" },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
