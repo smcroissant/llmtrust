@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import { TopBar } from "@/components/layout/top-bar";
-import { ArticleJsonLd } from "@/components/seo/structured-data";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import {
   GlowCard,
@@ -62,6 +62,13 @@ export default function Llama3vsGpt4Page() {
         slug="llama-3-70b-vs-gpt-4"
         datePublished="2026-01-15"
         dateModified="2026-03-12"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://llmtrust.com" },
+          { name: "Compare", url: "https://llmtrust.com/compare" },
+          { name: "Llama 3 70B vs GPT-4", url: "https://llmtrust.com/compare/llama-3-70b-vs-gpt-4" },
+        ]}
       />
 
       <TopBar

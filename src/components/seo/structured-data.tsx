@@ -211,6 +211,41 @@ export function ItemListJsonLd({
 // Article — for blog posts
 // ============================================
 
+// ============================================
+// Organization — for homepage / global
+// ============================================
+
+export function OrganizationJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "LLM Trust",
+    url: "https://llmtrust.com",
+    logo: "https://llmtrust.com/og-default.svg",
+    description:
+      "The trusted platform for discovering, comparing, and running open-source large language models locally.",
+    foundingDate: "2024",
+    sameAs: [
+      "https://twitter.com/llmtrust",
+      "https://github.com/llmtrust",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "support@llmtrust.com",
+      url: "https://llmtrust.com/docs",
+    },
+  };
+
+  return (
+    <Script
+      id="jsonld-organization"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
 export function ArticleJsonLd({
   title,
   description,

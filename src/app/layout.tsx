@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { WebsiteJsonLd } from "@/components/seo/structured-data";
+import { WebsiteJsonLd, OrganizationJsonLd } from "@/components/seo/structured-data";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar-nav/app-sidebar";
@@ -86,6 +86,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <WebsiteJsonLd />
+        <OrganizationJsonLd />
         <Providers>
           <TooltipProvider>
             <SidebarProvider>
