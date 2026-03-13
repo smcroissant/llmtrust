@@ -31,7 +31,10 @@ const organizationJsonLd = {
   logo: "https://llmtrust.com/logo.png",
   description:
     "Discover, compare, and run open-source LLMs. The trusted platform for AI model discovery and local execution.",
-  sameAs: [],
+  foundingDate: "2026-01",
+  sameAs: [
+    "https://github.com/smcroissant/llmtrust",
+  ],
 };
 
 type FeaturedModel = {

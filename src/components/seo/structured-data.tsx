@@ -11,6 +11,8 @@ interface SoftwareApplicationProps {
   category?: string;
   rating?: number;
   ratingCount?: number;
+  parameterCount?: string;
+  architecture?: string;
 }
 
 export function SoftwareApplicationJsonLd({
@@ -23,6 +25,8 @@ export function SoftwareApplicationJsonLd({
   category,
   rating,
   ratingCount,
+  parameterCount,
+  architecture,
 }: SoftwareApplicationProps) {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -30,8 +34,14 @@ export function SoftwareApplicationJsonLd({
     name,
     description,
     url: `https://llmtrust.com/models/${slug}`,
-    applicationCategory: category ?? "DeveloperApplication",
+    applicationCategory: "DeveloperApplication",
+    applicationSubCategory: category ?? "Artificial Intelligence",
     operatingSystem: "Any",
+    softwareVersion: parameterCount ?? undefined,
+    softwareRequirements: "Python 3.8+, Ollama or llama.cpp for local execution",
+    ...(architecture && {
+      processorRequirements: `Supports ${architecture} architecture`,
+    }),
     ...(author && {
       author: {
         "@type": "Organization",
@@ -57,6 +67,7 @@ export function SoftwareApplicationJsonLd({
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
     },
   };
 

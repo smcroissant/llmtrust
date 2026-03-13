@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import {
   GlowCard,
   GlowCardHeader,
@@ -127,6 +129,13 @@ const values = [
       "Our community of developers, researchers, and enthusiasts drives what we build. Every review, every vote, every suggestion matters.",
   },
 ];
+
+export const metadata: Metadata = generatePageMetadata({
+  title: "About LLM Trust — The Open-Source AI Platform",
+  description:
+    "LLM Trust helps developers discover, compare, and run open-source LLMs. Built by the CroissantLabs team with a mission to democratize AI.",
+  canonical: canonicalUrl("/about"),
+});
 
 export default function AboutPage() {
   return (
