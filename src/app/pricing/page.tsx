@@ -36,17 +36,16 @@ const plansData = [
     featured: false,
     isCheckout: false,
     features: [
-      "Browse all models",
-      "Read community reviews",
-      "Basic model comparisons",
-      "Download up to 5 models/month",
-      "Community Discord access",
-      "Basic API access",
+      "Browse unlimited models",
+      "Compare models",
+      "Download models (unlimited)",
+      "Community reviews",
+      "Basic API access (100 calls/day)",
     ],
   },
   {
     name: "Pro",
-    price: "$9.99",
+    price: "$19",
     period: "/mo",
     description: "For developers who need more power",
     icon: Zap,
@@ -56,18 +55,15 @@ const plansData = [
     isCheckout: true,
     features: [
       "Everything in Free",
-      "Unlimited downloads",
-      "Advanced model comparisons",
-      "Benchmark deep-dives",
-      "Priority API access",
-      "Custom watchlists",
-      "Early access to new features",
-      "Email support",
+      "Cloud inference (run models without GPU)",
+      "Unlimited API access",
+      "Advanced benchmarks & analytics",
+      "Priority support",
     ],
   },
   {
     name: "Team",
-    price: "$29.99",
+    price: "$49",
     period: "/mo",
     description: "Collaborate with your team on AI model selection",
     icon: Users,
@@ -77,13 +73,12 @@ const plansData = [
     isCheckout: true,
     features: [
       "Everything in Pro",
-      "Up to 10 team members",
-      "Shared model collections",
-      "Team analytics dashboard",
-      "SSO authentication",
-      "Custom integrations",
-      "Dedicated account manager",
-      "SLA guarantee",
+      "5 seats",
+      "Shared workspaces",
+      "Admin dashboard",
+      "Usage analytics",
+      "SSO",
+      "API management",
     ],
   },
 ];
@@ -92,41 +87,35 @@ const comparisonFeatures = [
   {
     category: "Discovery",
     features: [
-      { name: "Browse all models", free: true, pro: true, team: true },
+      { name: "Browse unlimited models", free: true, pro: true, team: true },
+      { name: "Compare models", free: true, pro: true, team: true },
       { name: "Community reviews", free: true, pro: true, team: true },
-      { name: "Category filters", free: true, pro: true, team: true },
-      { name: "Advanced search", free: false, pro: true, team: true },
-      { name: "Custom watchlists", free: false, pro: true, team: true },
-    ],
-  },
-  {
-    category: "Comparison",
-    features: [
-      { name: "Basic comparisons", free: true, pro: true, team: true },
-      { name: "Side-by-side benchmarks", free: false, pro: true, team: true },
-      { name: "Performance analytics", free: false, pro: true, team: true },
-      { name: "Historical trends", free: false, pro: true, team: true },
-      { name: "Export comparison data", free: false, pro: false, team: true },
+      { name: "Advanced benchmarks & analytics", free: false, pro: true, team: true },
     ],
   },
   {
     category: "Downloads & API",
     features: [
-      { name: "Downloads per month", free: "5", pro: "Unlimited", team: "Unlimited" },
-      { name: "API access", free: "Basic", pro: "Priority", team: "Enterprise" },
-      { name: "Rate limit", free: "100/day", pro: "10K/day", team: "100K/day" },
-      { name: "Webhook support", free: false, pro: false, team: true },
+      { name: "Downloads", free: "Unlimited", pro: "Unlimited", team: "Unlimited" },
+      { name: "API access", free: "100 calls/day", pro: "Unlimited", team: "Unlimited" },
+      { name: "API management", free: false, pro: false, team: true },
+    ],
+  },
+  {
+    category: "Inference",
+    features: [
+      { name: "Cloud inference (no GPU needed)", free: false, pro: true, team: true },
     ],
   },
   {
     category: "Team & Support",
     features: [
-      { name: "Team members", free: "1", pro: "1", team: "10" },
-      { name: "Shared collections", free: false, pro: false, team: true },
+      { name: "Seats", free: "1", pro: "1", team: "5" },
+      { name: "Shared workspaces", free: false, pro: false, team: true },
+      { name: "Admin dashboard", free: false, pro: false, team: true },
+      { name: "Usage analytics", free: false, pro: false, team: true },
       { name: "SSO", free: false, pro: false, team: true },
-      { name: "Email support", free: false, pro: true, team: true },
-      { name: "Dedicated manager", free: false, pro: false, team: true },
-      { name: "SLA guarantee", free: false, pro: false, team: true },
+      { name: "Priority support", free: false, pro: true, team: true },
     ],
   },
 ];
@@ -135,12 +124,17 @@ const faqs = [
   {
     question: "Is LLM Trust really free?",
     answer:
-      "Yes! Our free tier gives you full access to browse all models, read reviews, and make basic comparisons. We believe in making open-source AI accessible to everyone.",
+      "Yes! Our free tier gives you full access to browse unlimited models, compare them, download models without limits, and read community reviews. We believe in making open-source AI accessible to everyone.",
   },
   {
-    question: "What happens when Pro launches?",
+    question: "What do I get with Pro?",
     answer:
-      "Pro members will get unlimited downloads, advanced comparison tools, priority API access, and early access to new features. We'll announce the launch date on our newsletter and social channels.",
+      "Pro ($19/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, and priority support.",
+  },
+  {
+    question: "What's included in the Team plan?",
+    answer:
+      "Team ($49/mo) includes everything in Pro, plus 5 seats, shared workspaces, an admin dashboard, usage analytics, SSO, and API management tools.",
   },
   {
     question: "Can I upgrade from Free to Pro later?",
