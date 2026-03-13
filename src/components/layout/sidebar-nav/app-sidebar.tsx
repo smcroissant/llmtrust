@@ -45,6 +45,7 @@ import {
   AudioLines,
   Loader2,
   Bell,
+  Tag,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -52,6 +53,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 const navMain = [
   { title: "Home", url: "/", icon: Home },
   { title: "Models", url: "/models", icon: LayoutGrid },
+  { title: "Categories", url: "/categories", icon: Tag },
   { title: "Compare", url: "/compare", icon: GitCompareArrows },
   { title: "Blog", url: "/blog", icon: BookOpen },
   { title: "Newsletter", url: "/newsletter", icon: Mail },
@@ -251,9 +253,9 @@ export function AppSidebar() {
               {categories.map((cat) => (
                 <SidebarMenuItem key={cat.slug}>
                   <SidebarMenuButton
-                    isActive={isActive(`/models?category=${cat.slug}`)}
+                    isActive={isActive(`/categories/${cat.slug}`)}
                     tooltip={cat.name}
-                    render={<Link href={`/models?category=${cat.slug}`} />}
+                    render={<Link href={`/categories/${cat.slug}`} />}
                   >
                     <cat.icon />
                     <span>{cat.name}</span>
