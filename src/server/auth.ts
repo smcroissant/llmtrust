@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
+import { getDb } from "./db";
 import * as schema from "./db/schema";
 import {
   sendWelcomeEmail,
@@ -8,80 +8,100 @@ import {
   sendEmailVerification,
 } from "@/lib/email";
 
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema: {
-      user: schema.user,
-      session: schema.session,
-      account: schema.account,
-      verification: schema.verification,
-    },
-  }),
-  emailAndPassword: {
-    enabled: true,
-    sendResetPassword: async ({ user, url }) => {
-      await sendPasswordReset({
-        email: user.email,
-        name: user.name ?? "",
-        resetUrl: url,
-      });
-    },
-  },
-  emailVerification: {
-    sendOnSignUp: true,
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendEmailVerification({
-        email: user.email,
-        name: user.name ?? "",
-        verificationUrl: url,
-      });
-    },
-  },
-  // Welcome email on user creation
-  databaseHooks: {
-    user: {
-      create: {
-        after: async (user) => {
-          // Fire-and-forget welcome email
-          sendWelcomeEmail({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _auth: any = null;
+
+/**
+ * Lazy auth initialization — only creates the Better Auth instance
+ * when first accessed. Prevents DATABASE_URL crashes during CI builds.
+ */
+export function getAuth() {
+  if (!_auth) {
+    _auth = betterAuth({
+      database: drizzleAdapter(getDb(), {
+        provider: "pg",
+        schema: {
+          user: schema.user,
+          session: schema.session,
+          account: schema.account,
+          verification: schema.verification,
+        },
+      }),
+      emailAndPassword: {
+        enabled: true,
+        sendResetPassword: async ({ user, url }) => {
+          await sendPasswordReset({
             email: user.email,
             name: user.name ?? "",
-          }).catch((err: unknown) => {
-            console.error("[auth] Failed to send welcome email:", err);
+            resetUrl: url,
           });
         },
       },
-    },
+      emailVerification: {
+        sendOnSignUp: true,
+        sendVerificationEmail: async ({ user, url }) => {
+          await sendEmailVerification({
+            email: user.email,
+            name: user.name ?? "",
+            verificationUrl: url,
+          });
+        },
+      },
+      // Welcome email on user creation
+      databaseHooks: {
+        user: {
+          create: {
+            after: async (user) => {
+              // Fire-and-forget welcome email
+              sendWelcomeEmail({
+                email: user.email,
+                name: user.name ?? "",
+              }).catch((err: unknown) => {
+                console.error("[auth] Failed to send welcome email:", err);
+              });
+            },
+          },
+        },
+      },
+      // Session configuration
+      session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // Refresh every 24h
+        cookieCache: {
+          enabled: true,
+          maxAge: 60 * 5, // Cache cookie validation for 5 min
+        },
+      },
+      // CSRF protection (enabled by default in Better Auth)
+      // Cookie security
+      advanced: {
+        cookiePrefix: "llmtrust",
+        crossSubDomainCookies: {
+          enabled: false,
+        },
+        defaultCookieAttributes: {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+        },
+        // Use secure headers
+        useSecureCookies: process.env.NODE_ENV === "production",
+      },
+      secret: process.env.BETTER_AUTH_SECRET!,
+      baseURL: process.env.BETTER_AUTH_URL!,
+    });
+  }
+  return _auth;
+}
+
+/** @deprecated Use getAuth() instead — kept for backward compatibility */
+export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
+  get(_target, prop, receiver) {
+    const actual = getAuth() as ReturnType<typeof betterAuth>;
+    return Reflect.get(actual, prop, receiver);
   },
-  // Session configuration
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // Refresh every 24h
-    cookieCache: {
-      enabled: true,
-      maxAge: 60 * 5, // Cache cookie validation for 5 min
-    },
-  },
-  // CSRF protection (enabled by default in Better Auth)
-  // Cookie security
-  advanced: {
-    cookiePrefix: "llmtrust",
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-    defaultCookieAttributes: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-    },
-    // Use secure headers
-    useSecureCookies: process.env.NODE_ENV === "production",
-  },
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
-});
+}) as ReturnType<typeof betterAuth>;
 
 /**
  * Password strength validation for client-side feedback.

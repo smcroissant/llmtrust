@@ -11,6 +11,7 @@ const footerLinks = {
     { name: "Blog", href: "/blog" },
     { name: "Documentation", href: "/docs" },
     { name: "API Reference", href: "/docs/api" },
+    { name: "Newsletter", href: "/newsletter" },
     { name: "Changelog", href: "/changelog" },
   ],
   Categories: [
@@ -19,13 +20,18 @@ const footerLinks = {
     { name: "Vision", href: "/categories/vision" },
     { name: "Embeddings", href: "/categories/embedding" },
   ],
+  Company: [
+    { name: "About", href: "/about" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Blog", href: "/blog" },
+  ],
 };
 
 export function Footer() {
   return (
     <footer className="border-t bg-muted/30">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div>
             <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
               LLM Trust

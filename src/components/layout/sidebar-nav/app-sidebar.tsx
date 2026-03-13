@@ -38,19 +38,23 @@ import {
   ChevronUp,
   Sparkles,
   Search,
+  Mail,
   MessageSquareCode,
   Eye,
   Hash,
   AudioLines,
   Loader2,
+  Bell,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const navMain = [
   { title: "Home", url: "/", icon: Home },
   { title: "Models", url: "/models", icon: LayoutGrid },
   { title: "Compare", url: "/compare", icon: GitCompareArrows },
   { title: "Blog", url: "/blog", icon: BookOpen },
+  { title: "Newsletter", url: "/newsletter", icon: Mail },
 ];
 
 const navApp = [
@@ -264,8 +268,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer / User Menu */}
+      {/* Footer / Notifications + User Menu */}
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="flex items-center justify-between px-2">
+              <NotificationBell />
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

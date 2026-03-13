@@ -9,6 +9,7 @@ import {
 } from "../../db/schema";
 import { eq, and, desc, asc, sql, ilike, count, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { notifyModelApproved, notifyModelRejected } from "@/lib/notifications";
 
 // ============================================
 // Admin-only procedure
@@ -212,6 +213,23 @@ export const adminRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
+      // Fetch current model to get author info before updating
+      const [currentModel] = await db
+        .select({
+          id: model.id,
+          name: model.name,
+          slug: model.slug,
+          status: model.status,
+          authorId: model.authorId,
+        })
+        .from(model)
+        .where(eq(model.id, input.modelId))
+        .limit(1);
+
+      if (!currentModel) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Model not found" });
+      }
+
       const [updated] = await db
         .update(model)
         .set({
@@ -222,8 +240,21 @@ export const adminRouter = createTRPCRouter({
         .where(eq(model.id, input.modelId))
         .returning();
 
-      if (!updated) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Model not found" });
+      // Send notifications based on status change
+      if (currentModel.authorId) {
+        if (input.status === "published" && currentModel.status !== "published") {
+          notifyModelApproved(
+            currentModel.authorId,
+            currentModel.name,
+            currentModel.slug
+          ).catch(console.error);
+        } else if (input.status === "draft" && currentModel.status === "published") {
+          notifyModelRejected(
+            currentModel.authorId,
+            currentModel.name,
+            currentModel.slug
+          ).catch(console.error);
+        }
       }
 
       return updated;

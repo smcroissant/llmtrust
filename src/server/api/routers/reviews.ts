@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { db } from "../../db";
-import { review, user } from "../../db/schema";
+import { review, user, model } from "../../db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sanitize } from "@/lib/sanitize";
+import { notifyNewReview } from "@/lib/notifications";
 
 export const reviewsRouter = createTRPCRouter({
   // ============================================
@@ -95,6 +96,33 @@ export const reviewsRouter = createTRPCRouter({
           content: sanitizedContent,
         })
         .returning();
+
+      // Notify model author about the new review
+      const [modelData] = await db
+        .select({
+          authorId: model.authorId,
+          name: model.name,
+          slug: model.slug,
+        })
+        .from(model)
+        .where(eq(model.id, input.modelId))
+        .limit(1);
+
+      const [reviewer] = await db
+        .select({ name: user.name })
+        .from(user)
+        .where(eq(user.id, ctx.userId))
+        .limit(1);
+
+      if (modelData?.authorId && modelData.authorId !== ctx.userId) {
+        notifyNewReview(
+          modelData.authorId,
+          modelData.name,
+          modelData.slug,
+          reviewer?.name ?? "Someone",
+          input.rating
+        ).catch(console.error);
+      }
 
       return newReview;
     }),

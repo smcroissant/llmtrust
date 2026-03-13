@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export function Header() {
   return (
@@ -39,6 +40,7 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          <NotificationBell />
           <Link href="/auth/sign-in">
             <Button variant="ghost" size="sm">Sign In</Button>
           </Link>

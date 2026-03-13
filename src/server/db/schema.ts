@@ -304,6 +304,59 @@ export const userStats = pgTable(
 );
 
 // ============================================
+// NEWSLETTER SUBSCRIBERS
+// ============================================
+
+export const newsletterSubscriber = pgTable(
+  "newsletter_subscriber",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    email: text("email").notNull().unique(),
+    confirmToken: text("confirm_token").notNull(),
+    confirmed: boolean("confirmed").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("newsletter_email_idx").on(table.email),
+    index("newsletter_token_idx").on(table.confirmToken),
+  ],
+);
+
+// ============================================
+// NOTIFICATIONS — In-app notification system
+// ============================================
+
+export const notificationType = [
+  "model_approved",
+  "model_rejected",
+  "new_review",
+  "system",
+] as const;
+
+export type NotificationType = (typeof notificationType)[number];
+
+export const notification = pgTable(
+  "notification",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    type: varchar("type", { length: 50 }).notNull(), // model_approved | model_rejected | new_review | system
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    link: text("link"),
+    read: boolean("read").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("notification_user_idx").on(table.userId),
+    index("notification_read_idx").on(table.userId, table.read),
+    index("notification_created_idx").on(table.createdAt),
+  ],
+);
+
+// ============================================
 // POINTS LEDGER — Track point transactions
 // ============================================
 

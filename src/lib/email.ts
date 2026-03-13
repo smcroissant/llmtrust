@@ -380,6 +380,77 @@ If you didn't request a password reset, you can safely ignore this email. Your p
   });
 }
 
+// ─── Newsletter Confirmation ──────────────────────────────────────────────
+
+export async function sendNewsletterConfirmation(
+  email: string,
+  token: string,
+) {
+  const confirmUrl = `${APP_URL}/newsletter/confirm?token=${token}`;
+  const unsubscribeUrl = `${APP_URL}/newsletter/unsubscribe?token=${token}`;
+
+  const body = `
+    <div style="text-align:center;">
+      <div style="width:64px;height:64px;background-color:#f0f0ff;border-radius:50%;text-align:center;line-height:64px;font-size:28px;margin:0 auto 24px;">📬</div>
+
+      <p style="font-size:16px;color:#374151;margin:0 0 16px;line-height:1.6;">
+        Almost there! Confirm your newsletter subscription.
+      </p>
+
+      <p style="font-size:16px;color:#374151;margin:0 0 32px;line-height:1.6;">
+        Get the <strong>weekly LLM digest</strong>: new models, benchmarks, pro tips, and community highlights delivered to your inbox every Friday.
+      </p>
+
+      ${ctaButton(confirmUrl, "Confirm My Subscription")}
+
+      <p style="font-size:14px;color:#9ca3af;margin:24px 0 8px;line-height:1.5;">
+        If you didn't request this, you can safely ignore this email.
+      </p>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+        <tr>
+          <td style="background-color:#f9fafb;border-radius:8px;padding:16px;">
+            <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.5;">
+              Button not working? Copy and paste this link:<br>
+              <a href="${confirmUrl}" style="color:#6366f1;word-break:break-all;">${confirmUrl}</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
+
+  const html = emailLayout({
+    title: "Confirm Your Newsletter",
+    emoji: "📬",
+    preheader: "One click to confirm your LLM Trust newsletter subscription.",
+    body,
+  });
+
+  const text = `Confirm Your Newsletter — LLM Trust
+
+Click the link below to confirm your newsletter subscription:
+
+${confirmUrl}
+
+What you'll get:
+• Weekly digest of new LLM models
+• Benchmark updates and comparisons
+• Pro tips for running models locally
+• Community highlights
+
+If you didn't request this, ignore this email.
+
+— The LLM Trust Team`;
+
+  return sendEmail({
+    to: email,
+    subject: "Confirm your LLM Trust newsletter subscription 📬",
+    html,
+    text,
+  });
+}
+
 // ─── Onboarding Email Sequence ────────────────────────────────────────────
 
 interface FeaturedModel {

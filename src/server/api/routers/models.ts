@@ -2,13 +2,26 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { db } from "../../db";
 import { model, like, favorite, review } from "../../db/schema";
-import { eq, and, desc, asc, sql, ilike, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, sql, ilike, inArray, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 
+// Size range helpers for parameter count filtering
+function parseParamSize(paramCount: string | null): number | null {
+  if (!paramCount) return null;
+  const match = paramCount.match(/([\d.]+)/);
+  if (!match) return null;
+  const num = parseFloat(match[1]);
+  if (paramCount.toLowerCase().includes("t")) return num * 1000; // trillion
+  if (paramCount.toLowerCase().includes("b")) return num; // billion
+  if (paramCount.toLowerCase().includes("m")) return num / 1000; // million
+  if (paramCount.toLowerCase().includes("k")) return num / 1_000_000; // thousand
+  return num;
+}
+
 export const modelsRouter = createTRPCRouter({
   // ============================================
-  // LIST — Discovery endpoint
+  // LIST — Discovery endpoint with advanced filters
   // ============================================
   list: publicProcedure
     .input(
@@ -17,8 +30,10 @@ export const modelsRouter = createTRPCRouter({
         search: z.string().optional(),
         tags: z.array(z.string()).optional(),
         architecture: z.string().optional(),
+        license: z.string().optional(),
+        size: z.enum(["lt1b", "1b-10b", "10b-70b", "70bplus"]).optional(),
         sort: z
-          .enum(["popular", "newest", "name", "downloads"])
+          .enum(["popular", "newest", "name", "downloads", "parameters"])
           .default("popular"),
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(100).default(20),
@@ -32,10 +47,20 @@ export const modelsRouter = createTRPCRouter({
         conditions.push(eq(model.category, input.category));
       }
       if (input.search) {
-        conditions.push(ilike(model.name, `%${input.search}%`));
+        // Search in name, description, and architecture
+        conditions.push(
+          or(
+            ilike(model.name, `%${input.search}%`),
+            ilike(model.description, `%${input.search}%`),
+            ilike(model.architecture, `%${input.search}%`),
+          )!
+        );
       }
       if (input.architecture) {
         conditions.push(eq(model.architecture, input.architecture));
+      }
+      if (input.license) {
+        conditions.push(ilike(model.license, `%${input.license}%`));
       }
       if (input.featured !== undefined) {
         conditions.push(eq(model.isFeatured, input.featured));
@@ -48,11 +73,13 @@ export const modelsRouter = createTRPCRouter({
             ? asc(model.name)
             : input.sort === "downloads"
               ? desc(model.downloadCount)
-              : desc(model.isFeatured); // popular = featured first
+              : input.sort === "parameters"
+                ? desc(model.parameterCount)
+                : desc(model.downloadCount); // popular = downloads
 
       const offset = (input.page - 1) * input.limit;
 
-      const models = await db
+      let models = await db
         .select()
         .from(model)
         .where(and(...conditions))
@@ -60,6 +87,27 @@ export const modelsRouter = createTRPCRouter({
         .limit(input.limit)
         .offset(offset);
 
+      // Apply size filter in memory (parameterCount is a string like "7B", "70B")
+      if (input.size) {
+        models = models.filter((m) => {
+          const sizeInB = parseParamSize(m.parameterCount);
+          if (sizeInB === null) return input.size === "lt1b"; // null goes to smallest
+          switch (input.size) {
+            case "lt1b":
+              return sizeInB < 1;
+            case "1b-10b":
+              return sizeInB >= 1 && sizeInB < 10;
+            case "10b-70b":
+              return sizeInB >= 10 && sizeInB < 70;
+            case "70bplus":
+              return sizeInB >= 70;
+            default:
+              return true;
+          }
+        });
+      }
+
+      // Get total count (without size filter for accuracy, or with it)
       const [{ count }] = await db
         .select({ count: sql<number>`count(*)` })
         .from(model)
@@ -72,6 +120,32 @@ export const modelsRouter = createTRPCRouter({
         totalPages: Math.ceil(Number(count) / input.limit),
       };
     }),
+
+  // ============================================
+  // FILTERS — Available filter options
+  // ============================================
+  filters: publicProcedure.query(async () => {
+    const allModels = await db
+      .select({
+        category: model.category,
+        architecture: model.architecture,
+        license: model.license,
+      })
+      .from(model)
+      .where(eq(model.status, "published"));
+
+    const categories = [
+      ...new Set(allModels.map((m) => m.category).filter(Boolean)),
+    ].sort();
+    const architectures = [
+      ...new Set(allModels.map((m) => m.architecture).filter(Boolean)),
+    ].sort();
+    const licenses = [
+      ...new Set(allModels.map((m) => m.license).filter(Boolean)),
+    ].sort();
+
+    return { categories, architectures, licenses };
+  }),
 
   // ============================================
   // GET — Single model detail
