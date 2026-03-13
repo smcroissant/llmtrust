@@ -8,9 +8,10 @@ let _handlers: ReturnType<typeof toNextJsHandler> | null = null;
 
 function getHandlers() {
   if (!_handlers) {
-    _handlers = toNextJsHandler(getAuth().handler);
+    const authInstance = getAuth() as ReturnType<typeof import("better-auth").betterAuth>;
+    _handlers = toNextJsHandler(authInstance.handler);
   }
-  return _handlers;
+  return _handlers!;
 }
 
 export async function GET(request: NextRequest) {

@@ -31,7 +31,11 @@ function ConfirmContent() {
   useEffect(() => {
     if (token) {
       confirm.mutate({ token });
-    } else {
+    }
+  }, [token, confirm]);
+
+  useEffect(() => {
+    if (!token) {
       setStatus("error");
       setMessage("Missing confirmation token.");
     }

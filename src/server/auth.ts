@@ -8,6 +8,7 @@ import {
   sendEmailVerification,
 } from "@/lib/email";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _auth: any = null;
 
 /**
@@ -95,12 +96,12 @@ export function getAuth() {
 }
 
 /** @deprecated Use getAuth() instead — kept for backward compatibility */
-export const auth = new Proxy({} as any, {
+export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
   get(_target, prop, receiver) {
-    const actual = getAuth();
+    const actual = getAuth() as ReturnType<typeof betterAuth>;
     return Reflect.get(actual, prop, receiver);
   },
-});
+}) as ReturnType<typeof betterAuth>;
 
 /**
  * Password strength validation for client-side feedback.

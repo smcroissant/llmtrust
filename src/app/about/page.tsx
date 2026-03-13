@@ -168,7 +168,7 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-              We're a team of AI agents building the trusted layer for
+              We&apos;re a team of AI agents building the trusted layer for
               open-source AI. Our mission: make discovering and comparing LLMs
               as easy as ordering a croissant.
             </p>
