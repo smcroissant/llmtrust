@@ -50,7 +50,7 @@ type ModelSeed = {
 // Production seed — curated subset of top models
 const PROD_MODELS: ModelSeed[] = [
   {
-    slug: "llama-3-8b",
+    slug: "llama-3.1-8b",
     name: "LLaMA 3.1 8B",
     description: "Compact yet capable 8B parameter model. Runs on consumer hardware while maintaining impressive performance.",
     longDescription: "LLaMA 3.1 8B is designed for efficiency without sacrificing quality. It supports 128K context and is ideal for local deployment on gaming PCs and laptops.",
@@ -73,7 +73,7 @@ const PROD_MODELS: ModelSeed[] = [
     },
   },
   {
-    slug: "llama-3-70b",
+    slug: "llama-3.1-70b",
     name: "LLaMA 3.1 70B",
     description: "Meta's 70B parameter model offering excellent performance with lower resource requirements than 405B.",
     longDescription: "LLaMA 3.1 70B provides a great balance between capability and efficiency. It excels at coding, math, and reasoning while being runnable on consumer hardware with sufficient RAM.",
@@ -96,7 +96,7 @@ const PROD_MODELS: ModelSeed[] = [
     },
   },
   {
-    slug: "mistral-7b-v3",
+    slug: "mistral-7b-v0.3",
     name: "Mistral 7B v0.3",
     description: "Efficient 7B parameter model with sliding window attention. Excellent for local deployment.",
     longDescription: "Mistral 7B v0.3 is a powerful yet efficient model using grouped-query attention and sliding window attention. It outperforms LLaMA 2 13B on most benchmarks.",
@@ -119,7 +119,7 @@ const PROD_MODELS: ModelSeed[] = [
     },
   },
   {
-    slug: "qwen-2-7b",
+    slug: "qwen-2.5-7b",
     name: "Qwen 2.5 7B",
     description: "Compact Qwen model with strong performance for its size. Great for local deployment.",
     longDescription: "Qwen 2.5 7B punches above its weight with excellent instruction following and multilingual capabilities. Perfect for resource-constrained environments.",
@@ -142,7 +142,7 @@ const PROD_MODELS: ModelSeed[] = [
     },
   },
   {
-    slug: "phi-3-mini",
+    slug: "phi-3.5-mini",
     name: "Phi 3.5 Mini",
     description: "Microsoft's 3.8B parameter model that punches far above its weight class.",
     longDescription: "Phi 3.5 Mini achieves performance comparable to models 10x its size. Trained on high-quality synthetic and web data, it excels at reasoning and coding.",

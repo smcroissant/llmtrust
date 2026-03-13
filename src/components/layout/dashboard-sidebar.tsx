@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -27,9 +27,18 @@ import {
   Upload,
   Key,
   Crown,
+  LogOut,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
+import { authClient } from "@/lib/auth-client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navDashboard = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
@@ -44,6 +53,7 @@ const navAccount = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const { data: userData } = trpc.user.me.useQuery();
   const { data: subscriptionData } = trpc.billing.getSubscription.useQuery();
@@ -163,33 +173,52 @@ export function DashboardSidebar() {
 
         <Separator className="my-1" />
 
-        {/* User Card */}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/dashboard/settings" />}>
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={userData?.image ?? ""} alt={userData?.name ?? "User"} />
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-xs">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold flex items-center gap-1.5">
-                  {userData?.name ?? "User"}
-                  {isPro && (
-                    <Badge variant="default" className="text-[9px] px-1.5 py-0 h-4 gap-0.5">
-                      <Crown className="size-2.5" />
-                      {subscriptionData?.tier === "team" ? "Team" : "Pro"}
-                    </Badge>
-                  )}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {userData?.email ?? ""}
-                </span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {/* User Card with Sign Out */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-lg p-2 text-left text-sm hover:bg-accent outline-none cursor-pointer">
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage src={userData?.image ?? ""} alt={userData?.name ?? "User"} />
+              <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold flex items-center gap-1.5">
+                {userData?.name ?? "User"}
+                {isPro && (
+                  <Badge variant="default" className="text-[9px] px-1.5 py-0 h-4 gap-0.5">
+                    <Crown className="size-2.5" />
+                    {subscriptionData?.tier === "team" ? "Team" : "Pro"}
+                  </Badge>
+                )}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {userData?.email ?? ""}
+              </span>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" className="w-56">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard/settings")}
+            >
+              <Settings className="mr-2 size-4" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={async () => {
+                await authClient.signOut();
+                router.push("/");
+              }}
+            >
+              <LogOut className="mr-2 size-4" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
 
       <SidebarRail />

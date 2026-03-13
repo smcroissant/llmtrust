@@ -26,11 +26,11 @@ import {
 
 // Popular comparisons for quick access
 const popularComparisons = [
-  { slugA: "llama-3-70b", slugB: "gpt-4-turbo", labelA: "Llama 3 70B", labelB: "GPT-4 Turbo", category: "General" },
-  { slugA: "mixtral-8x7b", slugB: "llama-3-70b", labelA: "Mixtral 8x7B", labelB: "Llama 3 70B", category: "General" },
+  { slugA: "llama-3.1-70b", slugB: "gpt-4-turbo", labelA: "Llama 3 70B", labelB: "GPT-4 Turbo", category: "General" },
+  { slugA: "mixtral-8x7b", slugB: "llama-3.1-70b", labelA: "Mixtral 8x7B", labelB: "Llama 3 70B", category: "General" },
   { slugA: "deepseek-coder-v2", slugB: "code-llama-70b", labelA: "DeepSeek Coder V2", labelB: "Code Llama 70B", category: "Code" },
-  { slugA: "phi-3-mini", slugB: "gemma-2-9b", labelA: "Phi-3 Mini", labelB: "Gemma 2 9B", category: "Small" },
-  { slugA: "qwen-2-5-72b", slugB: "llama-3-70b", labelA: "Qwen 2.5 72B", labelB: "Llama 3 70B", category: "General" },
+  { slugA: "phi-3.5-mini", slugB: "gemma-2.0-9b", labelA: "Phi-3 Mini", labelB: "Gemma 2 9B", category: "Small" },
+  { slugA: "qwen-2-5-72b", slugB: "llama-3.1-70b", labelA: "Qwen 2.5 72B", labelB: "Llama 3 70B", category: "General" },
   { slugA: "mistral-large", slugB: "claude-3-opus", labelA: "Mistral Large", labelB: "Claude 3 Opus", category: "Enterprise" },
 ];
 

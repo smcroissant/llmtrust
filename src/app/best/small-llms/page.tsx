@@ -41,7 +41,7 @@ const smallModels = [
     speed: "~80 t/s",
     context: "128K",
     highlight: "Best efficiency per parameter. Runs on phones and laptops with surprising quality. 128K context in a 3.8B model.",
-    slug: "phi-3-mini",
+    slug: "phi-3.5-mini",
   },
   {
     rank: 2,
@@ -54,7 +54,7 @@ const smallModels = [
     speed: "~45 t/s",
     context: "8K",
     highlight: "Best output quality in the small category. Knowledge distillation from Gemini delivers punch above its weight.",
-    slug: "gemma-2-9b",
+    slug: "gemma-2.0-9b",
   },
   {
     rank: 3,
@@ -67,7 +67,7 @@ const smallModels = [
     speed: "~90 t/s",
     context: "128K",
     highlight: "Smallest Llama with 128K context. Optimized for on-device use with strong general capability.",
-    slug: "llama-3-3b",
+    slug: "llama-3.2-3b",
   },
   {
     rank: 4,
@@ -80,7 +80,7 @@ const smallModels = [
     speed: "~50 t/s",
     context: "128K",
     highlight: "Strong multilingual small model. Excellent Chinese/Asian language support with 128K context.",
-    slug: "qwen-2-7b",
+    slug: "qwen-2.5-7b",
   },
   {
     rank: 5,
@@ -106,7 +106,7 @@ const smallModels = [
     speed: "~55 t/s",
     context: "32K",
     highlight: "The OG efficient model. Still great for general tasks with sliding window attention for long context.",
-    slug: "mistral-7b-v3",
+    slug: "mistral-7b-v0.3",
   },
   {
     rank: 7,
@@ -132,7 +132,7 @@ const smallModels = [
     speed: "~100 t/s",
     context: "8K",
     highlight: "Google's smallest. Good for simple tasks, classification, and mobile apps with Google-quality training.",
-    slug: "gemma-2-2b",
+    slug: "gemma-2.0-2b",
   },
   {
     rank: 9,
@@ -158,7 +158,7 @@ const smallModels = [
     speed: "~80 t/s",
     context: "4K",
     highlight: "Original Phi-3 with shorter context but same efficiency. Perfect when you don't need 128K.",
-    slug: "phi-3-mini",
+    slug: "phi-3.5-mini",
   },
 ];
 

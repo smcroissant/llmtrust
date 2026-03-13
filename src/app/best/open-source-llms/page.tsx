@@ -42,7 +42,7 @@ const models = [
     gsm8k: "96.8",
     category: "General Purpose",
     verdict: "The most capable open-source LLM ever released. Matches GPT-4 on most benchmarks with full weights available.",
-    slug: "llama-3-405b",
+    slug: "llama-3.1-405b",
   },
   {
     rank: 2,
@@ -56,7 +56,7 @@ const models = [
     gsm8k: "95.1",
     category: "Best Value",
     verdict: "Sweet spot of capability and efficiency. Runs on 2 GPUs and handles most tasks as well as much larger models.",
-    slug: "llama-3-70b",
+    slug: "llama-3.1-70b",
   },
   {
     rank: 3,
@@ -84,7 +84,7 @@ const models = [
     gsm8k: "95.8",
     category: "Multilingual",
     verdict: "Exceptional multilingual capabilities, especially for Chinese and Asian languages. Strong coding performance.",
-    slug: "qwen-2-72b",
+    slug: "qwen-2.5-72b",
   },
   {
     rank: 5,
@@ -98,7 +98,7 @@ const models = [
     gsm8k: "78.0",
     category: "Mid-Size",
     verdict: "Google's best open-weight model. Excellent instruction following and safety at a manageable size.",
-    slug: "gemma-2-27b",
+    slug: "gemma-2.0-27b",
   },
   {
     rank: 6,

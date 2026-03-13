@@ -233,7 +233,7 @@ export default function Llama3vsGpt4Page() {
               <p>
                 However, GPT-4&apos;s strength in coding comes from its superior instruction-following and ability
                 to handle complex, multi-file refactoring tasks. For a developer looking to run a coding assistant
-                locally, <Link href="/models/llama-3-70b" className="text-primary hover:underline">Llama 3 70B</Link> is
+                locally, <Link href="/models/llama-3.1-70b" className="text-primary hover:underline">Llama 3 70B</Link> is
                 the clear winner.
               </p>
             </GlowCardContent>

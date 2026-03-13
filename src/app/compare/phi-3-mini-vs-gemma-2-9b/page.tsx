@@ -247,7 +247,7 @@ export default function Phi3MiniVsGemma29bPage() {
                 that requires world knowledge.
               </p>
               <p>
-                With Google&apos;s knowledge about <Link href="/models/gemma-2-9b" className="text-primary hover:underline">Gemma 2 9B</Link>,
+                With Google&apos;s knowledge about <Link href="/models/gemma-2.0-9b" className="text-primary hover:underline">Gemma 2 9B</Link>,
                 it uses grouped-query attention and sliding window attention for efficient inference,
                 but still requires ~18GB of memory in FP16 — more than a typical laptop GPU.
               </p>
