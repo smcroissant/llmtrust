@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
+import { BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { CompareClientPage } from "./compare-client";
 
 function slugToName(slug: string) {
@@ -61,6 +62,13 @@ export default async function ComparePage({
         id="jsonld-compare"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://llmtrust.com" },
+          { name: "Compare", url: "https://llmtrust.com/compare" },
+          { name: `${nameA} vs ${nameB}`, url: compareUrl },
+        ]}
       />
       <CompareClientPage slugA={slugA} slugB={slugB} />
     </>
