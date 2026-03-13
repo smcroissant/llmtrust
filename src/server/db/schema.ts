@@ -357,6 +357,80 @@ export const notification = pgTable(
 );
 
 // ============================================
+// SUBSCRIPTIONS — Stripe billing
+// ============================================
+
+export const subscriptionTier = ["free", "pro", "team"] as const;
+export type SubscriptionTier = (typeof subscriptionTier)[number];
+
+export const subscriptionStatus = [
+  "active",
+  "canceled",
+  "past_due",
+  "unpaid",
+  "incomplete",
+  "incomplete_expired",
+  "trialing",
+] as const;
+export type SubscriptionStatus = (typeof subscriptionStatus)[number];
+
+export const subscription = pgTable(
+  "subscription",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" })
+      .unique(),
+    stripeCustomerId: text("stripe_customer_id").notNull().unique(),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+    tier: varchar("tier", { length: 20 }).notNull().default("free"),
+    status: varchar("status", { length: 30 }).notNull().default("active"),
+    currentPeriodEnd: timestamp("current_period_end"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("subscription_user_idx").on(table.userId),
+    index("subscription_stripe_customer_idx").on(table.stripeCustomerId),
+    index("subscription_stripe_sub_idx").on(table.stripeSubscriptionId),
+  ],
+);
+
+// ============================================
+// PAYMENTS — Stripe payment records
+// ============================================
+
+export const paymentStatus = [
+  "succeeded",
+  "pending",
+  "failed",
+  "canceled",
+  "refunded",
+] as const;
+export type PaymentStatus = (typeof paymentStatus)[number];
+
+export const payment = pgTable(
+  "payment",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+    amount: integer("amount").notNull(), // in cents
+    currency: varchar("currency", { length: 3 }).notNull().default("usd"),
+    status: varchar("status", { length: 20 }).notNull().default("pending"),
+    description: text("description"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("payment_user_idx").on(table.userId),
+    index("payment_stripe_intent_idx").on(table.stripePaymentIntentId),
+  ],
+);
+
+// ============================================
 // POINTS LEDGER — Track point transactions
 // ============================================
 
