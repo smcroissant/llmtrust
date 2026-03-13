@@ -634,7 +634,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "qwen2-vl-7b",
+    slug: "qwen-2-vl-7b",
     name: "Qwen2-VL 7B",
     description: "Alibaba's compact vision-language model with strong image and video understanding.",
     longDescription: "Qwen2-VL 7B understands images and videos alongside text. It supports dynamic resolution and can process any resolution without fixed-size constraints.",

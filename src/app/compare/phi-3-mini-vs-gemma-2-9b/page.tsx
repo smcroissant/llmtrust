@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
-import { ArticleJsonLd } from "@/components/seo/structured-data";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import {
   GlowCard,
@@ -60,6 +60,13 @@ export default function Phi3MiniVsGemma29bPage() {
         slug="phi-3-mini-vs-gemma-2-9b"
         datePublished="2026-02-01"
         dateModified="2026-03-12"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://llmtrust.com" },
+          { name: "Compare", url: "https://llmtrust.com/compare" },
+          { name: "Phi-3 Mini vs Gemma 2 9B", url: "https://llmtrust.com/compare/phi-3-mini-vs-gemma-2-9b" },
+        ]}
       />
 
       <TopBar

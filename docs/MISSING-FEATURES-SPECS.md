@@ -2,411 +2,633 @@
 
 **Author:** Atlas, Head of Product (CroissantLabs)
 **Date:** 2026-03-13
+**V2 — Aligned with Infrastructure + Trust + Convenience business model**
 **Status:** Ready for estimation & sprint planning
 
 ---
 
 ## Table of Contents
 
-1. [Blog Complet (MDX)](#1-blog-complet-mdx)
-2. [Gamification UI](#2-gamification-ui)
-3. [Model Download (Web)](#3-model-download-web)
-4. [Compare Amélioré](#4-compare-amélioré)
+1. [Cloud Inference (Core Monetization)](#1-cloud-inference-core-monetization)
+2. [API Management & Keys](#2-api-management--keys)
+3. [Advanced Benchmarks & Analytics](#3-advanced-benchmarks--analytics)
+4. [New Model Alerts System](#4-new-model-alerts-system)
+5. [Blog Complet (MDX)](#5-blog-complet-mdx)
+6. [Gamification UI](#6-gamification-ui)
+7. [Model Download (Web)](#7-model-download-web)
+8. [Compare Amélioré](#8-compare-amélioré)
 
 ---
 
-## 1. Blog Complet (MDX)
+## 1. Cloud Inference (Core Monetization)
 
-**Priority: P1** — Content marketing is a key SEO and acquisition lever. Blog pages already exist in the audit but need full MDX integration.
+**Priority: P0** — This is THE paid feature. The #1 reason users upgrade to Pro. Without this, we have no revenue.
+
+### Context
+Models are free on HuggingFace. We don't sell models — we sell **compute infrastructure**. Cloud inference lets users run any model without needing a local GPU. This is our core value proposition for Pro and Team tiers.
 
 ### User Stories
 
 | # | As a... | I want to... | So that... |
 |---|---------|-------------|------------|
-| 1.1 | Visitor | Browse blog posts with pagination | I can discover articles progressively |
-| 1.2 | Visitor | Read an article with a table of contents | I can navigate long-form content easily |
-| 1.3 | Visitor | Filter posts by category | I can find content relevant to my interests |
-| 1.4 | Visitor | Search blog posts | I can find specific topics quickly |
-| 1.5 | Admin/Author | Write posts in MDX | I can use rich components (code blocks, charts, callouts) in articles |
-| 1.6 | Admin/Author | Define metadata (title, category, tags, cover image, SEO) via frontmatter | Posts are optimized for search and social sharing |
+| 1.1 | Pro user | Run a model in the browser without installing anything | I can test models immediately |
+| 1.2 | Pro user | See my token usage in real-time | I know how much of my monthly quota I've used |
+| 1.3 | Pro user | Get a warning when approaching my inference quota | I can plan my usage or upgrade |
+| 1.4 | Free user | See a "Run in Cloud" CTA that leads to upgrade | I understand what Pro offers |
+| 1.5 | Team user | Pool inference tokens across my team | My team shares the compute budget |
+| 1.6 | Developer | Send inference requests via API | I can integrate cloud inference into my apps |
 
 ### Acceptance Criteria
 
-#### 1.1 Blog Listing (`/blog`)
-- [ ] Paginated list (10 posts per page) with prev/next navigation
-- [ ] Each card shows: cover image, title, excerpt (first 150 chars), category badge, reading time, date
-- [ ] URL pattern: `/blog?page=2`
-- [ ] `rel="prev"` / `rel="next"` link tags for SEO
-- [ ] Empty state when no posts exist
+#### 1.1 Model Playground (`/models/[slug]/playground`)
+- [ ] New tab on model detail page: "Playground"
+- [ ] Text input area for prompts (multi-line, resizable)
+- [ ] Model parameters sidebar: temperature, max tokens, top_p, stop sequences
+- [ ] "Run" button that sends inference request to cloud backend
+- [ ] Response displayed in real-time (streaming via SSE)
+- [ ] Loading state with estimated time
+- [ ] Token count displayed: input tokens, output tokens, total
+- [ ] Copy response button
+- [ ] History panel: last 10 prompts in current session
+- [ ] Error handling: model unavailable, quota exceeded, timeout (30s)
+- [ ] **Free tier gate:** Show "Upgrade to Pro to run models in cloud" with CTA
+- [ ] **Pro tier:** Works with quota tracking
+- [ ] **Team tier:** Works with pooled quota
 
-#### 1.2 Article Page (`/blog/[slug]`)
-- [ ] Full MDX rendering with all custom components (Callout, CodeBlock, ModelCard embed, ComparisonTable)
-- [ ] Auto-generated TOC from h2/h3 headings, sticky sidebar on desktop, collapsible on mobile
-- [ ] Active TOC highlighting based on scroll position (IntersectionObserver)
-- [ ] Reading progress bar at top
-- [ ] Author card with avatar, name, role
-- [ ] Related posts section (3 posts, same category or shared tags)
-- [ ] Social share buttons (Twitter/X, LinkedIn, copy link)
-- [ ] SEO: structured data (Article schema), OG image from frontmatter
-- [ ] 404 page for non-existent slugs
+#### 1.2 Quota Display
+- [ ] Persistent quota bar in dashboard header: "234,500 / 500,000 tokens used"
+- [ ] Progress bar with color coding: green (< 50%), yellow (50-80%), red (> 80%)
+- [ ] Tooltip: "Resets on [date]" with billing cycle info
+- [ ] At 80%: in-app banner "You've used 80% of your inference quota"
+- [ ] At 100%: playground disabled, "Quota exceeded — upgrade or wait for reset"
 
-#### 1.3 Category Page (`/blog/category/[category]`)
-- [ ] Filtered post list for the given category
-- [ ] Category description and post count
-- [ ] Same pagination as main listing
-- [ ] Breadcrumb: Blog > [Category]
+#### 1.3 Cloud Inference API (`POST /api/inference`)
+- [ ] Endpoint: `POST /api/inference`
+- [ ] Auth: Bearer token (API key)
+- [ ] Request body: `{ model: string, prompt: string, parameters?: object }`
+- [ ] Response: `{ output: string, usage: { inputTokens, outputTokens, totalTokens } }`
+- [ ] Streaming: SSE support for real-time output
+- [ ] Rate limiting: 100 req/min for Pro, 500 req/min for Team
+- [ ] Quota enforcement: reject with 429 when monthly token quota exceeded
+- [ ] Error codes: 401 (unauthorized), 402 (quota exceeded), 404 (model not found), 429 (rate limited), 503 (model loading)
 
-#### 1.4 Blog Search
-- [ ] Client-side search across title, excerpt, tags (Fuse.js or similar)
-- [ ] Search bar on `/blog` listing page
-- [ ] Results update as user types (debounced 200ms)
-- [ ] Highlight matching terms in results
-- [ ] "No results" state with suggestion to browse categories
+#### 1.4 Infrastructure Requirements
+- [ ] GPU cloud provider integration (Modal, RunPod, or similar)
+- [ ] Model loading queue: load models on-demand, cache hot models
+- [ ] Cold start handling: show "Model loading..." with ETA
+- [ ] Auto-scaling: scale GPU instances based on demand
+- [ ] Cost monitoring: track GPU cost per user, ensure margin targets
+- [ ] Model availability SLA: 95%+ uptime for popular models
 
-#### 1.5 MDX Content Pipeline
-- [ ] Posts stored as `.mdx` files in `/content/blog/` directory
+### Pages & Components
+
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/models/[slug]/playground` | `InferencePlayground` | Main inference UI |
+| `/dashboard` (update) | `QuotaCard` | Token usage + remaining |
+| `/api/inference` | API endpoint | Cloud inference handler |
+| `src/components/inference/PromptInput.tsx` | Text input with params |
+| `src/components/inference/ResponseStream.tsx` | Streaming output display |
+| `src/components/inference/QuotaBar.tsx` | Usage progress bar |
+| `src/components/inference/ModelParams.tsx` | Parameter controls |
+| `src/components/inference/InferenceHistory.tsx` | Session history |
+| `src/server/services/inference.ts` | Inference orchestration service |
+| `src/server/services/gpu-cloud.ts` | GPU provider integration |
+
+### DB Schema Changes
+
+```typescript
+// Inference session tracking
+inference_session = pgTable("inference_session", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  modelSlug: varchar("model_slug", { length: 255 }).notNull(),
+  // Request
+  prompt: text("prompt").notNull(),
+  parameters: jsonb("parameters").$type<{
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
+    stopSequences?: string[];
+  }>(),
+  // Response
+  output: text("output"),
+  inputTokens: integer("input_tokens").default(0),
+  outputTokens: integer("output_tokens").default(0),
+  totalTokens: integer("total_tokens").default(0),
+  // Status
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  // pending | running | completed | failed | timeout
+  errorMessage: text("error_message"),
+  latencyMs: integer("latency_ms"),
+  // Timestamps
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("inference_user_idx").on(table.userId),
+  index("inference_model_idx").on(table.modelSlug),
+  index("inference_created_idx").on(table.createdAt),
+  index("inference_status_idx").on(table.status),
+]);
+
+// Monthly inference quota tracking (denormalized for fast reads)
+user_inference_quota = pgTable("user_inference_quota", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id).unique(),
+  tokensUsed: integer("tokens_used").notNull().default(0),
+  tokensLimit: integer("tokens_limit").notNull().default(0),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  lastUpdated: timestamp("last_updated").notNull().defaultNow(),
+}, (table) => [
+  index("quota_user_idx").on(table.userId),
+  index("quota_period_idx").on(table.periodStart, table.periodEnd),
+]);
+```
+
+### Revenue Impact
+- **Core monetization lever** — this is what makes Pro worth $19/mo
+- Target: 500K tokens/month for Pro (enough for regular testing, not enough for production — drives overage or upgrade)
+- Target: 2M tokens/month for Team (pooled, enough for team workflows)
+- Overage pricing post-MVP: $0.0002/token
+
+---
+
+## 2. API Management & Keys
+
+**Priority: P0** — API access is a key value prop for Pro ($19/mo = unlimited API). Must have clean key management.
+
+### User Stories
+
+| # | As a... | I want to... | So that... |
+|---|---------|-------------|------------|
+| 2.1 | Pro user | Generate API keys from my dashboard | I can use the API programmatically |
+| 2.2 | Pro user | See my API usage stats | I can monitor my integration |
+| 2.3 | Pro user | Revoke compromised keys | I can secure my account |
+| 2.4 | Team admin | Create team API keys with per-seat limits | I can control team API spend |
+| 2.5 | Developer | Read API documentation with code examples | I can integrate quickly |
+
+### Acceptance Criteria
+
+#### 2.1 API Key Management (`/dashboard/api-keys`)
+- [ ] "Generate New Key" button
+- [ ] Key name (user-provided, e.g., "My App Dev", "Production")
+- [ ] Key displayed ONCE after creation (copy to clipboard)
+- [ ] Key format: `llmtr_live_xxxxxxxxxxxxxxxxxxxx`
+- [ ] List of existing keys: name, prefix (first 8 chars), created date, last used, status (active/revoked)
+- [ ] Revoke key with confirmation dialog
+- [ ] Maximum 5 active keys per user (Pro), 20 per team
+- [ ] Key scopes (future): read-only, inference-only, full-access
+
+#### 2.2 Rate Limiting by Tier
+
+| Tier | API Rate Limit | Daily Limit |
+|------|---------------|-------------|
+| Free | 10 req/min | 100/day |
+| Pro | 100 req/min | Unlimited (fair use) |
+| Team | 500 req/min | Unlimited (fair use) |
+
+- [ ] Rate limit headers on every API response: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+- [ ] 429 response when rate limited, with `Retry-After` header
+- [ ] Free tier: daily counter resets at midnight UTC
+
+#### 2.3 API Usage Dashboard
+- [ ] Usage graph: API calls per day (last 30 days)
+- [ ] Breakdown by endpoint
+- [ ] Breakdown by API key
+- [ ] Error rate chart
+- [ ] Average latency chart
+- [ ] Export usage data (CSV)
+
+#### 2.4 API Documentation (`/docs/api`)
+- [ ] OpenAPI/Swagger spec published
+- [ ] Interactive API explorer (Swagger UI or similar)
+- [ ] Code examples in Python, JavaScript, cURL
+- [ ] Authentication guide
+- [ ] Rate limiting guide
+- [ ] Error codes reference
+- [ ] Changelog / versioning
+
+### Pages & Components
+
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/dashboard/api-keys` | `ApiKeyManagement` | Key CRUD |
+| `/dashboard/api-usage` | `ApiUsageDashboard` | Usage stats |
+| `/docs/api` | `ApiDocumentation` | API reference |
+| `src/components/api/ApiKeyList.tsx` | Key list with actions |
+| `src/components/api/GenerateKeyModal.tsx` | Key creation modal |
+| `src/components/api/UsageChart.tsx` | Usage visualization |
+| `src/server/api/middleware/api-key.ts` | API key auth middleware |
+| `src/server/api/routers/api-keys.ts` | Key management router |
+
+### DB Schema Changes
+
+```typescript
+api_key = pgTable("api_key", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  name: varchar("name", { length: 100 }).notNull(),
+  keyHash: text("key_hash").notNull().unique(), // bcrypt hash
+  keyPrefix: varchar("key_prefix", { length: 12 }).notNull(), // first 8 chars for display
+  scopes: jsonb("scopes").$type<string[]>().default(["full"]),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  lastUsedAt: timestamp("last_used_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+}, (table) => [
+  index("api_key_user_idx").on(table.userId),
+  index("api_key_hash_idx").on(table.keyHash),
+  index("api_key_prefix_idx").on(table.keyPrefix),
+]);
+```
+
+---
+
+## 3. Advanced Benchmarks & Analytics
+
+**Priority: P1** — Key differentiator. Trust through data. This is what makes LLM Trust the go-to for model evaluation.
+
+### Context
+Free users see top 5 benchmarks per model. Pro users get the full picture: historical trends, detailed scoring breakdowns, custom comparisons, and analytics that help them make data-driven model selection decisions.
+
+### User Stories
+
+| # | As a... | I want to... | So that... |
+|---|---------|-------------|------------|
+| 3.1 | Pro user | See full benchmark suite for each model (20+ benchmarks) | I get complete performance picture |
+| 3.2 | Pro user | View benchmark trends over time | I can see if models are improving |
+| 3.3 | Pro user | Create custom benchmark comparisons | I can compare models on metrics I care about |
+| 3.4 | Pro user | Export benchmark data | I can use it in my own analysis |
+| 3.5 | Free user | See that advanced benchmarks exist but are gated | I understand Pro value |
+
+### Acceptance Criteria
+
+#### 3.1 Full Benchmark Display (Pro feature)
+- [ ] Model detail page shows ALL available benchmarks (not just top 5)
+- [ ] Benchmarks grouped by category: Reasoning, Coding, Math, Knowledge, Safety, Multilingual
+- [ ] Each benchmark: score, percentile rank, test date, source link
+- [ ] Comparison to category average shown inline
+- [ ] **Free tier:** Show top 5 benchmarks with "🔒 Unlock 15+ more benchmarks — Pro" CTA
+- [ ] **Pro/Team:** Full access
+
+#### 3.2 Benchmark Trends (`/models/[slug]/benchmarks`)
+- [ ] Historical benchmark scores plotted over time (line chart)
+- [ ] Model version markers on timeline
+- [ ] Zoom/pan on timeline
+- [ ] Select specific benchmarks to track
+- [ ] Compare with competitor models on same chart
+- [ ] Data export: CSV, JSON
+
+#### 3.3 Custom Comparison Builder (`/benchmarks/compare`)
+- [ ] Select 2-5 models to compare
+- [ ] Select which benchmarks to include
+- [ ] Radar chart visualization
+- [ ] Table view with sortable columns
+- [ ] "Save comparison" to user's dashboard
+- [ ] Share comparison via URL
+- [ ] Embed widget code (for blogs/docs)
+
+#### 3.4 Analytics Dashboard (`/dashboard/analytics`)
+- [ ] Overview: models viewed, compared, run in cloud (last 30 days)
+- [ ] Personal benchmark tracking: models I've tested, their scores
+- [ ] Trending models: most viewed/compared this week
+- [ ] Category insights: "Top coding models this month"
+- [ ] Export all analytics data
+
+### Pages & Components
+
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/models/[slug]/benchmarks` | `BenchmarkDetail` | Full benchmark suite |
+| `/benchmarks/compare` | `BenchmarkCompare` | Custom comparison builder |
+| `/dashboard/analytics` | `AnalyticsDashboard` | User analytics |
+| `src/components/benchmarks/BenchmarkTable.tsx` | Full benchmark table |
+| `src/components/benchmarks/BenchmarkTrend.tsx` | Historical trend chart |
+| `src/components/benchmarks/RadarCompare.tsx` | Radar comparison chart |
+| `src/components/benchmarks/BenchmarkGate.tsx` | Free/Pro gating UI |
+
+### Tier Gating
+
+| Benchmark Feature | Free | Pro | Team |
+|-------------------|------|-----|------|
+| Top 5 benchmarks per model | ✅ | ✅ | ✅ |
+| Full benchmark suite (20+) | ❌ | ✅ | ✅ |
+| Historical trends | ❌ | ✅ | ✅ |
+| Custom comparisons | ❌ | ✅ | ✅ |
+| Data export | ❌ | ✅ | ✅ |
+| Analytics dashboard | Basic | Advanced | Advanced+ |
+
+---
+
+## 4. New Model Alerts System
+
+**Priority: P1** — Convenience feature. Users want to know when new models drop in their area of interest. Drives engagement and retention.
+
+### User Stories
+
+| # | As a... | I want to... | So that... |
+|---|---------|-------------|------------|
+| 4.1 | Pro user | Get notified when new models are added | I stay up to date automatically |
+| 4.2 | Pro user | Configure alert preferences (categories, size, etc.) | I only get relevant alerts |
+| 4.3 | Pro user | Receive alerts via email and/or in-app | I choose my preferred channel |
+| 4.4 | Free user | See "Get alerts for new models" upsell | I understand Pro value |
+
+### Acceptance Criteria
+
+#### 4.1 Alert Configuration (`/dashboard/alerts`)
+- [ ] Enable/disable alerts toggle
+- [ ] Category filters: Coding, Chat, Vision, Embedding, Multilingual, etc.
+- [ ] Parameter filters: min/max parameter count, license type
+- [ ] Notification channels: email, in-app, both
+- [ ] Frequency: immediate, daily digest, weekly digest
+- [ ] **Free tier:** Show "🔔 Get alerts when new models drop — Pro" CTA
+
+#### 4.2 Alert Delivery
+- [ ] **Email:** Beautiful template with model name, category, key benchmarks, link to model page
+- [ ] **In-app:** Notification bell with unread count, notification list in `/notifications`
+- [ ] Batch alerts: if multiple models in same category, group in one notification
+- [ ] Unsubscribe link in every email
+
+#### 4.3 Alert Triggers
+- [ ] New model added to database → check all Pro/Team users' preferences → send alerts
+- [ ] Model updated with new version → alert users who favorited that model
+- [ ] Model reaches benchmark threshold → alert users tracking that benchmark
+
+### Pages & Components
+
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/dashboard/alerts` | `AlertPreferences` | Alert configuration |
+| `/notifications` (update) | `NotificationList` | Alert history |
+| `src/components/alerts/AlertConfig.tsx` | Preference form |
+| `src/components/alerts/AlertCard.tsx` | Individual alert display |
+| `src/server/services/alerts.ts` | Alert dispatch service |
+
+### DB Schema Changes
+
+```typescript
+user_alert_preference = pgTable("user_alert_preference", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id).unique(),
+  enabled: boolean("enabled").notNull().default(true),
+  categories: jsonb("categories").$type<string[]>().default([]),
+  minParams: varchar("min_params", { length: 20 }),
+  maxParams: varchar("max_params", { length: 20 }),
+  licenses: jsonb("licenses").$type<string[]>().default([]),
+  channels: jsonb("channels").$type<("email" | "in_app")[]>().default(["email", "in_app"]),
+  frequency: varchar("frequency", { length: 20 }).notNull().default("immediate"),
+  // immediate | daily | weekly
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+notification = pgTable("notification", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id),
+  type: varchar("type", { length: 50 }).notNull(),
+  // new_model | model_update | benchmark_alert | badge_earned | level_up | billing | system
+  title: text("title").notNull(),
+  body: text("body"),
+  link: text("link"),
+  metadata: jsonb("metadata"),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("notification_user_idx").on(table.userId),
+  index("notification_type_idx").on(table.type),
+  index("notification_read_idx").on(table.readAt),
+  index("notification_created_idx").on(table.createdAt),
+]);
+```
+
+---
+
+## 5. Blog Complet (MDX)
+
+**Priority: P1** — Content marketing is a key SEO and acquisition lever.
+
+### User Stories
+
+| # | As a... | I want to... | So that... |
+|---|---------|-------------|------------|
+| 5.1 | Visitor | Browse blog posts with pagination | I can discover articles |
+| 5.2 | Visitor | Read articles with table of contents | I can navigate long-form content |
+| 5.3 | Visitor | Filter posts by category | I can find relevant content |
+| 5.4 | Visitor | Search blog posts | I can find specific topics |
+| 5.5 | Admin/Author | Write posts in MDX | I can use rich components in articles |
+
+### Acceptance Criteria
+
+#### Blog Listing (`/blog`)
+- [ ] Paginated list (10 per page) with prev/next
+- [ ] Cards: cover image, title, excerpt, category badge, reading time, date
+- [ ] Category filter tabs
+- [ ] Search bar (client-side, debounced 200ms)
+
+#### Article Page (`/blog/[slug]`)
+- [ ] Full MDX rendering with custom components
+- [ ] Auto-generated TOC (sticky sidebar on desktop)
+- [ ] Reading progress bar
+- [ ] Author card, related posts, social share buttons
+- [ ] SEO: structured data, OG image from frontmatter
+
+#### MDX Content Pipeline
+- [ ] Posts as `.mdx` files in `/content/blog/`
 - [ ] Required frontmatter: `title`, `slug`, `date`, `category`, `excerpt`, `coverImage`
-- [ ] Optional frontmatter: `tags[]`, `author`, `readingTime` (auto-calculated if absent)
-- [ ] Build-time validation: fail build if frontmatter is missing required fields or slug is duplicated
-- [ ] Custom MDX components available: `<Callout>`, `<CodeBlock>`, `<ModelCard>`, `<ComparePreview>`, `<Tip>`
+- [ ] Custom components: `<Callout>`, `<CodeBlock>`, `<ModelCard>`, `<ComparePreview>`
 
 ### Pages & Components
 
-| Path | Component | Description |
-|------|-----------|-------------|
-| `/blog` | `BlogListingPage` | Paginated post grid |
-| `/blog/[slug]` | `BlogPostPage` | Full article with TOC |
-| `/blog/category/[category]` | `BlogCategoryPage` | Category-filtered listing |
-| `src/components/blog/PostCard.tsx` | Post card for listings |
-| `src/components/blog/TableOfContents.tsx` | Sticky TOC sidebar |
+| Path | Component |
+|------|-----------|
+| `/blog` | `BlogListingPage` |
+| `/blog/[slug]` | `BlogPostPage` |
+| `/blog/category/[category]` | `BlogCategoryPage` |
+| `src/components/blog/PostCard.tsx` | Post card |
+| `src/components/blog/TableOfContents.tsx` | TOC sidebar |
 | `src/components/blog/ReadingProgress.tsx` | Progress bar |
-| `src/components/blog/BlogSearch.tsx` | Search input + results |
-| `src/components/blog/RelatedPosts.tsx` | Related articles section |
+| `src/components/blog/BlogSearch.tsx` | Search input |
+| `src/components/blog/RelatedPosts.tsx` | Related articles |
 | `src/components/blog/ShareButtons.tsx` | Social sharing |
-| `src/components/blog/mdx/` | Custom MDX components (Callout, CodeBlock, etc.) |
-| `src/lib/blog.ts` | MDX parsing, frontmatter extraction, search index |
-| `content/blog/*.mdx` | Blog post files |
-
-### DB Schema Changes
-
-**None required.** Blog content is file-based (MDX). No database tables needed for v1. If we later want a CMS or analytics, we could add:
-
-```typescript
-// Future (not in scope):
-// blog_view — slug, viewedAt, referrer (for analytics)
-```
+| `src/lib/blog.ts` | MDX parsing + frontmatter |
 
 ---
 
-## 2. Gamification UI
+## 6. Gamification UI
 
-**Priority: P1** — The backend schema (badge, user_badge, user_stats, points_ledger) is already defined in GAMIFICATION.md. This spec covers the **frontend UI** to surface gamification to users.
+**Priority: P1** — Backend schema exists. This spec covers the frontend to surface gamification.
 
 ### User Stories
 
 | # | As a... | I want to... | So that... |
 |---|---------|-------------|------------|
-| 2.1 | User | See my badges on my profile | I can showcase my contributions |
-| 2.2 | User | View a leaderboard | I can see how I rank vs other contributors |
-| 2.3 | User | See my points and level in my dashboard | I can track my progress |
-| 2.4 | User | Get notified when I earn a badge or level up | I feel rewarded for engagement |
-| 2.5 | Visitor | See top contributors on the community page | I can discover trusted reviewers |
+| 6.1 | User | See my badges on my profile | I can showcase contributions |
+| 6.2 | User | View a leaderboard | I can see how I rank |
+| 6.3 | User | See my points and level in dashboard | I can track progress |
+| 6.4 | User | Get notified when I earn a badge | I feel rewarded |
 
 ### Acceptance Criteria
 
-#### 2.1 Badge Display on Profile (`/profile/[username]`)
-- [ ] Grid layout of earned badges (icon + name), sorted by tier (Platinum → Gold → Silver → Bronze) then by earned date
-- [ ] Hover tooltip: badge name, description, tier, date earned
-- [ ] "New" badge glow animation (earned < 48h ago)
-- [ ] Summary line: "🏆 12 Badges · ⭐ Gold Reviewer · Level 7"
-- [ ] Locked badges shown as greyed-out silhouettes with progress hint ("15/50 reviews")
-- [ ] Badge count per tier shown in a mini summary bar
+#### Badge Display (`/profile/[username]`)
+- [ ] Grid of earned badges (icon + name), sorted by tier
+- [ ] Hover tooltip: badge name, description, tier, date
+- [ ] "New" badge glow (< 48h)
+- [ ] Locked badges as greyed silhouettes with progress hint
 
-#### 2.2 Leaderboard Page (`/community/leaderboard`)
-- [ ] Ranked table: position, avatar, username, level, total points, badge count
-- [ ] Top 3 get special styling (🥇🥈🥉 medals, highlighted rows)
-- [ ] Time filter tabs: All Time, This Month, This Week
-- [ ] Current user's row highlighted if they're not in top visible entries (with rank number)
-- [ ] Pagination (50 per page) for beyond top entries
-- [ ] Loading skeleton state
-- [ ] SEO metadata, canonical URL
+#### Leaderboard (`/community/leaderboard`)
+- [ ] Ranked table: position, avatar, username, level, points, badges
+- [ ] Top 3 medal styling
+- [ ] Time filters: All Time, This Month, This Week
+- [ ] Current user highlighted if not in visible entries
 
-#### 2.3 Points & Level in Dashboard (`/dashboard`)
-- [ ] Points summary card on dashboard overview: total points, current level, progress bar to next level
-- [ ] Level name + icon displayed prominently
-- [ ] "Points needed for next level: 230" with progress bar percentage
-- [ ] Link to full gamification detail page or leaderboard
-- [ ] Recent points activity (last 5 transactions from points_ledger): "+25 pts — Review on GPT-4"
-- [ ] Badge showcase: last 4 earned badges with "View all" link
+#### Dashboard Integration
+- [ ] Points + level card with progress bar
+- [ ] Recent points activity (last 5 transactions)
+- [ ] Last 4 earned badges with "View all" link
 
-#### 2.4 Level-Up & Badge Notifications
-- [ ] Toast notification (in-app) when user earns a badge: icon, badge name, points earned
-- [ ] Toast notification on level up: new level name, celebratory animation
-- [ ] Badge notification persisted in `/notifications` page with link to badge detail
-- [ ] Notification includes: badge icon, name, date, "View on profile" CTA
-- [ ] Notification marked as read when clicked/seen
-- [ ] Optional: email notification for major milestones (Gold+ badges, level 5+)
-
-#### 2.5 Community Page Enhancement (`/community`)
-- [ ] New `/community` index page with sections: Leaderboard preview (top 5), Recent badges earned (activity feed), Stats (total users, reviews, models)
-- [ ] Activity feed: "UserX earned 'Critic Elite' 🏆" with timestamp
-- [ ] CTA to full leaderboard
+#### Notifications
+- [ ] Toast on badge earned / level up
+- [ ] Persisted in `/notifications` page
 
 ### Pages & Components
 
-| Path | Component | Description |
-|------|-----------|-------------|
-| `/community` | `CommunityPage` | Community hub with leaderboard preview + activity |
-| `/community/leaderboard` | `LeaderboardPage` | Full ranked leaderboard |
-| `/dashboard` (update) | `DashboardOverview` | Add points/level card + badge showcase |
-| `/profile/[username]` (update) | `ProfilePage` | Add badge grid section |
-| `/notifications` (update) | `NotificationsPage` | Add badge/level notification types |
-| `src/components/gamification/BadgeGrid.tsx` | Badge display grid |
-| `src/components/gamification/BadgeCard.tsx` | Individual badge (earned + locked) |
-| `src/components/gamification/LevelProgress.tsx` | Points + level progress bar |
-| `src/components/gamification/LeaderboardTable.tsx` | Ranked user table |
-| `src/components/gamification/PointsActivity.tsx` | Recent points transactions |
-| `src/components/gamification/LevelUpToast.tsx` | Celebration notification |
-| `src/components/gamification/BadgeToast.tsx` | Badge earned notification |
-
-### DB Schema Changes
-
-**Already defined** in GAMIFICATION.md and schema. Verify these tables exist and have the right columns:
-
-```typescript
-// Already in schema or to be added:
-badge              // slug, name, icon, category, tier, points, criteria, description
-user_badge         // userId, badgeId, earnedAt
-user_stats         // userId, totalPoints, level, currentStreak, longestStreak, reviewsCount, uploadsCount, totalDownloads, totalLikes, isAmbassador
-points_ledger      // id, userId, points, reason, referenceId, createdAt
-```
-
-**New additions needed:**
-
-```typescript
-// Notification type extension
-// Add "badge_earned" and "level_up" to notification type enum
-
-// Index additions
-// user_stats_total_points_idx — for leaderboard sorting
-// user_badge_user_earned_idx — for profile badge query
-// points_ledger_user_date_idx — for recent activity
-```
+| Path | Component |
+|------|-----------|
+| `/community` | `CommunityPage` |
+| `/community/leaderboard` | `LeaderboardPage` |
+| `/profile/[username]` (update) | Badge grid section |
+| `src/components/gamification/BadgeGrid.tsx` | Badge display |
+| `src/components/gamification/BadgeCard.tsx` | Individual badge |
+| `src/components/gamification/LevelProgress.tsx` | Points + level bar |
+| `src/components/gamification/LeaderboardTable.tsx` | Ranked table |
+| `src/components/gamification/PointsActivity.tsx` | Recent activity |
 
 ---
 
-## 3. Model Download (Web)
+## 7. Model Download (Web)
 
-**Priority: P1** — Models have `downloadUrl` fields but the web UI doesn't expose download functionality or tracking.
+**Priority: P1** — Models have `downloadUrl` but web UI doesn't expose download or tracking.
 
 ### User Stories
 
 | # | As a... | I want to... | So that... |
 |---|---------|-------------|------------|
-| 3.1 | Visitor | Click a download button on a model page | I can get the model from its source (HuggingFace, etc.) |
-| 3.2 | Visitor | See download count on a model | I can gauge popularity |
-| 3.3 | User | See my download history in my dashboard | I can find models I previously downloaded |
-| 3.4 | Model Owner | See download stats for my models | I can track my models' adoption |
-| 3.5 | Platform | Track download events | We can surface trending models and compute gamification points |
+| 7.1 | Visitor | Click download on model page | I get the model from source |
+| 7.2 | Visitor | See download count | I gauge popularity |
+| 7.3 | User | See my download history | I find previously downloaded models |
 
 ### Acceptance Criteria
 
-#### 3.1 Download Button (`/models/[slug]`)
-- [ ] Prominent "Download" button on model detail page
-- [ ] Button shows source icon (HuggingFace logo, GitHub logo, generic link icon) based on `downloadUrl` domain
-- [ ] Click opens `downloadUrl` in new tab (external redirect to source)
-- [ ] Before redirect: increment download counter via API call (fire-and-forget, non-blocking)
-- [ ] If `downloadUrl` is null/empty: button is disabled with "No download available" tooltip
-- [ ] Button variant: primary CTA, positioned near model name/header area
-- [ ] Secondary "Copy Link" button next to download
+#### Download Button (`/models/[slug]`)
+- [ ] Prominent "Download" button
+- [ ] Source icon (HuggingFace, GitHub, generic) based on URL domain
+- [ ] Click opens `downloadUrl` in new tab (external redirect)
+- [ ] Before redirect: fire-and-forget download counter increment
+- [ ] "Copy Link" button next to download
 
-#### 3.2 Download Counter
-- [ ] Display total download count on model detail page (formatted: "1.2K downloads", "45.3K downloads")
-- [ ] Display on model cards in listings (small icon + count)
-- [ ] Counter updates optimistically (increment locally, reconcile on next page load)
-- [ ] Sort models by "Most Downloaded" option in `/models` listing
+#### Download Counter
+- [ ] Display on model detail + model cards
+- [ ] Formatted: "1.2K downloads"
+- [ ] Sort by "Most Downloaded" option in listings
 
-#### 3.3 Download Tracking API
-- [ ] `POST /api/models/[slug]/download` endpoint
-- [ ] Accepts: model slug, optional user ID (if authenticated)
-- [ ] Records: modelId, userId (nullable), timestamp, referrer, user agent
-- [ ] Rate limiting: max 1 count per user per model per hour (prevent spam)
-- [ ] Anonymous downloads tracked (userId = null)
-- [ ] Response: `{ success: true, totalDownloads: 1234 }`
-- [ ] Idempotent: same user+model within window returns current count without incrementing
-
-#### 3.4 Download History in Dashboard (`/dashboard/downloads`)
-- [ ] New dashboard tab/page: "My Downloads"
-- [ ] Chronological list of downloaded models: model name, slug, download date, source URL
-- [ ] Each entry links to the model detail page
-- [ ] Pagination: 20 per page
-- [ ] Empty state: "No downloads yet. [Browse models →]"
-- [ ] Only available to authenticated users
-
-#### 3.5 Model Owner Download Stats
-- [ ] On model detail page (for the uploader): show download chart (last 30 days sparkline)
-- [ ] In admin panel: download count per model, sortable
-- [ ] In dashboard: "Your Models" section shows download counts
-
-### Pages & Components
-
-| Path | Component | Description |
-|------|-----------|-------------|
-| `/models/[slug]` (update) | `ModelDetailPage` | Add download button + counter |
-| `/models` (update) | `ModelsListingPage` | Add download count on cards + sort option |
-| `/dashboard/downloads` | `DownloadHistoryPage` | User's download history |
-| `src/components/models/DownloadButton.tsx` | Download CTA with source detection |
-| `src/components/models/DownloadCounter.tsx` | Formatted download count |
-| `src/components/models/DownloadHistoryList.tsx` | History list for dashboard |
-| `src/server/api/routers/download.ts` | tRPC router for download tracking |
+#### Download History (`/dashboard/downloads`)
+- [ ] Chronological list: model name, date, source URL
+- [ ] Pagination (20 per page)
+- [ ] Empty state with "Browse models →" CTA
 
 ### DB Schema Changes
 
 ```typescript
-// New table
 model_download = pgTable("model_download", {
   id: uuid("id").defaultRandom().primaryKey(),
-  modelId: uuid("model_id").notNull().references(() => model.id, { onDelete: "cascade" }),
-  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+  modelId: uuid("model_id").notNull().references(() => model.id),
+  userId: text("user_id").references(() => user.id),
   downloadedAt: timestamp("downloaded_at").defaultNow().notNull(),
   referrer: varchar("referrer", { length: 512 }),
-  userAgent: varchar("user_agent", { length: 512 }),
-}, (table) => ({
-  modelIdx: index("model_download_model_idx").on(table.modelId),
-  userIdx: index("model_download_user_idx").on(table.userId),
-  dateIdx: index("model_download_date_idx").on(table.downloadedAt),
-  userModelDateIdx: index("model_download_user_model_date_idx").on(table.userId, table.modelId, table.downloadedAt),
-}));
-
-// Add column to model table (denormalized counter for fast reads)
-// model.totalDownloads: integer("total_downloads").default(0).notNull()
+}, (table) => [
+  index("model_download_model_idx").on(table.modelId),
+  index("model_download_user_idx").on(table.userId),
+]);
 ```
-
-**Note:** We maintain a denormalized `totalDownloads` counter on the `model` table for fast reads (avoiding COUNT queries on every model listing). The `model_download` table provides the detailed history and analytics.
 
 ---
 
-## 4. Compare Amélioré
+## 8. Compare Amélioré
 
-**Priority: P2** — Basic compare exists. This spec covers enhancements for a richer comparison experience.
+**Priority: P2** — Enhancement to existing compare feature.
 
 ### User Stories
 
 | # | As a... | I want to... | So that... |
 |---|---------|-------------|------------|
-| 4.1 | Visitor | View a dynamic side-by-side comparison of any two models | I can make informed decisions |
-| 4.2 | Visitor | See visual benchmark charts | I can quickly understand performance differences |
-| 4.3 | Visitor | Discover related comparisons | I can explore other relevant pairings |
-| 4.4 | Visitor | Share a comparison via URL | I can send it to others |
-| 4.5 | Visitor | Navigate from a model page to comparisons involving it | I can discover how it stacks up |
+| 8.1 | Visitor | Dynamic side-by-side comparison of any two models | I make informed decisions |
+| 8.2 | Visitor | Visual benchmark charts | I quickly understand differences |
+| 8.3 | Visitor | Share comparisons via URL | I can send to others |
 
 ### Acceptance Criteria
 
-#### 4.1 Dynamic Compare Page (`/compare/[a]/vs/[b]`)
-- [ ] Accepts any two model slugs as dynamic route params
-- [ ] Validates both slugs exist; shows 404 or "Model not found" for invalid slugs
-- [ ] Canonical URL: alphabetical order (redirect `/compare/gpt-4/vs/llama-3` → `/compare/gpt-4/vs/llama-3` if already ordered, else swap)
-- [ ] Page title: "[Model A] vs [Model B] — Comparison | LLM Trust"
-- [ ] OG image: auto-generated comparison card (model A on left, B on right)
-- [ ] JSON-LD structured data for comparison
+#### Dynamic Compare (`/compare/[a]/vs/[b]`)
+- [ ] Any two model slugs as dynamic params
+- [ ] Canonical URL: alphabetical order
+- [ ] OG image: auto-generated comparison card
+- [ ] JSON-LD structured data
 
-#### 4.2 Side-by-Side Comparison Table
-- [ ] Two-column layout: Model A | Model B
-- [ ] Comparison rows:
-  - **Basic Info:** Name, Publisher, Release Date, License, Category
-  - **Architecture:** Parameters, Context Window, Architecture Type, Quantization options
-  - **Performance:** MMLU, HumanEval, HellaSwag, ARC, TruthfulQA (if available)
-  - **Community:** Rating (avg), Review Count, Likes, Downloads
-  - **Pricing:** Free/Paid, API Cost per 1M tokens (if available)
-- [ ] Visual indicators: green highlight for better value, red for worse (where applicable)
-- [ ] "Winner" badge per row when one model clearly leads
-- [ ] "N/A" display for missing data (not blank)
-- [ ] Sticky header with model names visible while scrolling
+#### Comparison Table
+- [ ] Two-column: Model A | Model B
+- [ ] Rows: Basic Info, Architecture, Performance, Community, Pricing
+- [ ] Green/red highlight for better/worse values
+- [ ] "Winner" badge per row
+- [ ] Sticky header while scrolling
 
-#### 4.3 Benchmark Visualizations
-- [ ] Radar chart comparing key benchmarks (MMLU, HumanEval, HellaSwag, ARC, TruthfulQA)
-- [ ] Bar chart for parameter count comparison
-- [ ] Bar chart for context window comparison
-- [ ] Color-coded: Model A = primary brand color, Model B = secondary color
-- [ ] Responsive: charts resize for mobile
-- [ ] Hover tooltips on chart data points showing exact values
-- [ ] Fallback: if no benchmark data available for either model, show "No benchmark data" message instead of empty charts
+#### Benchmark Visualizations
+- [ ] Radar chart (key benchmarks)
+- [ ] Bar charts (parameters, context window)
+- [ ] Responsive, hover tooltips
 
-#### 4.4 Related Comparisons
-- [ ] "Related Comparisons" section at bottom of page
-- [ ] Show up to 4 related comparison cards
-- [ ] Relevance logic: same category models, same parameter range, or popular comparisons
-- [ ] Each card: Model A name vs Model B name, avg ratings, "View Comparison →" link
-- [ ] If neither model has related comparisons: show "Popular Comparisons" fallback
+#### Related Comparisons
+- [ ] "Related Comparisons" section (up to 4 cards)
+- [ ] Relevance: same category, similar parameter range
 
-#### 4.5 Navigation & Discovery
-- [ ] On `/models/[slug]`: "Compare with..." section showing quick links to compare with top models in same category
-- [ ] Compare page has "Swap models" button (A ↔ B) that reloads with swapped URL
-- [ ] Search/autocomplete on compare page to change one of the models
-- [ ] Breadcrumb: Compare > [Model A] vs [Model B]
-
-#### 4.6 SEO Static Pages
-- [ ] Keep existing static comparison pages for high-value pairs
-- [ ] Add `<link rel="canonical">` on dynamic pages pointing to canonical (alphabetical) URL
-- [ ] Sitemap includes all comparison pages (static + top dynamic pairs)
-
-### Pages & Components
-
-| Path | Component | Description |
-|------|-----------|-------------|
-| `/compare/[a]/vs/[b]` | `CompareDynamicPage` | Main comparison page |
-| `/compare` (update) | `CompareIndexPage` | Add search + popular comparisons |
-| `/models/[slug]` (update) | `ModelDetailPage` | Add "Compare with" section |
-| `src/components/compare/ComparisonTable.tsx` | Side-by-side data table |
-| `src/components/compare/BenchmarkRadar.tsx` | Radar chart (Recharts/Chart.js) |
-| `src/components/compare/BenchmarkBar.tsx` | Bar chart for specific metrics |
-| `src/components/compare/RelatedComparisons.tsx` | Related comparison cards |
-| `src/components/compare/ModelSwapButton.tsx` | Swap A ↔ B |
-| `src/components/compare/CompareSearch.tsx` | Model search/autocomplete |
-| `src/lib/compare.ts` | Comparison data fetching, ranking logic |
-
-### DB Schema Changes
+### DB Schema (Optional, Post-MVP)
 
 ```typescript
-// Optional: cache popular comparisons for performance
 comparison_cache = pgTable("comparison_cache", {
   id: uuid("id").defaultRandom().primaryKey(),
   modelASlug: varchar("model_a_slug", { length: 255 }).notNull(),
   modelBSlug: varchar("model_b_slug", { length: 255 }).notNull(),
   viewCount: integer("view_count").default(0).notNull(),
-  lastViewedAt: timestamp("last_viewed_at"),
 }, (table) => ({
   pairIdx: unique("comparison_cache_pair_idx").on(table.modelASlug, table.modelBSlug),
-  viewsIdx: index("comparison_cache_views_idx").on(table.viewCount),
 }));
-
-// Tracking comparison views (analytics)
-comparison_view = pgTable("comparison_view", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  modelASlug: varchar("model_a_slug", { length: 255 }).notNull(),
-  modelBSlug: varchar("model_b_slug", { length: 255 }).notNull(),
-  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
-  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-});
 ```
-
-**Note:** The comparison data itself comes from the existing `model` table — no new model fields needed. The tables above are for analytics and caching only. Can be added in a later phase if needed.
 
 ---
 
 ## Summary: Priority & Effort
 
-| Feature | Priority | Estimated Effort | Dependencies |
-|---------|----------|-----------------|--------------|
-| Blog (MDX) | **P1** | 3-4 days | None |
-| Gamification UI | **P1** | 4-5 days | Gamification backend (GAMIFICATION.md) |
-| Model Download (Web) | **P1** | 2-3 days | None |
-| Compare Amélioré | **P2** | 3-4 days | Chart library (Recharts) |
+| Feature | Priority | Effort | Tier Alignment | Revenue Impact |
+|---------|----------|--------|---------------|----------------|
+| **Cloud Inference** | **P0** | 5-7 days | Pro, Team | 🔴 Core revenue |
+| **API Management** | **P0** | 3-4 days | Pro, Team | 🟡 Enabling feature |
+| **Advanced Benchmarks** | **P1** | 3-4 days | Pro, Team | 🟡 Value justification |
+| **Model Alerts** | **P1** | 2-3 days | Pro, Team | 🟢 Retention |
+| **Blog (MDX)** | **P1** | 3-4 days | All (SEO) | 🟢 Acquisition |
+| **Gamification UI** | **P1** | 4-5 days | All | 🟢 Engagement |
+| **Model Download** | **P1** | 2-3 days | All | 🟢 Utility |
+| **Compare Amélioré** | **P2** | 3-4 days | All | 🟢 Differentiation |
 
-**Recommended Sprint Order:**
-1. **Sprint A:** Model Download (small, high value) + Blog (content marketing)
-2. **Sprint B:** Gamification UI (depends on backend)
-3. **Sprint C:** Compare Amélioré (enhancement, P2)
+### Recommended Sprint Order
+
+1. **Sprint 1 (P0):** Cloud Inference MVP + API Key Management — **this IS the product**
+2. **Sprint 2 (P1):** Advanced Benchmarks + Model Alerts — **justify Pro price**
+3. **Sprint 3 (P1):** Blog + Model Download — **acquisition & utility**
+4. **Sprint 4 (P1-P2):** Gamification UI + Compare Enhancement — **engagement**
+
+### Key Principle
+> We don't sell models (they're free). We sell **the ability to run them** (cloud inference), **the data to choose them** (benchmarks), and **the tools to manage them** (API, alerts, workspaces). Infrastructure + Trust + Convenience.
 
 ---
 

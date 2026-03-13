@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TopBar } from "@/components/layout/top-bar";
-import { ArticleJsonLd } from "@/components/seo/structured-data";
+import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/seo/structured-data";
 import { generatePageMetadata, canonicalUrl } from "@/components/seo/page-seo";
 import {
   GlowCard,
@@ -59,6 +59,13 @@ export default function MistralLargeVsClaude3OpusPage() {
         slug="mistral-large-vs-claude-3-opus"
         datePublished="2026-01-20"
         dateModified="2026-03-12"
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: "https://llmtrust.com" },
+          { name: "Compare", url: "https://llmtrust.com/compare" },
+          { name: "Mistral Large vs Claude 3 Opus", url: "https://llmtrust.com/compare/mistral-large-vs-claude-3-opus" },
+        ]}
       />
 
       <TopBar

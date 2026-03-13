@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = generatePageMetadata({
   title: "Documentation — LLM Trust",
   description:
-    "Complete docs for LLM Trust. Browse 200+ open-source LLMs, compare models, use the API, and contribute. Get started in minutes.",
+    "Complete guide to LLM Trust: browse 200+ open-source LLMs, compare benchmarks, run models locally with CLI, submit reviews, and integrate via REST API.",
   canonical: canonicalUrl("/docs"),
 });
 
