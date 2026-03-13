@@ -15,7 +15,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
  */
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-28">
+    <section className="relative overflow-hidden py-12 md:py-24">
       {/* Background glow orbs */}
       <div
         className="hero-glow hero-glow-primary animate-glow-pulse"

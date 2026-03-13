@@ -200,7 +200,7 @@ export default function PricingPage() {
 
       <div className="flex-1 overflow-auto">
         {/* Hero */}
-        <section className="relative py-24 overflow-hidden">
+        <section className="relative py-12 md:py-24 overflow-hidden">
           <div
             className="hero-glow hero-glow-primary"
             style={{
@@ -423,7 +423,7 @@ export default function PricingPage() {
         </section>
 
         {/* CTA */}
-        <section className="relative py-24 border-t border-border/60 overflow-hidden">
+        <section className="relative py-12 md:py-24 border-t border-border/60 overflow-hidden">
           <div
             className="hero-glow hero-glow-primary"
             style={{

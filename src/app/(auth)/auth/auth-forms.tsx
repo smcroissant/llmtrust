@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { validatePasswordStrength } from "@/server/auth";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,17 @@ export function AuthForm({ mode }: AuthFormProps) {
           <p className="text-xs text-green-600 mt-1">✓ Password meets requirements</p>
         )}
       </div>
+
+      {mode === "sign-in" && (
+        <div className="flex justify-end">
+          <Link
+            href="/auth/forgot-password"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            Forgot password?
+          </Link>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
