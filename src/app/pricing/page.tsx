@@ -59,6 +59,7 @@ const plansData = [
       "Unlimited API access",
       "Advanced benchmarks & analytics",
       "Priority support",
+      "Custom watchlists",
     ],
   },
   {
@@ -98,13 +99,19 @@ const comparisonFeatures = [
     features: [
       { name: "Downloads", free: "Unlimited", pro: "Unlimited", team: "Unlimited" },
       { name: "API access", free: "100 calls/day", pro: "Unlimited", team: "Unlimited" },
-      { name: "API management", free: false, pro: false, team: true },
     ],
   },
   {
     category: "Inference",
     features: [
       { name: "Cloud inference (no GPU needed)", free: false, pro: true, team: true },
+    ],
+  },
+  {
+    category: "Advanced",
+    features: [
+      { name: "Custom watchlists", free: false, pro: true, team: true },
+      { name: "Priority support", free: false, pro: true, team: true },
     ],
   },
   {
@@ -115,7 +122,7 @@ const comparisonFeatures = [
       { name: "Admin dashboard", free: false, pro: false, team: true },
       { name: "Usage analytics", free: false, pro: false, team: true },
       { name: "SSO", free: false, pro: false, team: true },
-      { name: "Priority support", free: false, pro: true, team: true },
+      { name: "API management", free: false, pro: false, team: true },
     ],
   },
 ];
@@ -129,7 +136,7 @@ const faqs = [
   {
     question: "What do I get with Pro?",
     answer:
-      "Pro ($19/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, and priority support.",
+      "Pro ($19/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, custom watchlists, and priority support.",
   },
   {
     question: "What's included in the Team plan?",
