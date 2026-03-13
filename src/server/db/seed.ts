@@ -42,7 +42,7 @@ const models: ModelSeed[] = [
   // META — LLaMA Family
   // ============================================
   {
-    slug: "llama-3.1-405b",
+    slug: "llama-3-405b",
     name: "LLaMA 3.1 405B",
     description: "Meta's largest open model with 405B parameters. State-of-the-art performance across reasoning, code, and multilingual tasks.",
     longDescription: "LLaMA 3.1 405B is the most capable openly available LLM to date. It rivals GPT-4 on many benchmarks while being fully open-weight. Supports 128K context length, function calling, and multilingual generation across 8 languages.",
@@ -66,7 +66,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "llama-3.1-70b",
+    slug: "llama-3-70b",
     name: "LLaMA 3.1 70B",
     description: "Meta's 70B parameter model offering excellent performance with lower resource requirements than 405B.",
     longDescription: "LLaMA 3.1 70B provides a great balance between capability and efficiency. It excels at coding, math, and reasoning while being runnable on consumer hardware with sufficient RAM.",
@@ -90,7 +90,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "llama-3.1-8b",
+    slug: "llama-3-8b",
     name: "LLaMA 3.1 8B",
     description: "Compact yet capable 8B parameter model. Runs on consumer hardware while maintaining impressive performance.",
     longDescription: "LLaMA 3.1 8B is designed for efficiency without sacrificing quality. It supports 128K context and is ideal for local deployment on gaming PCs and laptops.",
@@ -142,7 +142,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "mistral-7b-v0.3",
+    slug: "mistral-7b-v3",
     name: "Mistral 7B v0.3",
     description: "Efficient 7B parameter model with sliding window attention. Excellent for local deployment.",
     longDescription: "Mistral 7B v0.3 is a powerful yet efficient model using grouped-query attention and sliding window attention. It outperforms LLaMA 2 13B on most benchmarks.",
@@ -194,7 +194,7 @@ const models: ModelSeed[] = [
   // QWEN (Alibaba)
   // ============================================
   {
-    slug: "qwen-2.5-72b",
+    slug: "qwen-2-72b",
     name: "Qwen 2.5 72B",
     description: "Alibaba's flagship 72B model with exceptional coding and mathematical reasoning.",
     longDescription: "Qwen 2.5 72B is trained on 18T tokens and excels at coding, mathematics, and structured data tasks. It supports 128K context and 29+ languages.",
@@ -218,7 +218,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "qwen-2.5-coder-32b",
+    slug: "qwen-2-coder-32b",
     name: "Qwen 2.5 Coder 32B",
     description: "Specialized coding model from Alibaba with state-of-the-art code generation capabilities.",
     longDescription: "Qwen 2.5 Coder 32B is specifically trained for code generation, debugging, and explanation. It rivals GPT-4 on HumanEval and MBPP benchmarks.",
@@ -242,7 +242,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "qwen-2.5-7b",
+    slug: "qwen-2-7b",
     name: "Qwen 2.5 7B",
     description: "Compact Qwen model with strong performance for its size. Great for local deployment.",
     longDescription: "Qwen 2.5 7B punches above its weight with excellent instruction following and multilingual capabilities. Perfect for resource-constrained environments.",
@@ -450,7 +450,7 @@ const models: ModelSeed[] = [
   // PHI (Microsoft)
   // ============================================
   {
-    slug: "phi-3.5-mini",
+    slug: "phi-3-mini",
     name: "Phi 3.5 Mini",
     description: "Microsoft's 3.8B parameter model that punches far above its weight class.",
     longDescription: "Phi 3.5 Mini achieves performance comparable to models 10x its size. Trained on high-quality synthetic and web data, it excels at reasoning and coding.",
@@ -741,7 +741,7 @@ const models: ModelSeed[] = [
   // NEWER / TRENDING MODELS
   // ============================================
   {
-    slug: "llama-3.2-3b",
+    slug: "llama-3-3b",
     name: "LLaMA 3.2 3B",
     description: "Meta's lightweight 3B model for edge and mobile deployment.",
     longDescription: "LLaMA 3.2 3B brings LLaMA 3 quality to edge devices. It supports 128K context and is optimized for on-device inference with strong instruction following.",
@@ -765,7 +765,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "llama-3.2-11b-vision",
+    slug: "llama-3-11b-vision",
     name: "LLaMA 3.2 11B Vision",
     description: "Meta's multimodal model with vision capabilities. 11B parameters.",
     longDescription: "LLaMA 3.2 11B Vision adds image understanding to the LLaMA 3.2 family. It can reason about images, answer visual questions, and understand charts and diagrams.",
@@ -789,7 +789,7 @@ const models: ModelSeed[] = [
     },
   },
   {
-    slug: "granite-3.1-8b",
+    slug: "granite-3-8b",
     name: "Granite 3.1 8B",
     description: "IBM's enterprise-grade 8B model with strong reasoning and code capabilities.",
     longDescription: "Granite 3.1 8B is IBM's open-source model trained for enterprise use. It features strong instruction following, code generation, and tool use capabilities.",

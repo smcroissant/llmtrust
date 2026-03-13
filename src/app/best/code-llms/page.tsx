@@ -53,7 +53,7 @@ const codeModels = [
     context: "128K",
     languages: "All major languages",
     highlight: "Best all-rounder. Strong code generation with excellent general reasoning for complex tasks.",
-    slug: "llama-3.1-405b",
+    slug: "llama-3-405b",
   },
   {
     rank: 3,
@@ -65,7 +65,7 @@ const codeModels = [
     context: "32K",
     languages: "Python, JS, Java, C++, Go",
     highlight: "Best mid-size coding model. Runs on a single high-end GPU with near-top performance.",
-    slug: "qwen-2.5-coder-32b",
+    slug: "qwen-2-coder-32b",
   },
   {
     rank: 4,
@@ -101,7 +101,7 @@ const codeModels = [
     context: "128K",
     languages: "All major languages",
     highlight: "Great balance of coding and general capability. Runs on 2 GPUs with 4-bit quantization.",
-    slug: "llama-3.1-70b",
+    slug: "llama-3-70b",
   },
   {
     rank: 7,
