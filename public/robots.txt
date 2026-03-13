@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Block admin, dashboard, auth, and internal pages
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /auth/
+
+# Allow important static assets
+Allow: /models/
+Allow: /blog/
+Allow: /categories/
+Allow: /compare/
+Allow: /best/
+Allow: /docs/
+
+# Sitemap
+Sitemap: https://llmtrust.com/sitemap.xml

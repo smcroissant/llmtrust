@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +11,8 @@ import {
   GlowCardContent,
 } from "@/components/ui/glow-card";
 import { TopBar } from "@/components/layout/top-bar";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Check,
@@ -16,9 +21,10 @@ import {
   Zap,
   Users,
   HelpCircle,
+  Loader2,
 } from "lucide-react";
 
-const plans = [
+const plansData = [
   {
     name: "Free",
     price: "$0",
@@ -28,6 +34,7 @@ const plans = [
     cta: "Get Started",
     href: "/models",
     featured: false,
+    isCheckout: false,
     features: [
       "Browse all models",
       "Read community reviews",
@@ -39,14 +46,14 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$19",
+    price: "$9.99",
     period: "/mo",
     description: "For developers who need more power",
     icon: Zap,
-    cta: "Coming Soon",
-    href: "#",
+    cta: "Upgrade to Pro",
+    plan: "pro" as const,
     featured: true,
-    badge: "Coming soon",
+    isCheckout: true,
     features: [
       "Everything in Free",
       "Unlimited downloads",
@@ -60,14 +67,14 @@ const plans = [
   },
   {
     name: "Team",
-    price: "$49",
+    price: "$29.99",
     period: "/mo",
     description: "Collaborate with your team on AI model selection",
     icon: Users,
-    cta: "Coming Soon",
-    href: "#",
+    cta: "Upgrade to Team",
+    plan: "team" as const,
     featured: false,
-    badge: "Coming soon",
+    isCheckout: true,
     features: [
       "Everything in Pro",
       "Up to 10 team members",
@@ -168,6 +175,24 @@ function FeatureCell({ value }: { value: boolean | string }) {
 }
 
 export default function PricingPage() {
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const createCheckout = trpc.billing.createCheckout.useMutation({
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message);
+      setLoadingPlan(null);
+    },
+  });
+
+  const handleUpgrade = (plan: "pro" | "team") => {
+    setLoadingPlan(plan);
+    createCheckout.mutate({ plan });
+  };
+
   return (
     <>
       <TopBar breadcrumbs={[{ label: "Home", href: "/" }, { label: "Pricing" }]} />
@@ -207,7 +232,7 @@ export default function PricingPage() {
         <section className="pb-20">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {plans.map((plan) => (
+              {plansData.map((plan) => (
                 <GlowCard
                   key={plan.name}
                   className={`relative flex flex-col p-6 ${
@@ -216,14 +241,6 @@ export default function PricingPage() {
                       : ""
                   }`}
                 >
-                  {plan.badge && (
-                    <Badge
-                      variant="default"
-                      className="absolute -top-2.5 right-4 text-[10px] px-2"
-                    >
-                      {plan.badge}
-                    </Badge>
-                  )}
                   <GlowCardHeader className="p-0 mb-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -254,16 +271,35 @@ export default function PricingPage() {
                     </ul>
                   </GlowCardContent>
                   <div className="mt-auto pt-4 border-t border-border/60">
-                    <Link href={plan.href}>
+                    {plan.isCheckout ? (
                       <Button
                         variant={plan.featured ? "default" : "outline"}
                         className="w-full gap-2"
                         size="lg"
+                        onClick={() => handleUpgrade(plan.plan!)}
+                        disabled={loadingPlan !== null}
                       >
-                        {plan.cta}
-                        <ArrowRight className="h-4 w-4" />
+                        {loadingPlan === plan.plan ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            {plan.cta}
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link href={plan.href!}>
+                        <Button
+                          variant={plan.featured ? "default" : "outline"}
+                          className="w-full gap-2"
+                          size="lg"
+                        >
+                          {plan.cta}
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </GlowCard>
               ))}

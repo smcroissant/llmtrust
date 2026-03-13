@@ -81,6 +81,8 @@ export default async function ModelPage({
         category={model.category ?? ""}
         rating={model.avgRating}
         ratingCount={model.reviewCount}
+        parameterCount={model.parameterCount ?? ""}
+        architecture={model.architecture ?? ""}
       />
       <BreadcrumbJsonLd
         items={[

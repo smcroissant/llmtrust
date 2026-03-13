@@ -10,14 +10,37 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Loader2, User, Lock, Save } from "lucide-react";
+import { Loader2, User, Lock, Save, CreditCard, Crown, Check } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: userData, isLoading, refetch } = trpc.user.me.useQuery();
+  const { data: subscriptionData, isLoading: subLoading } = trpc.billing.getSubscription.useQuery();
   const updateProfile = trpc.user.updateProfile.useMutation({
     onSuccess: () => {
       toast.success("Profile updated");
       refetch();
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  const createPortal = trpc.billing.createPortal.useMutation({
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  const createCheckout = trpc.billing.createCheckout.useMutation({
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
     },
     onError: (err) => {
       toast.error(err.message);
@@ -127,6 +150,10 @@ export default function SettingsPage() {
           <TabsTrigger value="account" className="gap-2">
             <Lock className="size-4" />
             Account
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="gap-2">
+            <CreditCard className="size-4" />
+            Subscription
           </TabsTrigger>
         </TabsList>
 
@@ -273,6 +300,113 @@ export default function SettingsPage() {
                   Delete Account
                 </Button>
               </div>
+            </GlowCardContent>
+          </GlowCard>
+        </TabsContent>
+
+        {/* Subscription Tab */}
+        <TabsContent value="subscription">
+          <GlowCard>
+            <GlowCardHeader>
+              <GlowCardTitle className="flex items-center gap-2">
+                <CreditCard className="size-5" />
+                Subscription
+              </GlowCardTitle>
+            </GlowCardHeader>
+            <GlowCardContent className="space-y-6">
+              {subLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <>
+                  {/* Current Plan */}
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-muted/20">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Current Plan</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xl font-bold capitalize">
+                          {subscriptionData?.tier ?? "Free"}
+                        </p>
+                        {subscriptionData?.tier !== "free" && subscriptionData?.status === "active" && (
+                          <Crown className="size-4 text-primary" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 capitalize">
+                        Status: {subscriptionData?.status ?? "active"}
+                      </p>
+                      {subscriptionData?.currentPeriodEnd && (
+                        <p className="text-xs text-muted-foreground">
+                          Renews: {new Date(subscriptionData.currentPeriodEnd).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    {subscriptionData?.tier !== "free" ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => createPortal.mutate()}
+                        disabled={createPortal.isPending}
+                      >
+                        {createPortal.isPending ? (
+                          <Loader2 className="mr-2 size-4 animate-spin" />
+                        ) : null}
+                        Manage Subscription
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => createCheckout.mutate({ plan: "pro" })}
+                          disabled={createCheckout.isPending}
+                        >
+                          {createCheckout.isPending ? (
+                            <Loader2 className="mr-2 size-4 animate-spin" />
+                          ) : null}
+                          Upgrade to Pro
+                        </Button>
+                        <Button
+                          onClick={() => createCheckout.mutate({ plan: "team" })}
+                          disabled={createCheckout.isPending}
+                        >
+                          {createCheckout.isPending ? (
+                            <Loader2 className="mr-2 size-4 animate-spin" />
+                          ) : null}
+                          Upgrade to Team
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Plan features summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { tier: "Free", price: "$0", features: ["Browse models", "Community reviews", "5 downloads/mo"] },
+                      { tier: "Pro", price: "$9.99/mo", features: ["Unlimited downloads", "Priority API", "Advanced comparisons"] },
+                      { tier: "Team", price: "$29.99/mo", features: ["10 seats", "Team analytics", "SSO", "Custom integrations"] },
+                    ].map((p) => (
+                      <div
+                        key={p.tier}
+                        className={`p-4 rounded-xl border ${
+                          subscriptionData?.tier?.toLowerCase() === p.tier.toLowerCase()
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border/60 bg-muted/10"
+                        }`}
+                      >
+                        <p className="font-semibold text-sm">{p.tier}</p>
+                        <p className="text-lg font-bold mt-1">{p.price}</p>
+                        <ul className="mt-3 space-y-1">
+                          {p.features.map((f) => (
+                            <li key={f} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                              <Check className="size-3 text-primary" />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </GlowCardContent>
           </GlowCard>
         </TabsContent>

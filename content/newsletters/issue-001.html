@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Trust Weekly #1</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0f0f0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f0f0f;">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+
+        <!-- Header -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding-bottom:32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;">🧪 LLM Trust Weekly</h1>
+                    <p style="margin:4px 0 0;font-size:13px;color:#666;">Issue #1 · March 13, 2026</p>
+                  </td>
+                  <td align="right" valign="middle">
+                    <a href="https://llmtrust.dev" style="font-size:13px;color:#6366f1;text-decoration:none;font-weight:600;">llmtrust.dev →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Main Content Card -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;border-radius:16px;border:1px solid #2a2a2a;">
+
+          <!-- Welcome -->
+          <tr>
+            <td style="padding:40px 40px 24px;">
+              <h2 style="margin:0;font-size:28px;font-weight:700;color:#ffffff;line-height:1.3;">
+                Welcome to LLM Trust Weekly 👋
+              </h2>
+              <p style="margin:16px 0 0;font-size:16px;color:#b0b0b0;line-height:1.6;">
+                Every Thursday, we cut through the noise and deliver <strong style="color:#ffffff;">actionable LLM intelligence</strong> — benchmarks that matter, models worth watching, and tips that save you real money.
+              </p>
+              <p style="margin:16px 0 0;font-size:16px;color:#b0b0b0;line-height:1.6;">
+                This week: a new model enters the top 3, we break down the real cost of "free" APIs, and a community member shares a clever prompt engineering hack.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;"><div style="height:1px;background-color:#2a2a2a;"></div></td>
+          </tr>
+
+          <!-- Section 1: Featured Model -->
+          <tr>
+            <td style="padding:32px 40px;">
+              <p style="margin:0;font-size:12px;color:#6366f1;font-weight:700;letter-spacing:2px;text-transform:uppercase;">🏆 Featured Model</p>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;background:linear-gradient(135deg,#1e1b4b 0%,#1e1e2e 100%);border-radius:12px;border:1px solid #4338ca;">
+                <tr>
+                  <td style="padding:28px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <h3 style="margin:0;font-size:22px;font-weight:700;color:#ffffff;">Claude 3.5 Sonnet (Updated)</h3>
+                          <p style="margin:8px 0 0;font-size:14px;color:#818cf8;font-weight:600;">Anthropic · Released March 2026</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:20px 0 0;font-size:15px;color:#c4b5fd;line-height:1.6;">
+                      Anthropic shipped a stealth update to Claude 3.5 Sonnet this week, and the benchmarks jumped. Coding performance improved by <strong style="color:#ffffff;">+4.2 points</strong> on SWE-bench, and we measured a <strong style="color:#ffffff;">15% reduction in latency</strong> on our test suite.
+                    </p>
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+                      <tr>
+                        <td style="background-color:rgba(99,102,241,0.15);border-radius:8px;padding:12px 16px;margin-right:12px;">
+                          <p style="margin:0;font-size:12px;color:#888;">SWE-bench</p>
+                          <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#10b981;">52.4%</p>
+                        </td>
+                        <td style="width:12px;"></td>
+                        <td style="background-color:rgba(99,102,241,0.15);border-radius:8px;padding:12px 16px;margin-right:12px;">
+                          <p style="margin:0;font-size:12px;color:#888;">MMLU-Pro</p>
+                          <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#ffffff;">78.9</p>
+                        </td>
+                        <td style="width:12px;"></td>
+                        <td style="background-color:rgba(99,102,241,0.15);border-radius:8px;padding:12px 16px;">
+                          <p style="margin:0;font-size:12px;color:#888;">Latency</p>
+                          <p style="margin:4px 0 0;font-size:20px;font-weight:700;color:#f59e0b;">1.2s</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <a href="https://llmtrust.dev/models/claude-3.5-sonnet" style="display:inline-block;margin-top:20px;padding:10px 20px;background-color:#6366f1;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">Full Breakdown →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;"><div style="height:1px;background-color:#2a2a2a;"></div></td>
+          </tr>
+
+          <!-- Section 2: New Models This Week -->
+          <tr>
+            <td style="padding:32px 40px;">
+              <p style="margin:0;font-size:12px;color:#10b981;font-weight:700;letter-spacing:2px;text-transform:uppercase;">🆕 New Models This Week</p>
+
+              <!-- Model 1 -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+                <tr>
+                  <td style="background-color:#252525;border-radius:10px;padding:20px;border:1px solid #333;margin-bottom:12px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <h4 style="margin:0;font-size:16px;font-weight:700;color:#ffffff;">Mistral Large 2.1</h4>
+                          <p style="margin:6px 0 0;font-size:14px;color:#b0b0b0;line-height:1.5;">
+                            European contender steps up. Strong multilingual performance (French, German, Spanish) and competitive coding benchmarks. Worth watching for EU data sovereignty use cases.
+                          </p>
+                          <p style="margin:12px 0 0;font-size:13px;color:#888;">
+                            <span style="color:#10b981;">●</span> MMLU: 81.2 · Coding: 76.4 · Cost: $2/1M tokens
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Model 2 -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+                <tr>
+                  <td style="background-color:#252525;border-radius:10px;padding:20px;border:1px solid #333;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <h4 style="margin:0;font-size:16px;font-weight:700;color:#ffffff;">Qwen 2.5 72B</h4>
+                          <p style="margin:6px 0 0;font-size:14px;color:#b0b0b0;line-height:1.5;">
+                            Alibaba's latest open-weight model. Surprisingly strong on math and reasoning benchmarks. Great option for self-hosting with competitive quality.
+                          </p>
+                          <p style="margin:12px 0 0;font-size:13px;color:#888;">
+                            <span style="color:#10b981;">●</span> MMLU: 85.3 · Math: 89.1 · Self-hostable (open weights)
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Model 3 -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+                <tr>
+                  <td style="background-color:#252525;border-radius:10px;padding:20px;border:1px solid #333;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <h4 style="margin:0;font-size:16px;font-weight:700;color:#ffffff;">Amazon Nova Pro</h4>
+                          <p style="margin:6px 0 0;font-size:14px;color:#b0b0b0;line-height:1.5;">
+                            AWS enters the frontier model race. Deep Bedrock integration makes this the obvious pick for AWS-native stacks. Solid but not best-in-class.
+                          </p>
+                          <p style="margin:12px 0 0;font-size:13px;color:#888;">
+                            <span style="color:#f59e0b;">●</span> MMLU: 79.8 · Coding: 71.2 · Cost: $0.80/1M tokens
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;"><div style="height:1px;background-color:#2a2a2a;"></div></td>
+          </tr>
+
+          <!-- Section 3: Tip of the Week -->
+          <tr>
+            <td style="padding:32px 40px;">
+              <p style="margin:0;font-size:12px;color:#f59e0b;font-weight:700;letter-spacing:2px;text-transform:uppercase;">💡 Tip of the Week</p>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;background-color:#252525;border-radius:12px;border:1px solid #333;">
+                <tr>
+                  <td style="padding:24px;">
+                    <h3 style="margin:0;font-size:18px;font-weight:700;color:#ffffff;">The "Free" API Tax: What They Don't Tell You</h3>
+                    <p style="margin:12px 0 0;font-size:15px;color:#b0b0b0;line-height:1.6;">
+                      That generous free tier from your LLM provider? It's not charity. Here's what's actually happening:
+                    </p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+                      <tr>
+                        <td style="padding:8px 0;">
+                          <p style="margin:0;font-size:14px;color:#b0b0b0;">
+                            <strong style="color:#f59e0b;">1.</strong> <strong style="color:#ffffff;">Your data trains their models</strong> — most free tiers use your inputs for training unless you explicitly opt out.
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px 0;">
+                          <p style="margin:0;font-size:14px;color:#b0b0b0;">
+                            <strong style="color:#f59e0b;">2.</strong> <strong style="color:#ffffff;">Rate limits are the real product</strong> — free tiers are designed to hit your limits right when you're hooked.
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:8px 0;">
+                          <p style="margin:0;font-size:14px;color:#b0b0b0;">
+                            <strong style="color:#f59e0b;">3.</strong> <strong style="color:#ffffff;">Quality degrades quietly</strong> — free tier requests often route to less-optimized infrastructure. You get worse latency and occasional quality dips.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:16px 0 0;font-size:15px;color:#b0b0b0;line-height:1.6;">
+                      <strong style="color:#10b981;">The fix:</strong> Use our <a href="https://llmtrust.dev/cost-calculator" style="color:#6366f1;text-decoration:none;font-weight:600;">Cost Calculator</a> to model your real spend. Often, a $20/mo paid plan saves you more in developer time than the "free" tier costs in friction.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;"><div style="height:1px;background-color:#2a2a2a;"></div></td>
+          </tr>
+
+          <!-- Section 4: Community Highlight -->
+          <tr>
+            <td style="padding:32px 40px;">
+              <p style="margin:0;font-size:12px;color:#ec4899;font-weight:700;letter-spacing:2px;text-transform:uppercase;">🙌 Community Highlight</p>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;background-color:#252525;border-radius:12px;border:1px solid #333;">
+                <tr>
+                  <td style="padding:24px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="48" valign="top">
+                          <div style="width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:50%;text-align:center;line-height:40px;font-size:18px;color:#fff;font-weight:700;">S</div>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">Sarah K. @sarahcodes</p>
+                          <p style="margin:4px 0 0;font-size:13px;color:#666;">Senior Engineer at Vercel · LLM Trust Pro user</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <blockquote style="margin:16px 0 0;padding:16px 20px;background-color:#1a1a1a;border-left:3px solid #6366f1;border-radius:0 8px 8px 0;">
+                      <p style="margin:0;font-size:15px;color:#d0d0d0;line-height:1.6;font-style:italic;">
+                        "I built a script that queries LLM Trust's API every Monday morning and auto-switches our embedding model to whichever one is leading the retrieval benchmarks that week. Saved us $800/mo and our RAG quality went up. The benchmark data is legit — I verified it against our own eval suite."
+                      </p>
+                    </blockquote>
+                    <p style="margin:16px 0 0;font-size:14px;color:#b0b0b0;">
+                      💡 <strong style="color:#ffffff;">Sarah's tip:</strong> Don't just look at aggregate scores — filter by <em>your specific task type</em>. The model that wins coding benchmarks might not be the best for your retrieval pipeline.
+                    </p>
+                    <a href="https://llmtrust.dev/community" style="display:inline-block;margin-top:16px;padding:8px 16px;background-color:transparent;color:#6366f1;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;border:1px solid #6366f1;">Join the Community →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;"><div style="height:1px;background-color:#2a2a2a;"></div></td>
+          </tr>
+
+          <!-- Quick Links -->
+          <tr>
+            <td style="padding:32px 40px 40px;">
+              <p style="margin:0;font-size:12px;color:#888;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Quick Links</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+                <tr>
+                  <td>
+                    <a href="https://llmtrust.dev/rankings" style="display:inline-block;padding:8px 14px;background-color:#252525;color:#b0b0b0;text-decoration:none;border-radius:6px;font-size:13px;margin:4px 4px 4px 0;">📊 Rankings</a>
+                    <a href="https://llmtrust.dev/compare" style="display:inline-block;padding:8px 14px;background-color:#252525;color:#b0b0b0;text-decoration:none;border-radius:6px;font-size:13px;margin:4px 4px 4px 0;">⚖️ Compare</a>
+                    <a href="https://llmtrust.dev/cost-calculator" style="display:inline-block;padding:8px 14px;background-color:#252525;color:#b0b0b0;text-decoration:none;border-radius:6px;font-size:13px;margin:4px 4px 4px 0;">💰 Cost Calc</a>
+                    <a href="https://llmtrust.dev/blog" style="display:inline-block;padding:8px 14px;background-color:#252525;color:#b0b0b0;text-decoration:none;border-radius:6px;font-size:13px;margin:4px 4px 4px 0;">📝 Blog</a>
+                    <a href="https://llmtrust.dev/pro" style="display:inline-block;padding:8px 14px;background-color:#252525;color:#b0b0b0;text-decoration:none;border-radius:6px;font-size:13px;margin:4px 4px 4px 0;">⭐ Pro</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Footer -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:24px 40px;text-align:center;">
+              <p style="margin:0;font-size:13px;color:#555555;">
+                You're receiving this because you signed up at llmtrust.dev<br>
+                <a href="https://llmtrust.dev/unsubscribe" style="color:#666;text-decoration:underline;">Unsubscribe</a> ·
+                <a href="https://llmtrust.dev/email-preferences" style="color:#666;text-decoration:underline;">Preferences</a> ·
+                <a href="https://llmtrust.dev/newsletter/archive" style="color:#666;text-decoration:underline;">Archive</a>
+              </p>
+              <p style="margin:12px 0 0;font-size:12px;color:#444444;">
+                LLM Trust · Benchmark what matters<br>
+                🥐 Built by CroissantLabs
+              </p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

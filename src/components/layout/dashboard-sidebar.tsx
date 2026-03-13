@@ -26,8 +26,10 @@ import {
   Star,
   Upload,
   Key,
+  Crown,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { Badge } from "@/components/ui/badge";
 
 const navDashboard = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
@@ -44,6 +46,8 @@ export function DashboardSidebar() {
   const pathname = usePathname();
 
   const { data: userData } = trpc.user.me.useQuery();
+  const { data: subscriptionData } = trpc.billing.getSubscription.useQuery();
+  const isPro = subscriptionData?.tier !== "free" && subscriptionData?.status === "active";
 
   const isActive = (url: string) => {
     if (url === "/dashboard") return pathname === "/dashboard";
@@ -170,8 +174,14 @@ export function DashboardSidebar() {
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
+                <span className="truncate font-semibold flex items-center gap-1.5">
                   {userData?.name ?? "User"}
+                  {isPro && (
+                    <Badge variant="default" className="text-[9px] px-1.5 py-0 h-4 gap-0.5">
+                      <Crown className="size-2.5" />
+                      {subscriptionData?.tier === "team" ? "Team" : "Pro"}
+                    </Badge>
+                  )}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {userData?.email ?? ""}
