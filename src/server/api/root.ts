@@ -4,6 +4,7 @@ import { userRouter } from "./routers/user";
 import { reviewsRouter } from "./routers/reviews";
 import { adminRouter } from "./routers/admin";
 import { newsletterRouter } from "./routers/newsletter";
+import { notificationsRouter } from "./routers/notifications";
 
 export const appRouter = createTRPCRouter({
   models: modelsRouter,
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   reviews: reviewsRouter,
   admin: adminRouter,
   newsletter: newsletterRouter,
+  notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;
