@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { TopBar } from "@/components/layout/top-bar";
 import {
@@ -14,8 +14,13 @@ import { Button } from "@/components/ui/button";
 function UnsubscribeContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    token ? "loading" : "error",
+  );
+  const [message, setMessage] = useState(
+    token ? "" : "Missing unsubscribe token.",
+  );
+  const triggeredRef = useRef(false);
 
   const unsubscribe = trpc.newsletter.unsubscribe.useMutation({
     onSuccess: (data) => {
@@ -29,13 +34,11 @@ function UnsubscribeContent() {
   });
 
   useEffect(() => {
-    if (token) {
+    if (token && !triggeredRef.current) {
+      triggeredRef.current = true;
       unsubscribe.mutate({ token });
-    } else {
-      setStatus("error");
-      setMessage("Missing unsubscribe token.");
     }
-  }, [token]);
+  }, [token, unsubscribe]);
 
   return (
     <>

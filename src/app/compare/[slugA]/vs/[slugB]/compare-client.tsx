@@ -332,6 +332,18 @@ export function CompareClientPage({ slugA, slugB }: ComparePageProps) {
     slug: slugB,
   });
 
+  const handleSwap = useCallback(() => {
+    router.push(`/compare/${slugB}/vs/${slugA}`);
+  }, [slugA, slugB, router]);
+
+  const handleSelectA = useCallback((slug: string) => {
+    router.push(`/compare/${slug}/vs/${slugB}`);
+  }, [slugB, router]);
+
+  const handleSelectB = useCallback((slug: string) => {
+    router.push(`/compare/${slugA}/vs/${slug}`);
+  }, [slugA, router]);
+
   // Handle not found
   if (!loadingA && !loadingB) {
     if (errorA?.data?.code === "NOT_FOUND" || errorB?.data?.code === "NOT_FOUND") {
@@ -351,18 +363,6 @@ export function CompareClientPage({ slugA, slugB }: ComparePageProps) {
       );
     }
   }
-
-  const handleSwap = useCallback(() => {
-    router.push(`/compare/${slugB}/vs/${slugA}`);
-  }, [slugA, slugB, router]);
-
-  const handleSelectA = useCallback((slug: string) => {
-    router.push(`/compare/${slug}/vs/${slugB}`);
-  }, [slugB, router]);
-
-  const handleSelectB = useCallback((slug: string) => {
-    router.push(`/compare/${slugA}/vs/${slug}`);
-  }, [slugA, router]);
 
   if (loadingA || loadingB) {
     return (
