@@ -46,7 +46,7 @@ async function main() {
     ];
 
     for (const field of required) {
-      if ((model as any)[field] === undefined) {
+      if ((model as unknown as Record<string, unknown>)[field] === undefined) {
         throw new Error(`Model ${model.id} missing field: ${field}`);
       }
     }

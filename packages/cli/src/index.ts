@@ -4,7 +4,6 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { getAllModels, findModel, getModelsByProvider, getProviders } from "./models.js";
 import { renderComparisonTable, renderModelDetail, renderModelsList, renderCTA } from "./output.js";
-import { trackComparison, trackCommand } from "./telemetry.js";
 
 const program = new Command();
 
@@ -20,7 +19,7 @@ program
   .description("Compare LLM models side-by-side")
   .argument("<models...>", "Model IDs to compare (e.g., gpt-4o claude-3.5-sonnet gemini-1.5-pro)")
   .option("--no-telemetry", "Disable anonymous usage telemetry")
-  .action(async (modelIds: string[], opts: { telemetry: boolean }) => {
+  .action((modelIds: string[], _opts: { telemetry: boolean }) => {
     if (modelIds.length < 2) {
       console.error(chalk.red("\n  ✗ Need at least 2 models to compare.\n"));
       console.log(chalk.dim("  Usage: llmtrust compare gpt-4o claude-3.5-sonnet\n"));
@@ -44,9 +43,6 @@ program
     console.log(chalk.bold(`\n  LLM Model Comparison (${found.length} models)\n`));
     renderComparisonTable(found);
     renderCTA();
-
-    // Track usage (fire-and-forget)
-    trackComparison(modelIds, !opts.telemetry);
   });
 
 // ─── models command ───────────────────────────────────────────
