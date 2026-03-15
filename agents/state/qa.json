@@ -1,0 +1,27 @@
+{
+  "agent": "esther",
+  "role": "QA Engineer",
+  "lastSession": "2026-03-15T23:27:00+01:00",
+  "lastRun": "2026-03-15T23:27:00+01:00",
+  "reviews": [
+    {
+      "pr": 51,
+      "issue": 45,
+      "title": "feat: Free Developer CLI — LLM Comparison from Terminal [WIP]",
+      "status": "changes-requested",
+      "reviewedAt": "2026-03-15T23:27:00+01:00",
+      "verdict": "cannot-approve",
+      "reason": "Draft/WIP PR, no Vercel preview (CLI tool), dist/ committed to git",
+      "findings": [
+        "Vercel deployment failed — expected, CLI tool not deployable to Vercel",
+        "20 models across 7 providers confirmed",
+        "Acceptance criteria mostly met (6/7 green, 2 yellow)",
+        "dist/ files should be gitignored",
+        "Telemetry implementation not visible in source",
+        "Hardcoded latency values will drift stale"
+      ],
+      "commentUrl": "https://github.com/smcroissant/llmtrust/pull/51#issuecomment-4064045641"
+    }
+  ],
+  "activeReviews": [51]
+}
