@@ -4,6 +4,7 @@ import {
   timestamp,
   boolean,
   integer,
+  bigint,
   jsonb,
   varchar,
   uuid,
@@ -480,7 +481,7 @@ export const llmRequest = pgTable(
     qualitySignal: varchar("quality_signal", { length: 50 }), // optional: "success", "timeout", "rate_limited", "error"
 
     // Derived metrics
-    costUsd: integer("cost_usd").default(0), // in microcents (1e-6 USD) for precision
+    costUsd: bigint("cost_usd", { mode: "number" }).default(0), // in microcents (1e-6 USD) for precision
 
     // Anonymized user tracking
     userHash: varchar("user_hash", { length: 64 }), // SHA-256 of userId — for dedup, not PII

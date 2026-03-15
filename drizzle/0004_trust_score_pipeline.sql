@@ -8,7 +8,7 @@ CREATE TABLE "llm_request" (
 	"token_count_in" integer DEFAULT 0 NOT NULL,
 	"token_count_out" integer DEFAULT 0 NOT NULL,
 	"quality_signal" varchar(50),
-	"cost_usd" integer DEFAULT 0,
+	"cost_usd" bigint DEFAULT 0,
 	"user_hash" varchar(64),
 	"timestamp" timestamp DEFAULT now() NOT NULL
 );
