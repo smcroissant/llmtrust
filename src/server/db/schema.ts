@@ -451,3 +451,117 @@ export const pointsLedger = pgTable(
     index("points_ledger_created_idx").on(table.createdAt),
   ],
 );
+
+// ============================================
+// TRUST SCORE PIPELINE — Real production data
+// ============================================
+
+/**
+ * Raw LLM request telemetry ingested from OTel proxy.
+ * PII-stripped: userIds are hashed, prompts not stored.
+ */
+export const llmRequest = pgTable(
+  "llm_request",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+    // Model identification
+    modelId: uuid("model_id").references(() => model.id, {
+      onDelete: "set null",
+    }),
+    modelSlug: varchar("model_slug", { length: 255 }), // fallback if no DB match
+    providerId: varchar("provider_id", { length: 100 }).notNull(), // e.g. "openai", "anthropic", "together"
+
+    // Telemetry
+    latencyMs: integer("latency_ms").notNull(),
+    statusCode: integer("status_code").notNull(), // HTTP status from provider
+    tokenCountIn: integer("token_count_in").notNull().default(0),
+    tokenCountOut: integer("token_count_out").notNull().default(0),
+    qualitySignal: varchar("quality_signal", { length: 50 }), // optional: "success", "timeout", "rate_limited", "error"
+
+    // Derived metrics
+    costUsd: integer("cost_usd").default(0), // in microcents (1e-6 USD) for precision
+
+    // Anonymized user tracking
+    userHash: varchar("user_hash", { length: 64 }), // SHA-256 of userId — for dedup, not PII
+
+    // Timestamp
+    timestamp: timestamp("timestamp").notNull().defaultNow(),
+  },
+  (table) => [
+    index("llm_request_model_idx").on(table.modelId),
+    index("llm_request_provider_idx").on(table.providerId),
+    index("llm_request_timestamp_idx").on(table.timestamp),
+    index("llm_request_status_idx").on(table.statusCode),
+  ],
+);
+
+/**
+ * Computed trust scores per model+provider.
+ * Recomputed periodically by the cron job.
+ */
+export const trustScore = pgTable(
+  "trust_score",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    modelId: uuid("model_id")
+      .notNull()
+      .references(() => model.id, { onDelete: "cascade" }),
+    providerId: varchar("provider_id", { length: 100 }).notNull(),
+
+    // Dimensional scores (0-100)
+    overallScore: integer("overall_score").notNull(), // weighted composite
+    reliabilityScore: integer("reliability_score").notNull(), // uptime, error rate
+    consistencyScore: integer("consistency_score").notNull(), // latency variance, output stability
+    costEfficiencyScore: integer("cost_efficiency_score").notNull(), // quality per dollar
+
+    // Metadata
+    sampleSize: integer("sample_size").notNull(), // number of requests used
+    periodDays: integer("period_days").notNull().default(7), // computation window
+
+    // Trend
+    previousOverallScore: integer("previous_overall_score"), // for trend arrows
+    trend: varchar("trend", { length: 10 }), // "up", "down", "stable"
+
+    // Computation metadata
+    computedAt: timestamp("computed_at").notNull().defaultNow(),
+    validUntil: timestamp("valid_until"), // score decay after this if no new data
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("trust_score_model_idx").on(table.modelId),
+    index("trust_score_provider_idx").on(table.providerId),
+    index("trust_score_overall_idx").on(table.overallScore),
+    index("trust_score_unique_idx").on(table.modelId, table.providerId), // one score per model+provider
+  ],
+);
+
+/**
+ * Historical snapshots for trend charts.
+ * One snapshot per model+provider per day (or per computation run).
+ */
+export const scoreSnapshot = pgTable(
+  "score_snapshot",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    modelId: uuid("model_id")
+      .notNull()
+      .references(() => model.id, { onDelete: "cascade" }),
+    providerId: varchar("provider_id", { length: 100 }).notNull(),
+
+    overallScore: integer("overall_score").notNull(),
+    reliabilityScore: integer("reliability_score").notNull(),
+    consistencyScore: integer("consistency_score").notNull(),
+    costEfficiencyScore: integer("cost_efficiency_score").notNull(),
+    sampleSize: integer("sample_size").notNull(),
+
+    snapshotDate: timestamp("snapshot_date").notNull().defaultNow(),
+  },
+  (table) => [
+    index("snapshot_model_idx").on(table.modelId),
+    index("snapshot_date_idx").on(table.snapshotDate),
+    index("snapshot_model_date_idx").on(table.modelId, table.providerId, table.snapshotDate),
+  ],
+);
