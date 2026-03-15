@@ -26,9 +26,16 @@ import { logger } from "@/lib/logger";
 const CRON_SECRET = process.env.CRON_SECRET;
 
 async function handler(request: Request) {
-  // Auth check
+  // Auth check — reject by default if CRON_SECRET is not configured
+  if (!CRON_SECRET) {
+    logger.error("[cron] CRON_SECRET not configured — rejecting request");
+    return NextResponse.json(
+      { error: "Server misconfigured: CRON_SECRET not set" },
+      { status: 500 },
+    );
+  }
   const authHeader = request.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
