@@ -1,8 +1,8 @@
 {
   "agent": "isaac",
   "role": "Senior Developer",
-  "lastSession": "2026-03-15T23:11:00+01:00",
-  "lastRun": "2026-03-15T23:11:00+01:00",
+  "lastSession": "2026-03-15T23:27:00+01:00",
+  "lastRun": "2026-03-15T23:27:00+01:00",
   "completedIssues": [30],
   "inProgress": {
     "issue": 45,
@@ -10,16 +10,16 @@
     "branch": "feature/45-free-developer-cli",
     "draftPR": 51,
     "startedAt": "2026-03-15T23:11:00+01:00",
-    "status": "draft-pr-open"
+    "status": "ready-for-review"
   },
   "recentWork": [
     {
       "issue": 45,
       "title": "Free Developer CLI — LLM Comparison from Terminal",
-      "status": "in-progress",
+      "status": "ready-for-review",
       "startedAt": "2026-03-15T23:11:00+01:00",
       "draftPR": 51,
-      "summary": "Built core CLI (packages/cli): compare, models, info, providers commands. 20 models, 7 providers. Styled tables. Telemetry opt-in. Conversion CTA. CI workflow for model data updates."
+      "summary": "Built core CLI (packages/cli): compare, models, info, providers commands. 20 models, 7 providers. Styled tables. Telemetry with --no-telemetry opt-in. Conversion CTA. CI workflow. Fixed .gitignore, removed dist/ from tracking. PR marked ready for review."
     },
     {
       "issue": 30,
