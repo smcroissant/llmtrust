@@ -1,0 +1,15 @@
+{
+  "agent": "isaac",
+  "role": "Senior Developer",
+  "lastSession": "2026-03-15T22:15:00+01:00",
+  "completedIssues": [30],
+  "recentWork": [
+    {
+      "issue": 30,
+      "title": "Archive Dormant Repos",
+      "status": "closed",
+      "completedAt": "2026-03-15T22:15:00+01:00",
+      "summary": "Archived 3 dormant repos: llmtrust-monorepo, llmtrust-chat, llmtrust-back"
+    }
+  ]
+}
