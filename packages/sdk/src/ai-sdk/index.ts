@@ -13,7 +13,7 @@
  */
 
 import { LLMTrustClient, getDefaultClient } from "../client";
-import type { TrustScore } from "../types";
+import type { TrustScore, RecommendOptions } from "../types";
 
 export interface LLMTrustProviderMetadata {
   llmtrust: TrustScore;
@@ -36,10 +36,7 @@ export function createLLMTrust(options?: { apiKey?: string; apiBase?: string }) 
     /**
      * Get model recommendations
      */
-    async recommend(
-      task?: string,
-      options?: { budget?: string; limit?: number }
-    ) {
+    async recommend(task?: string, options?: Omit<RecommendOptions, "task">) {
       return client.recommend({ task, ...options });
     },
 

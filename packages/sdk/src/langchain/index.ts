@@ -11,8 +11,6 @@
  *   );
  */
 
-import type { BaseCallbackHandler } from "@langchain/core/callbacks/base";
-import type { LLMResult } from "@langchain/core/outputs";
 import { getDefaultClient } from "../client";
 import type { TrustScore, RecommendOptions, ModelRecommendation } from "../types";
 import { scoreToBand } from "../types";
@@ -44,7 +42,7 @@ export class LLMTrustCallback {
     return "llmtrust_callback";
   }
 
-  async handleLLMEnd(output: LLMResult, runId: string, parentRunId?: string): Promise<void> {
+  async handleLLMEnd(output: any, runId: string, parentRunId?: string): Promise<void> {
     const llmOutput = output.llmOutput;
     const provider = llmOutput?.provider ?? llmOutput?.model_name?.split("/")?.[0] ?? "unknown";
     const model = llmOutput?.model ?? llmOutput?.model_name ?? "unknown";
