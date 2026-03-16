@@ -118,12 +118,10 @@ export function TrustScoreDetailClient({ model, providerId, currentScore, snapsh
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/trust-scores">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Leaderboard
-          </Link>
-        </Button>
+        <Link href="/trust-scores" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to Leaderboard
+        </Link>
 
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>

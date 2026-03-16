@@ -73,7 +73,7 @@ export function RadarChart({
       value: dim.value,
       x: center + labelRadius * Math.cos(angle),
       y: center + labelRadius * Math.sin(angle),
-      anchor: Math.cos(angle) > 0.1 ? "start" : Math.cos(angle) < -0.1 ? "end" : "middle",
+      anchor: Math.cos(angle) > 0.1 ? "start" as const : Math.cos(angle) < -0.1 ? "end" as const : "middle" as const,
     };
   });
 
