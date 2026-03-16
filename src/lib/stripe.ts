@@ -13,8 +13,6 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_place
 // Plan Pricing — Price IDs via env vars, amounts for display
 // ============================================
 
-export type BillingInterval = "month" | "year";
-
 export const PLANS = {
   pro: {
     name: "Pro",
@@ -62,6 +60,14 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+export type BillingInterval = "month" | "year";
+
+/**
+ * Get the Stripe price ID for a plan + interval combination
+ */
+export function getPriceId(plan: PlanKey, interval: BillingInterval): string {
+  return PLANS[plan][interval === "year" ? "annual" : "monthly"].priceId;
+}
 
 // ============================================
 // Helper Functions

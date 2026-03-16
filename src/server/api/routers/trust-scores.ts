@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, usageEnforcedProcedure } from "../trpc";
 import { db } from "../../db";
 import { trustScore, model, scoreSnapshot } from "../../db/schema";
 import { eq, desc, sql, and, gte } from "drizzle-orm";
 
 export const trustScoresRouter = createTRPCRouter({
-  list: publicProcedure
+  list: usageEnforcedProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(50),
@@ -60,7 +60,7 @@ export const trustScoresRouter = createTRPCRouter({
       return { scores };
     }),
 
-  byModelSlug: publicProcedure
+  byModelSlug: usageEnforcedProcedure
     .input(
       z.object({
         slug: z.string(),

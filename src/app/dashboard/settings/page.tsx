@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, User, Lock, Save, CreditCard, Crown, Check } from "lucide-react";
+import { UsageDisplay } from "@/components/billing/usage-display";
 
 export default function SettingsPage() {
   const { data: userData, isLoading, refetch } = trpc.user.me.useQuery();
@@ -380,9 +381,9 @@ export default function SettingsPage() {
                   {/* Plan features summary */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                      { tier: "Free", price: "$0", features: ["Browse models", "Community reviews", "5 downloads/mo"] },
-                      { tier: "Pro", price: "$9.99/mo", features: ["Unlimited downloads", "Priority API", "Advanced comparisons"] },
-                      { tier: "Team", price: "$29.99/mo", features: ["10 seats", "Team analytics", "SSO", "Custom integrations"] },
+                      { tier: "Free", price: "$0", features: ["Browse models", "Community reviews", "100 API calls/day"] },
+                      { tier: "Pro", price: "$19/mo", features: ["Unlimited downloads", "10,000 API calls/day", "Advanced comparisons"] },
+                      { tier: "Team", price: "$49/mo", features: ["10 seats", "50,000 API calls/day", "SSO", "Custom integrations"] },
                     ].map((p) => (
                       <div
                         key={p.tier}
@@ -405,6 +406,9 @@ export default function SettingsPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Usage Display */}
+                  <UsageDisplay />
                 </>
               )}
             </GlowCardContent>

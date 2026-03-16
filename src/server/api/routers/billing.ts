@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and, gte, sql, desc } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
-import { subscription } from "@/server/db/schema";
+import { subscription, usageTracking } from "@/server/db/schema";
 import {
   stripe,
   createCheckoutSession,
@@ -47,6 +47,80 @@ export const billingRouter = createTRPCRouter({
   getUsage: protectedProcedure.query(async ({ ctx }) => {
     return getUsage(ctx.userId);
   }),
+
+  // ============================================
+  // getUsageDetails — Get detailed usage breakdown
+  // ============================================
+  getUsageDetails: protectedProcedure
+    .input(
+      z.object({
+        days: z.number().min(1).max(90).default(30),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - input.days);
+      startDate.setHours(0, 0, 0, 0);
+
+      // Get daily usage breakdown
+      const dailyUsage = await db
+        .select({
+          date: sql<string>`DATE(${usageTracking.periodStart})`,
+          count: sql<number>`COALESCE(SUM(${usageTracking.quantity}), 0)`,
+        })
+        .from(usageTracking)
+        .where(
+          and(
+            eq(usageTracking.userId, ctx.userId),
+            eq(usageTracking.resourceType, "api_call"),
+            gte(usageTracking.periodStart, startDate),
+          ),
+        )
+        .groupBy(sql`DATE(${usageTracking.periodStart})`)
+        .orderBy(sql`DATE(${usageTracking.periodStart})`);
+
+      // Get today's total
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [todayUsage] = await db
+        .select({
+          total: sql<number>`COALESCE(SUM(${usageTracking.quantity}), 0)`,
+        })
+        .from(usageTracking)
+        .where(
+          and(
+            eq(usageTracking.userId, ctx.userId),
+            eq(usageTracking.resourceType, "api_call"),
+            gte(usageTracking.periodStart, today),
+          ),
+        );
+
+      // Get user's tier and limits
+      const [sub] = await db
+        .select({ tier: subscription.tier, status: subscription.status })
+        .from(subscription)
+        .where(eq(subscription.userId, ctx.userId))
+        .limit(1);
+
+      const tier = sub?.tier ?? "free";
+      const limits: Record<string, number> = {
+        free: 100,
+        pro: 10_000,
+        team: 50_000,
+      };
+
+      return {
+        today: Number(todayUsage?.total ?? 0),
+        dailyLimit: limits[tier] ?? 100,
+        tier,
+        status: sub?.status ?? "active",
+        dailyUsage: dailyUsage.map((d) => ({
+          date: d.date,
+          count: Number(d.count),
+        })),
+      };
+    }),
 
   // ============================================
   // createCheckout — Create a Stripe Checkout session
