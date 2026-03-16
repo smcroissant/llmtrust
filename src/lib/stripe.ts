@@ -10,6 +10,41 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_place
 });
 
 // ============================================
+// Placeholder Detection & Config Validation
+// ============================================
+
+const PLACEHOLDER_PATTERNS = ["placeholder", "price_pro_", "price_team_", "price_extra_"];
+
+function isPlaceholderPriceId(priceId: string | undefined): boolean {
+  if (!priceId) return true;
+  return PLACEHOLDER_PATTERNS.some((pattern) => priceId.toLowerCase().includes(pattern));
+}
+
+/**
+ * Validate that all required Stripe price IDs are configured.
+ * Throws in production if placeholders are detected.
+ * Call this at checkout time to fail fast with a clear error.
+ */
+export function validateStripeConfig(): { valid: boolean; missing: string[] } {
+  const missing: string[] = [];
+  const isProd = process.env.NODE_ENV === "production";
+
+  if (isPlaceholderPriceId(process.env.STRIPE_PRICE_PRO_MONTHLY)) missing.push("STRIPE_PRICE_PRO_MONTHLY");
+  if (isPlaceholderPriceId(process.env.STRIPE_PRICE_PRO_ANNUAL)) missing.push("STRIPE_PRICE_PRO_ANNUAL");
+  if (isPlaceholderPriceId(process.env.STRIPE_PRICE_TEAM_MONTHLY)) missing.push("STRIPE_PRICE_TEAM_MONTHLY");
+  if (isPlaceholderPriceId(process.env.STRIPE_PRICE_TEAM_ANNUAL)) missing.push("STRIPE_PRICE_TEAM_ANNUAL");
+
+  if (isProd && missing.length > 0) {
+    throw new Error(
+      `[STRIPE CONFIG ERROR] Production missing real Stripe price IDs: ${missing.join(", ")}. ` +
+      `Create products in Stripe Dashboard, set env vars. See docs/MONETIZATION.md §4.2.`
+    );
+  }
+
+  return { valid: missing.length === 0, missing };
+}
+
+// ============================================
 // Plan Pricing — Price IDs via env vars, amounts for display
 // ============================================
 
@@ -63,10 +98,19 @@ export type PlanKey = keyof typeof PLANS;
 export type BillingInterval = "month" | "year";
 
 /**
- * Get the Stripe price ID for a plan + interval combination
+ * Get the Stripe price ID for a plan + interval combination.
+ * Throws if the price ID is a placeholder (safety check).
  */
 export function getPriceId(plan: PlanKey, interval: BillingInterval): string {
-  return PLANS[plan][interval === "year" ? "annual" : "monthly"].priceId;
+  const priceId = PLANS[plan][interval === "year" ? "annual" : "monthly"].priceId;
+  if (isPlaceholderPriceId(priceId)) {
+    throw new Error(
+      `Stripe price ID for ${plan}/${interval} is a placeholder. ` +
+      `Set STRIPE_PRICE_${plan.toUpperCase()}_${interval === "year" ? "ANNUAL" : "MONTHLY"} env var. ` +
+      `See docs/MONETIZATION.md §4.2.`
+    );
+  }
+  return priceId;
 }
 
 // ============================================
@@ -74,10 +118,10 @@ export function getPriceId(plan: PlanKey, interval: BillingInterval): string {
 // ============================================
 
 /**
- * Get price ID for a plan + interval combination
+ * Get price ID for a plan + interval combination (alias for getPriceId with validation)
  */
 export function getPlanPriceId(plan: PlanKey, interval: BillingInterval): string {
-  return PLANS[plan][interval === "year" ? "annual" : "monthly"].priceId;
+  return getPriceId(plan, interval);
 }
 
 /**

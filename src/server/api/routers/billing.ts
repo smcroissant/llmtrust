@@ -10,6 +10,7 @@ import {
   createPortalSession,
   createStripeCustomer,
   getPlanPriceId,
+  validateStripeConfig,
   PLANS,
   type PlanKey,
   type BillingInterval,
@@ -133,6 +134,9 @@ export const billingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Validate Stripe config — throws in prod if placeholders detected
+      validateStripeConfig();
+
       const plan = PLANS[input.plan as PlanKey];
       if (!plan) {
         throw new TRPCError({
@@ -141,7 +145,15 @@ export const billingRouter = createTRPCRouter({
         });
       }
 
-      const priceId = getPlanPriceId(input.plan as PlanKey, input.interval as BillingInterval);
+      let priceId: string;
+      try {
+        priceId = getPlanPriceId(input.plan as PlanKey, input.interval as BillingInterval);
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err instanceof Error ? err.message : "Stripe configuration error.",
+        });
+      }
 
       // Get or create subscription record (with Stripe customer)
       const [existingSub] = await db
@@ -249,6 +261,9 @@ export const billingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // Validate Stripe config — throws in prod if placeholders detected
+      validateStripeConfig();
+
       const [sub] = await db
         .select()
         .from(subscription)
@@ -277,9 +292,17 @@ export const billingRouter = createTRPCRouter({
         });
       }
 
-      // Get the new price ID
+      // Get the new price ID (with placeholder safety check)
       const planKey = sub.tier as PlanKey;
-      const priceId = getPlanPriceId(planKey, newInterval);
+      let priceId: string;
+      try {
+        priceId = getPlanPriceId(planKey, newInterval);
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: err instanceof Error ? err.message : "Stripe configuration error.",
+        });
+      }
 
       // Update the Stripe subscription — proration is automatic
       const stripeSubscription = await stripe.subscriptions.retrieve(
