@@ -156,6 +156,7 @@ function validateEnv() {
 
 // ─── Export ─────────────────────────────────────────────────────────────────
 
-export const env = validateEnv();
+// Export with explicit full type so server files see all env vars
+export const env = validateEnv() as Env;
 
 export type Env = z.infer<typeof serverSchema> & z.infer<typeof clientSchema>;
