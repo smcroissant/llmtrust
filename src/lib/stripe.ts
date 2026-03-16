@@ -1,22 +1,23 @@
 import Stripe from "stripe";
+import { env } from "~/env";
 
 // ============================================
 // Stripe Client
 // ============================================
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder", {
+export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2026-02-25.clover",
   typescript: true,
 });
 
 // ============================================
-// Plan Pricing (hardcoded — update with real price IDs from Stripe Dashboard)
+// Plan Pricing
 // ============================================
 
 export const PLANS = {
   pro: {
     name: "Pro",
-    priceId: process.env.STRIPE_PRICE_PRO ?? "price_pro_placeholder",
+    priceId: env.STRIPE_PRICE_PRO,
     price: 999, // $9.99/month in cents
     features: [
       "Unlimited model access",
@@ -27,7 +28,7 @@ export const PLANS = {
   },
   team: {
     name: "Team",
-    priceId: process.env.STRIPE_PRICE_TEAM ?? "price_team_placeholder",
+    priceId: env.STRIPE_PRICE_TEAM,
     price: 2999, // $29.99/month in cents
     features: [
       "Everything in Pro",

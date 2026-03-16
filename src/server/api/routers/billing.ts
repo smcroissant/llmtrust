@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { env } from "~/env";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
 import { subscription } from "@/server/db/schema";
@@ -98,7 +99,7 @@ export const billingRouter = createTRPCRouter({
         });
       }
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const appUrl = env.NEXT_PUBLIC_APP_URL;
 
       const checkoutSession = await createCheckoutSession({
         customerId,
@@ -128,7 +129,7 @@ export const billingRouter = createTRPCRouter({
       });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const appUrl = env.NEXT_PUBLIC_APP_URL;
 
     const portalSession = await createPortalSession({
       customerId: sub.stripeCustomerId,
