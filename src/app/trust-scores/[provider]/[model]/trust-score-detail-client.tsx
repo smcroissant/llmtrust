@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, Clock, Database } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreBadge, DataCoverageBadge } from "@/components/trust-scores/score-badge";
 import { RadarChart } from "@/components/trust-scores/radar-chart";
 import { Sparkline } from "@/components/trust-scores/sparkline";
 import { getScoreBand, SCORE_WEIGHTS } from "@/lib/trust-score-utils";
-import { cn } from "@/lib/utils";
 
 interface Snapshot {
   overallScore: number;

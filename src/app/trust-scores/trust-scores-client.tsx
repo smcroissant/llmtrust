@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -29,6 +27,21 @@ import { Loader2, TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScoreBadge, DataCoverageBadge } from "@/components/trust-scores/score-badge";
 import { Sparkline } from "@/components/trust-scores/sparkline";
+
+// Generate mock sparkline data from previousOverallScore for visual trend
+// In production this comes from score_snapshots; for now we simulate from score variance
+function getSparklineData(overallScore: number, previousScore: number | null): number[] {
+  const base = previousScore ?? overallScore;
+  // Generate 7-point trend ending at current score
+  const data: number[] = [];
+  for (let i = 0; i < 6; i++) {
+    const progress = i / 6;
+    const noise = (Math.random() - 0.5) * 8;
+    data.push(Math.round(base + (overallScore - base) * progress + noise));
+  }
+  data.push(overallScore);
+  return data.map(v => Math.max(0, Math.min(100, v)));
+}
 
 function ScoreBar({ score, max = 100 }: { score: number; max?: number }) {
   const percentage = (score / max) * 100;
@@ -76,21 +89,6 @@ export function TrustScoresClient() {
     periodDays,
     limit: 50,
   });
-
-  // Generate mock sparkline data from previousOverallScore for visual trend
-  // In production this comes from score_snapshots; for now we simulate from score variance
-  function getSparklineData(overallScore: number, previousScore: number | null): number[] {
-    const base = previousScore ?? overallScore;
-    // Generate 7-point trend ending at current score
-    const data: number[] = [];
-    for (let i = 0; i < 6; i++) {
-      const progress = i / 6;
-      const noise = (Math.random() - 0.5) * 8;
-      data.push(Math.round(base + (overallScore - base) * progress + noise));
-    }
-    data.push(overallScore);
-    return data.map(v => Math.max(0, Math.min(100, v)));
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">

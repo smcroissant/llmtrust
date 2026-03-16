@@ -65,36 +65,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function TrustScoreDetailPage({ params }: Props) {
-  const { provider, model: modelSlug } = await params;
-
-  // Get model
+async function fetchScoreData(providerId: string, modelSlug: string) {
   const [modelData] = await db
     .select({ id: model.id, name: model.name, slug: model.slug, description: model.description, parameterCount: model.parameterCount, architecture: model.architecture })
     .from(model)
     .where(eq(model.slug, modelSlug))
     .limit(1);
 
-  if (!modelData) notFound();
+  if (!modelData) return null;
 
-  // Get current trust score
   const [currentScore] = await db
     .select()
     .from(trustScore)
     .where(
       and(
         eq(trustScore.modelId, modelData.id),
-        eq(trustScore.providerId, provider),
+        eq(trustScore.providerId, providerId),
       ),
     )
     .orderBy(desc(trustScore.computedAt))
     .limit(1);
 
-  if (!currentScore) notFound();
+  if (!currentScore) return null;
 
-  // Get 30-day history
   const cutoff30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const cutoff7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const snapshots30d = await db
     .select({
@@ -109,17 +103,27 @@ export default async function TrustScoreDetailPage({ params }: Props) {
     .where(
       and(
         eq(scoreSnapshot.modelId, modelData.id),
-        eq(scoreSnapshot.providerId, provider),
+        eq(scoreSnapshot.providerId, providerId),
         gte(scoreSnapshot.snapshotDate, cutoff30d),
       ),
     )
     .orderBy(scoreSnapshot.snapshotDate);
 
-  // Serialize dates for client component
   const serializedSnapshots = snapshots30d.map((s) => ({
     ...s,
     snapshotDate: s.snapshotDate.toISOString(),
   }));
+
+  return { modelData, currentScore, serializedSnapshots };
+}
+
+export default async function TrustScoreDetailPage({ params }: Props) {
+  const { provider, model: modelSlug } = await params;
+
+  const data = await fetchScoreData(provider, modelSlug);
+  if (!data) notFound();
+
+  const { modelData, currentScore, serializedSnapshots } = data;
 
   return (
     <>
