@@ -12,20 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Download,
-  ExternalLink,
-  Star,
-  ArrowLeft,
-  Cpu,
-  Ruler,
-  Scale,
-  Clock,
-  Heart,
-  GitCompareArrows,
-  Loader2,
-  Send,
-} from "lucide-react";
+import { Download, ExternalLink, Star, ArrowLeft, Cpu, Ruler, Scale, Clock, Heart, GitCompareArrows, Loader2, Send, Shield } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
