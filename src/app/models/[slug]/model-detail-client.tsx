@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
-import type { TRPCClientError } from "@trpc/client";
 import { useSession } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -280,7 +279,7 @@ function FavoriteButton({ modelId }: { modelId: string }) {
       refetch();
       toast.success(data.favorited ? "Added to favorites" : "Removed from favorites");
     },
-    onError: (err: TRPCClientError<any>) => {
+    onError: (err) => {
       toast.error(err.message);
     },
   });
@@ -343,7 +342,7 @@ function ReviewsSection({
       setContent("");
       toast.success("Review submitted!");
     },
-    onError: (err: TRPCClientError<any>) => {
+    onError: (err) => {
       toast.error(err.message);
     },
   });
