@@ -29,7 +29,7 @@ export const billingRouter = createTRPCRouter({
         status: "active" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
-        currentPeriodEnd: null,
+        stripeCurrentPeriodEnd: null,
       };
     }
 
