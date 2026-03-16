@@ -29,6 +29,8 @@ interface LogEntry {
   duration?: number;
 }
 
+import { env } from "~/env";
+
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   debug: 0,
   info: 1,
@@ -36,7 +38,7 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   error: 3,
 };
 
-const MIN_LOG_LEVEL = (process.env.LOG_LEVEL as LogLevel) || "info";
+const MIN_LOG_LEVEL = env.LOG_LEVEL;
 
 function shouldLog(level: LogLevel): boolean {
   return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[MIN_LOG_LEVEL];
