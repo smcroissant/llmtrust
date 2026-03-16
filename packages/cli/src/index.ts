@@ -4,6 +4,9 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { getAllModels, findModel, getModelsByProvider, getProviders, searchModels, getModelsByTrustScore, SearchFilter } from "./models.js";
 import { renderComparisonTable, renderModelDetail, renderModelsList, renderCTA, renderSearchResults, renderTrustScore, renderScoreBoard } from "./output.js";
+import { runBenchmark, renderBenchmarkResult, renderCompareBenchmarks, getAvailableSuites } from "./bench.js";
+import { renderAuthStatus, login, logout } from "./auth.js";
+import { generateCompletions } from "./completions.js";
 
 const program = new Command();
 
@@ -171,6 +174,93 @@ program
       const models = getModelsByTrustScore(sortOrder);
       renderScoreBoard(models);
     }
+  });
+
+// ─── bench command ──────────────────────────────────────────
+
+program
+  .command("bench")
+  .description("Run benchmarks on models")
+  .argument("<models...>", "Model IDs to benchmark (e.g., gpt-4o claude-3.5-sonnet)")
+  .option("-s, --suite <suite>", "Benchmark suite to run (standard, code, safety)", "standard")
+  .option("--compare", "Compare benchmarks side-by-side (when multiple models)")
+  .option("--no-telemetry", "Disable anonymous usage telemetry")
+  .action((modelIds: string[], opts: { suite: string; compare?: boolean; telemetry: boolean }) => {
+    const availableSuites = getAvailableSuites();
+    if (!availableSuites.includes(opts.suite)) {
+      console.error(chalk.red(`\n  ✗ Unknown suite: ${opts.suite}`));
+      console.log(chalk.dim(`  Available suites: ${availableSuites.join(", ")}\n`));
+      process.exit(1);
+    }
+
+    if (modelIds.length < 1) {
+      console.error(chalk.red("\n  ✗ Need at least 1 model to benchmark.\n"));
+      console.log(chalk.dim("  Usage: llmtrust bench gpt-4o --suite standard\n"));
+      process.exit(1);
+    }
+
+    const results = modelIds
+      .map((id) => runBenchmark(id, opts.suite))
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    const notFound = modelIds.filter((id) => !findModel(id));
+    if (notFound.length > 0) {
+      console.error(chalk.yellow(`\n  ⚠ Model not found: ${notFound.join(", ")}`));
+      console.log(chalk.dim("  Run 'llmtrust models' to see available models.\n"));
+    }
+
+    if (results.length === 0) {
+      console.error(chalk.red("\n  ✗ No valid models to benchmark.\n"));
+      process.exit(1);
+    }
+
+    if (opts.compare && results.length > 1) {
+      renderCompareBenchmarks(results);
+    } else {
+      for (const result of results) {
+        renderBenchmarkResult(result);
+      }
+    }
+  });
+
+// ─── auth command ───────────────────────────────────────────
+
+const authCmd = program
+  .command("auth")
+  .description("Manage authentication");
+
+authCmd
+  .command("status")
+  .description("Show authentication status")
+  .action(() => {
+    renderAuthStatus();
+  });
+
+authCmd
+  .command("login")
+  .description("Authenticate with an API key")
+  .requiredOption("--api-key <key>", "Your LLMTrust API key")
+  .option("--email <email>", "Your email (optional)")
+  .action((opts: { apiKey: string; email?: string }) => {
+    login(opts.apiKey, opts.email);
+  });
+
+authCmd
+  .command("logout")
+  .description("Log out and clear stored credentials")
+  .action(() => {
+    logout();
+  });
+
+// ─── completions command ─────────────────────────────────────
+
+program
+  .command("completions")
+  .description("Generate shell completions")
+  .argument("<shell>", "Shell type (bash, zsh, fish)")
+  .option("-o, --output <path>", "Output directory for completion file")
+  .action((shell: string, opts: { output?: string }) => {
+    generateCompletions(shell, opts.output);
   });
 
 // ─── parse ────────────────────────────────────────────────────
