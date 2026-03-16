@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, protectedProcedure, usageEnforcedProcedure } from "../trpc";
 import { db } from "../../db";
 import { model, review } from "../../db/schema";
 import { eq, and, desc, asc, sql, ilike, or } from "drizzle-orm";
@@ -22,7 +22,7 @@ export const modelsRouter = createTRPCRouter({
   // ============================================
   // LIST — Discovery endpoint with advanced filters
   // ============================================
-  list: publicProcedure
+  list: usageEnforcedProcedure
     .input(
       z.object({
         category: z.string().optional(),
