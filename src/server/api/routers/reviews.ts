@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, usageEnforcedProcedure } from "../trpc";
 import { db } from "../../db";
 import { review, user, model } from "../../db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -56,7 +56,7 @@ export const reviewsRouter = createTRPCRouter({
   // ============================================
   // CREATE — Submit a review
   // ============================================
-  create: protectedProcedure
+  create: usageEnforcedProcedure
     .input(
       z.object({
         modelId: z.string().uuid(),
@@ -130,7 +130,7 @@ export const reviewsRouter = createTRPCRouter({
   // ============================================
   // UPDATE — Edit a review
   // ============================================
-  update: protectedProcedure
+  update: usageEnforcedProcedure
     .input(
       z.object({
         id: z.string().uuid(),
