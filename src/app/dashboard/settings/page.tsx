@@ -382,8 +382,8 @@ export default function SettingsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
                       { tier: "Free", price: "$0", features: ["Browse models", "Community reviews", "100 API calls/day"] },
-                      { tier: "Pro", price: "$9.99/mo", features: ["Unlimited downloads", "10,000 API calls/day", "Advanced comparisons"] },
-                      { tier: "Team", price: "$29.99/mo", features: ["10 seats", "50,000 API calls/day", "SSO", "Custom integrations"] },
+                      { tier: "Pro", price: "$19/mo", features: ["Unlimited downloads", "10,000 API calls/day", "Advanced comparisons"] },
+                      { tier: "Team", price: "$49/mo", features: ["10 seats", "50,000 API calls/day", "SSO", "Custom integrations"] },
                     ].map((p) => (
                       <div
                         key={p.tier}

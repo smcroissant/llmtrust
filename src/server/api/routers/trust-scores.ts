@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, usageEnforcedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, usageEnforcedProcedure } from "../trpc";
 import { db } from "../../db";
 import { trustScore, model, scoreSnapshot } from "../../db/schema";
 import { eq, desc, sql, and, gte } from "drizzle-orm";

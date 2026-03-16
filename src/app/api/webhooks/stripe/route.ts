@@ -87,12 +87,6 @@ export async function POST(req: NextRequest) {
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
         break;
 
-      case "invoice.payment_failed":
-        await handleInvoicePaymentFailed(
-          event.data.object as Stripe.Invoice,
-        );
-        break;
-
       default:
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
@@ -317,48 +311,4 @@ async function updateSubscriptionRecord(
   console.log(`[Webhook] Subscription updated: user=${userId}, tier=${tier}, status=${status}, interval=${billingInterval}`);
 }
 
-/**
- * invoice.payment_failed
- * Payment failed — mark subscription as past_due
- */
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  const customerId = invoice.customer as string;
 
-  const [sub] = await db
-    .select()
-    .from(subscription)
-    .where(eq(subscription.stripeCustomerId, customerId))
-    .limit(1);
-
-  if (!sub) {
-    logger.error("invoice.payment_failed: could not find subscription", {
-      invoiceId: invoice.id,
-      customerId,
-    });
-    return;
-  }
-
-  await db
-    .update(subscription)
-    .set({
-      status: "past_due",
-      updatedAt: new Date(),
-    })
-    .where(eq(subscription.id, sub.id));
-
-  // Log failed payment
-  await db.insert(payment).values({
-    userId: sub.userId,
-    stripePaymentIntentId: (invoice as unknown as Record<string, unknown>).payment_intent as string | null,
-    amount: invoice.amount_due,
-    currency: invoice.currency,
-    status: "failed",
-    description: `Failed invoice ${invoice.number ?? invoice.id}`,
-  });
-
-  logger.warn("Payment failed — subscription marked past_due", {
-    userId: sub.userId,
-    customerId,
-    invoiceId: invoice.id,
-  });
-}

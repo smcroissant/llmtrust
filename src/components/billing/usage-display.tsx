@@ -5,7 +5,7 @@ import { GlowCard, GlowCardContent, GlowCardHeader, GlowCardTitle } from "@/comp
 import { Loader2, Activity, AlertTriangle } from "lucide-react";
 
 export function UsageDisplay() {
-  const { data: usage, isLoading, error } = trpc.billing.getUsage.useQuery({ days: 30 });
+  const { data: usage, isLoading, error } = trpc.billing.getUsageDetails.useQuery({ days: 30 });
 
   if (isLoading) {
     return (
