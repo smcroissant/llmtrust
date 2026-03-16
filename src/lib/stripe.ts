@@ -10,14 +10,20 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_place
 });
 
 // ============================================
-// Plan Pricing (hardcoded — update with real price IDs from Stripe Dashboard)
+// Plan Pricing — Price IDs via env vars, amounts from Stripe API
 // ============================================
+
+export type BillingInterval = "monthly" | "annual";
 
 export const PLANS = {
   pro: {
     name: "Pro",
-    priceId: process.env.STRIPE_PRICE_PRO ?? "price_pro_placeholder",
-    price: 999, // $9.99/month in cents
+    monthly: {
+      priceId: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "price_pro_monthly_placeholder",
+    },
+    annual: {
+      priceId: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_pro_annual_placeholder",
+    },
     features: [
       "Unlimited model access",
       "Priority support",
@@ -27,8 +33,12 @@ export const PLANS = {
   },
   team: {
     name: "Team",
-    priceId: process.env.STRIPE_PRICE_TEAM ?? "price_team_placeholder",
-    price: 2999, // $29.99/month in cents
+    monthly: {
+      priceId: process.env.STRIPE_PRICE_TEAM_MONTHLY ?? "price_team_monthly_placeholder",
+    },
+    annual: {
+      priceId: process.env.STRIPE_PRICE_TEAM_ANNUAL ?? "price_team_annual_placeholder",
+    },
     features: [
       "Everything in Pro",
       "Up to 10 seats",
@@ -40,6 +50,37 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+
+/**
+ * Get price ID for a plan + interval combination
+ */
+export function getPlanPriceId(plan: PlanKey, interval: BillingInterval): string {
+  return PLANS[plan][interval].priceId;
+}
+
+/**
+ * Get plan details for a given price ID
+ */
+export function getPlanFromPriceId(priceId: string): { plan: PlanKey; interval: BillingInterval } | null {
+  for (const planKey of Object.keys(PLANS) as PlanKey[]) {
+    const plan = PLANS[planKey];
+    for (const interval of ["monthly", "annual"] as const) {
+      if (plan[interval].priceId === priceId) {
+        return { plan: planKey, interval };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Get tier from Stripe price ID
+ * @deprecated Use getPlanFromPriceId instead
+ */
+export function getTierFromPriceId(priceId: string): "pro" | "team" {
+  const result = getPlanFromPriceId(priceId);
+  return result?.plan ?? "pro";
+}
 
 // ============================================
 // Helper Functions
@@ -114,12 +155,4 @@ export async function getSubscription(
   subscriptionId: string,
 ): Promise<Stripe.Subscription> {
   return stripe.subscriptions.retrieve(subscriptionId);
-}
-
-/**
- * Determine tier from Stripe price ID
- */
-export function getTierFromPriceId(priceId: string): "pro" | "team" {
-  if (priceId === PLANS.team.priceId) return "team";
-  return "pro";
 }

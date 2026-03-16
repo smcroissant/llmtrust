@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "../../db";
-import { notification, model, user } from "../../db/schema";
-import { eq, and, desc, sql, count } from "drizzle-orm";
+import { notification } from "../../db/schema";
+import { eq, and, desc, count } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const notificationsRouter = createTRPCRouter({

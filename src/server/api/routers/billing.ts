@@ -5,12 +5,16 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
 import { subscription } from "@/server/db/schema";
 import {
+  stripe,
   createCheckoutSession,
   createPortalSession,
   createStripeCustomer,
+  getPlanPriceId,
   PLANS,
   type PlanKey,
+  type BillingInterval,
 } from "@/lib/stripe";
+import { getUsage } from "@/lib/usage-metering";
 
 export const billingRouter = createTRPCRouter({
   // ============================================
@@ -27,6 +31,7 @@ export const billingRouter = createTRPCRouter({
       return {
         tier: "free" as const,
         status: "active" as const,
+        billingInterval: "monthly" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
         stripeCurrentPeriodEnd: null,
@@ -37,12 +42,20 @@ export const billingRouter = createTRPCRouter({
   }),
 
   // ============================================
+  // getUsage — Get current usage stats
+  // ============================================
+  getUsage: protectedProcedure.query(async ({ ctx }) => {
+    return getUsage(ctx.userId);
+  }),
+
+  // ============================================
   // createCheckout — Create a Stripe Checkout session
   // ============================================
   createCheckout: protectedProcedure
     .input(
       z.object({
         plan: z.enum(["pro", "team"]),
+        interval: z.enum(["monthly", "annual"]).default("monthly"),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -53,6 +66,8 @@ export const billingRouter = createTRPCRouter({
           message: "Invalid plan selected.",
         });
       }
+
+      const priceId = getPlanPriceId(input.plan as PlanKey, input.interval as BillingInterval);
 
       // Get or create subscription record (with Stripe customer)
       const [existingSub] = await db
@@ -95,6 +110,7 @@ export const billingRouter = createTRPCRouter({
           stripeCustomerId: customerId,
           tier: "free",
           status: "active",
+          interval: "monthly",
         });
       }
 
@@ -102,7 +118,7 @@ export const billingRouter = createTRPCRouter({
 
       const checkoutSession = await createCheckoutSession({
         customerId,
-        priceId: plan.priceId,
+        priceId,
         userId: ctx.userId,
         successUrl: `${appUrl}/dashboard/settings?checkout=success`,
         cancelUrl: `${appUrl}/pricing?checkout=canceled`,
@@ -137,4 +153,78 @@ export const billingRouter = createTRPCRouter({
 
     return { url: portalSession.url };
   }),
+
+  // ============================================
+  // switchInterval — Switch between monthly and annual billing
+  // Stripe handles proration automatically
+  // ============================================
+  switchInterval: protectedProcedure
+    .input(
+      z.object({
+        interval: z.enum(["monthly", "annual"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [sub] = await db
+        .select()
+        .from(subscription)
+        .where(eq(subscription.userId, ctx.userId))
+        .limit(1);
+
+      if (!sub?.stripeSubscriptionId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No active subscription found.",
+        });
+      }
+
+      if (sub.tier === "free") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot switch billing interval on a free plan. Upgrade first.",
+        });
+      }
+
+      const newInterval = input.interval as BillingInterval;
+      if (sub.interval === newInterval) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Already on ${newInterval} billing.`,
+        });
+      }
+
+      // Get the new price ID
+      const planKey = sub.tier as PlanKey;
+      const priceId = getPlanPriceId(planKey, newInterval);
+
+      // Update the Stripe subscription — proration is automatic
+      const stripeSubscription = await stripe.subscriptions.retrieve(
+        sub.stripeSubscriptionId,
+      );
+
+      await stripe.subscriptions.update(sub.stripeSubscriptionId, {
+        items: [
+          {
+            id: stripeSubscription.items.data[0]!.id,
+            price: priceId,
+          },
+        ],
+        proration_behavior: "create_prorations",
+        metadata: {
+          ...stripeSubscription.metadata,
+          billingInterval: newInterval,
+        },
+      });
+
+      // Update local record
+      await db
+        .update(subscription)
+        .set({
+          interval: newInterval,
+          updatedAt: new Date(),
+        })
+        .where(eq(subscription.userId, ctx.userId));
+
+      return { success: true, interval: newInterval };
+    }),
 });

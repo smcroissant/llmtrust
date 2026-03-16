@@ -45,7 +45,7 @@ const plansData = [
   },
   {
     name: "Pro",
-    price: "$19",
+    price: "$9.99",
     period: "/mo",
     description: "For developers who need more power",
     icon: Zap,
@@ -64,7 +64,7 @@ const plansData = [
   },
   {
     name: "Team",
-    price: "$49",
+    price: "$29.99",
     period: "/mo",
     description: "Collaborate with your team on AI model selection",
     icon: Users,
@@ -136,12 +136,12 @@ const faqs = [
   {
     question: "What do I get with Pro?",
     answer:
-      "Pro ($19/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, custom watchlists, and priority support.",
+      "Pro ($9.99/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, custom watchlists, and priority support.",
   },
   {
     question: "What's included in the Team plan?",
     answer:
-      "Team ($49/mo) includes everything in Pro, plus 5 seats, shared workspaces, an admin dashboard, usage analytics, SSO, and API management tools.",
+      "Team ($29.99/mo) includes everything in Pro, plus 5 seats, shared workspaces, an admin dashboard, usage analytics, SSO, and API management tools.",
   },
   {
     question: "Can I upgrade from Free to Pro later?",
@@ -151,7 +151,7 @@ const faqs = [
   {
     question: "Do you offer annual billing?",
     answer:
-      "Yes, annual plans come with a 20% discount. Pro annual is $182/yr ($15.17/mo) and Team annual is $470/yr ($39.17/mo).",
+      "Yes, annual plans come with a 20% discount. Pro annual is $95.90/yr ($7.99/mo) and Team annual is $287.90/yr ($23.99/mo).",
   },
   {
     question: "What models are available?",

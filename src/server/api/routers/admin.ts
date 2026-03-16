@@ -6,6 +6,7 @@ import {
   model,
   review,
   favorite,
+  apiUsage,
 } from "../../db/schema";
 import { eq, and, desc, asc, sql, ilike, count, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -403,6 +404,50 @@ export const adminRouter = createTRPCRouter({
         .returning();
 
       return updated;
+    }),
+
+  // ============================================
+  // GET USAGE — Get API usage data for admin dashboard
+  // ============================================
+  getUsage: adminProcedure
+    .input(
+      z.object({
+        userId: z.string().optional(),
+        days: z.number().min(1).max(30).default(7),
+      }),
+    )
+    .query(async ({ input }) => {
+      if (input.userId) {
+        // Usage for specific user
+        const usage = await db
+          .select({
+            date: apiUsage.date,
+            callCount: apiUsage.callCount,
+            endpoint: apiUsage.endpoint,
+          })
+          .from(apiUsage)
+          .where(eq(apiUsage.userId, input.userId))
+          .orderBy(desc(apiUsage.date))
+          .limit(input.days);
+
+        return { usage };
+      }
+
+      // Aggregate usage across all users
+      const usage = await db
+        .select({
+          userId: apiUsage.userId,
+          userName: userTable.name,
+          userEmail: userTable.email,
+          date: apiUsage.date,
+          callCount: apiUsage.callCount,
+        })
+        .from(apiUsage)
+        .leftJoin(userTable, eq(apiUsage.userId, userTable.id))
+        .orderBy(desc(apiUsage.date))
+        .limit(100);
+
+      return { usage };
     }),
 
   // ============================================

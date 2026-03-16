@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { db } from "../../db";
-import { model, like, favorite, review } from "../../db/schema";
-import { eq, and, desc, asc, sql, ilike, inArray, or } from "drizzle-orm";
+import { model, review } from "../../db/schema";
+import { eq, and, desc, asc, sql, ilike, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { nanoid } from "nanoid";
 
 // Size range helpers for parameter count filtering
 function parseParamSize(paramCount: string | null): number | null {
