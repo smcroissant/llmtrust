@@ -57,13 +57,13 @@ export async function createTRPCContext(opts: {
 
 const t = initTRPC.context<CreateContextOptions>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
+  errorFormatter({ shape, error, path }) {
     const isProd = process.env.NODE_ENV === "production";
 
     // Log server errors for observability
     if (error.code === "INTERNAL_SERVER_ERROR") {
       logger.error("tRPC internal error", {
-        path: error.path,
+        path: path ?? "unknown",
         message: error.message,
       }, error.cause instanceof Error ? error.cause : undefined);
     }
