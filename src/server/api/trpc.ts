@@ -54,6 +54,155 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 });
 
 // ============================================
+// Usage Enforcement — #69
+// ============================================
+
+/** Tier-based daily API call limits */
+const TIER_DAILY_LIMITS: Record<string, number> = {
+  free: 100,
+  pro: 10_000,
+  team: 50_000,
+};
+
+/** Get user's subscription tier from DB */
+async function getUserTier(userId: string): Promise<string> {
+  try {
+    const { db } = await import("@/server/db");
+    const { subscription } = await import("@/server/db/schema");
+    const { eq } = await import("drizzle-orm");
+
+    const [sub] = await db
+      .select({ tier: subscription.tier })
+      .from(subscription)
+      .where(eq(subscription.userId, userId))
+      .limit(1);
+
+    return sub?.tier ?? "free";
+  } catch {
+    return "free";
+  }
+}
+
+/** Get today's usage count for a user */
+async function getTodayUsage(userId: string): Promise<number> {
+  try {
+    const { db } = await import("@/server/db");
+    const { usageTracking } = await import("@/server/db/schema");
+    const { eq, and, gte, sql } = await import("drizzle-orm");
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [result] = await db
+      .select({ total: sql<number>`COALESCE(SUM(${usageTracking.quantity}), 0)` })
+      .from(usageTracking)
+      .where(
+        and(
+          eq(usageTracking.userId, userId),
+          eq(usageTracking.resourceType, "api_call"),
+          gte(usageTracking.periodStart, today),
+        ),
+      );
+
+    return Number(result?.total ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+/** Record an API call in usage tracking */
+async function recordUsage(
+  userId: string,
+  endpoint: string,
+): Promise<void> {
+  try {
+    const { db } = await import("@/server/db");
+    const { usageTracking } = await import("@/server/db/schema");
+
+    const now = new Date();
+    const dayStart = new Date(now);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(now);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    await db.insert(usageTracking).values({
+      userId,
+      resourceType: "api_call",
+      quantity: 1,
+      periodStart: dayStart,
+      periodEnd: dayEnd,
+      metadata: { endpoint },
+      recordedAt: now,
+    });
+  } catch {
+    // Non-critical: don't block the request if tracking fails
+  }
+}
+
+/**
+ * Usage-enforced procedure — requires auth, tracks API calls, enforces tier limits.
+ * Returns 429 with upgrade CTA when daily limit exceeded.
+ */
+export const usageEnforcedProcedure = protectedProcedure.use(
+  async ({ ctx, next, path }) => {
+    const tier = await getUserTier(ctx.userId);
+    const limit = TIER_DAILY_LIMITS[tier] ?? TIER_DAILY_LIMITS.free!;
+    const usage = await getTodayUsage(ctx.userId);
+
+    if (usage >= limit) {
+      throw new TRPCError({
+        code: "TOO_MANY_REQUESTS",
+        message: `Daily API limit reached (${limit}/${limit} for ${tier} tier). Upgrade at /billing for higher limits.`,
+      });
+    }
+
+    // Record this call
+    await recordUsage(ctx.userId, path);
+
+    return next({
+      ctx: {
+        ...ctx,
+        userId: ctx.userId,
+        tier,
+        usageRemaining: limit - usage - 1,
+      },
+    });
+  },
+);
+
+/**
+ * Require Pro tier or higher. Gates features behind subscription.
+ */
+export const requireProProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const tier = await getUserTier(ctx.userId);
+    if (tier === "free") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "This feature requires a Pro subscription. Upgrade at /billing.",
+      });
+    }
+    return next({ ctx: { ...ctx, tier } });
+  },
+);
+
+/**
+ * Require Team tier. Gates enterprise features.
+ */
+export const requireTeamProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    const tier = await getUserTier(ctx.userId);
+    if (tier !== "team") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "This feature requires a Team subscription. Upgrade at /billing.",
+      });
+    }
+    return next({ ctx: { ...ctx, tier } });
+  },
+);
+
+// ============================================
 // Auth helpers
 // ============================================
 
