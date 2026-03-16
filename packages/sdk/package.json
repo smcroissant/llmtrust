@@ -1,0 +1,58 @@
+{
+  "name": "llmtrust",
+  "version": "0.1.0",
+  "description": "LLMTrust integrations — trust scores in your AI workflows",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./ai-sdk": {
+      "types": "./dist/ai-sdk/index.d.ts",
+      "import": "./dist/ai-sdk/index.mjs",
+      "require": "./dist/ai-sdk/index.js"
+    },
+    "./ai-sdk/react": {
+      "types": "./dist/ai-sdk/react.d.ts",
+      "import": "./dist/ai-sdk/react.mjs",
+      "require": "./dist/ai-sdk/react.js"
+    },
+    "./langchain": {
+      "types": "./dist/langchain/index.d.ts",
+      "import": "./dist/langchain/index.mjs",
+      "require": "./dist/langchain/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["llm", "ai", "trust", "vercel-ai-sdk", "langchain", "openai", "scoring"],
+  "license": "MIT",
+  "peerDependencies": {
+    "ai": ">=3.0.0",
+    "react": ">=18.0.0",
+    "@langchain/core": ">=0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "ai": { "optional": true },
+    "react": { "optional": true },
+    "@langchain/core": { "optional": true }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5",
+    "@types/react": "^19",
+    "react": "^19.0.0",
+    "ai": "^3.0.0",
+    "@langchain/core": "^0.1.0"
+  },
+  "engines": { "node": ">=18" }
+}

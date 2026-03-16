@@ -1,23 +1,31 @@
 {
   "agent": "isaac",
   "role": "Senior Developer",
-  "lastSession": "2026-03-16T08:28:00+01:00",
-  "completedIssues": [30],
+  "lastSession": "2026-03-16T15:17:00+01:00",
+  "completedIssues": [30, 162],
   "inProgress": {
-    "issue": 45,
-    "title": "Free Developer CLI — LLM Comparison from Terminal",
-    "branch": "feature/45-free-developer-cli",
-    "draftPR": 51,
-    "startedAt": "2026-03-15T23:11:00+01:00",
-    "status": "ready-for-review"
+    "issue": 90,
+    "title": "LangChain & Vercel AI SDK integrations",
+    "branch": "feature/90-langchain-vercel-integrations",
+    "draftPR": 154,
+    "startedAt": "2026-03-16T15:17:00+01:00",
+    "status": "ci-fixed"
   },
   "recentWork": [
+    {
+      "pr": 154,
+      "issue": 90,
+      "title": "feat: LangChain & Vercel AI SDK integrations",
+      "status": "ci-fixed",
+      "completedAt": "2026-03-16T15:17:00+01:00",
+      "summary": "Fixed all ESLint errors in SDK package: replaced `any` types with proper interfaces in ai-sdk/index.ts, client.ts, and langchain/index.ts. Removed unused imports (TrustBand, scoreToBand). Fixed TypeScript Check by excluding packages/ from root tsconfig (prevents tsup module resolution error). All CI checks now pass. Closed issue #162 (tsup bug). PR is still DRAFT — needs review before marking ready."
+    },
     {
       "issue": 69,
       "title": "Usage Metering & Free Tier Enforcement",
       "status": "in-progress",
       "startedAt": "2026-03-16T06:58:00+01:00",
-      "summary": "Wired usageEnforcedProcedure to models.list and trust-scores router (list + byModelSlug). These endpoints now enforce daily tier limits and track usage via usage_tracking table. Middleware was already built in trpc.ts. Remaining: more routers, X-RateLimit-Remaining header, usage dashboard."
+      "summary": "Added usage enforcement middleware to tRPC: usageEnforcedProcedure (tracks API calls, enforces 100/day free limit, 10K pro, 50K team), requireProProcedure, requireTeamProcedure. Reads tier from subscription table, records calls in usage_tracking, returns 429 with upgrade CTA. Not yet wired to routers."
     },
     {
       "pr": 118,
@@ -35,7 +43,9 @@
     }
   ],
   "nextSteps": [
-    "Wire usageEnforcedProcedure to remaining routers (reviews, notifications, newsletter)",
+    "PR #154: Consider marking ready for review (all CI green, 5 commits pushed)",
+    "Issue #219: Pricing triple mismatch (stripe.ts $9.99 vs pricing page $19) — revenue bug",
+    "Wire usageEnforcedProcedure to API routers (models, trust-scores, etc.)",
     "Add X-RateLimit-Remaining header to 429 responses",
     "Build usage dashboard component showing quota vs. consumption",
     "PR #118 is green and ready for Salomé to merge"
