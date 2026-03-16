@@ -13,7 +13,6 @@
 
 import { getDefaultClient } from "../client";
 import type { TrustScore, RecommendOptions, ModelRecommendation } from "../types";
-import { scoreToBand } from "../types";
 
 /* ── LLMTrustCallback ───────────────────────────────────── */
 
@@ -42,7 +41,7 @@ export class LLMTrustCallback {
     return "llmtrust_callback";
   }
 
-  async handleLLMEnd(output: any, runId: string, parentRunId?: string): Promise<void> {
+  async handleLLMEnd(output: { llmOutput?: { provider?: string; model?: string; model_name?: string } }): Promise<void> {
     const llmOutput = output.llmOutput;
     const provider = llmOutput?.provider ?? llmOutput?.model_name?.split("/")?.[0] ?? "unknown";
     const model = llmOutput?.model ?? llmOutput?.model_name ?? "unknown";
@@ -65,11 +64,14 @@ export class LLMTrustCallback {
 
 /* ── Trust-Aware Router ─────────────────────────────────── */
 
+/** Generic LLM instance — pass any LangChain LLM */
+type LangChainLLM = unknown;
+
 export interface TrustRouterOptions {
   /** Primary LLM to try first */
-  primary: { provider: string; model: string; llm: any };
+  primary: { provider: string; model: string; llm: LangChainLLM };
   /** Fallback LLMs, tried in order */
-  fallbacks: Array<{ provider: string; model: string; llm: any }>;
+  fallbacks: Array<{ provider: string; model: string; llm: LangChainLLM }>;
   /** Minimum trust score to accept primary. Default: 60 */
   minScore?: number;
   /** If true, always log routing decisions */
@@ -81,7 +83,7 @@ export interface TrustRouterOptions {
  */
 export async function trustAwareRoute<T>(
   options: TrustRouterOptions,
-  invoke: (llm: any) => Promise<T>
+  invoke: (llm: LangChainLLM) => Promise<T>
 ): Promise<{ result: T; usedProvider: string; usedModel: string; trustScore: TrustScore }> {
   const client = getDefaultClient();
   const threshold = options.minScore ?? 60;
