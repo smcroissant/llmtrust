@@ -80,8 +80,8 @@ export class LLMTrustClient {
 
       if (!res.ok) return [];
 
-      const data = await res.json();
-      return (data.models ?? []).map((m: any) => ({
+      const data = await res.json() as { models?: Array<{ provider: string; model: string; score: number; band?: string; reason?: string }> };
+      return (data.models ?? []).map((m) => ({
         provider: m.provider,
         model: m.model,
         score: m.score,
