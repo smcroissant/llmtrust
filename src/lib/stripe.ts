@@ -1,10 +1,12 @@
 import Stripe from "stripe";
+import { env } from "~/env";
+import { env } from "~/env";
 
 // ============================================
 // Stripe Client
 // ============================================
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder", {
+export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2026-02-25.clover",
   typescript: true,
 });
@@ -52,12 +54,12 @@ export const PLANS = {
   pro: {
     name: "Pro",
     monthly: {
-      priceId: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "price_pro_monthly_placeholder",
+      priceId: process.env.STRIPE_PRICE_PRO_MONTHLY ?? env.STRIPE_PRICE_PRO,
       price: 1900, // $19/month in cents
       interval: "month" as const,
     },
     annual: {
-      priceId: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_pro_annual_placeholder",
+      priceId: process.env.STRIPE_PRICE_PRO_ANNUAL ?? env.STRIPE_PRICE_PRO,
       price: 18200, // $182/year in cents ($15.17/mo effective, ~20% off)
       interval: "year" as const,
     },
@@ -73,12 +75,12 @@ export const PLANS = {
   team: {
     name: "Team",
     monthly: {
-      priceId: process.env.STRIPE_PRICE_TEAM_MONTHLY ?? "price_team_monthly_placeholder",
+      priceId: process.env.STRIPE_PRICE_TEAM_MONTHLY ?? env.STRIPE_PRICE_TEAM,
       price: 4900, // $49/month in cents
       interval: "month" as const,
     },
     annual: {
-      priceId: process.env.STRIPE_PRICE_TEAM_ANNUAL ?? "price_team_annual_placeholder",
+      priceId: process.env.STRIPE_PRICE_TEAM_ANNUAL ?? env.STRIPE_PRICE_TEAM,
       price: 47000, // $470/year in cents ($39.17/mo effective, ~20% off)
       interval: "year" as const,
     },

@@ -15,8 +15,10 @@ function getResend(): Resend {
   return _resend;
 }
 
+import { env } from "~/env";
+
 const FROM_EMAIL = "LLM Trust <noreply@llmtrust.com>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.llmtrust.com";
+const APP_URL = env.NEXT_PUBLIC_APP_URL;
 
 // ─── Shared Layout ─────────────────────────────────────────────────────────
 
