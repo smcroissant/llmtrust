@@ -7,7 +7,6 @@ import {
   review,
   favorite,
   apiUsage,
-  subscription,
 } from "../../db/schema";
 import { eq, and, desc, asc, sql, ilike, count, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
