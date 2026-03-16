@@ -43,6 +43,13 @@
       "when": 1773618480380,
       "tag": "0005_cost-usd-to-bigint",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773722700000,
+      "tag": "0006_subscription_usage_payment",
+      "breakpoints": true
     }
   ]
 }
