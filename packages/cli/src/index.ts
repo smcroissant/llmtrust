@@ -266,3 +266,9 @@ program
 // ─── parse ────────────────────────────────────────────────────
 
 program.parse();
+
+// Ensure clean exit in CI environments where open handles may prevent natural exit.
+// This is a no-op for commands that already exit cleanly, but prevents flaky CI failures.
+if (!process.exitCode) {
+  setImmediate(() => process.exit(0));
+}
