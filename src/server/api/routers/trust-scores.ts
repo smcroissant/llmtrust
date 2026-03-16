@@ -101,15 +101,14 @@ export const trustScoresRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const [modelData] = await db
-        .select({ id: model.id })
+        .select({ id: model.id, name: model.name, slug: model.slug })
         .from(model)
         .where(eq(model.slug, input.slug))
         .limit(1);
 
       if (!modelData) return { snapshots: [] };
 
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - input.days);
+      const cutoff = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
 
       const conditions = [
         eq(scoreSnapshot.modelId, modelData.id),
@@ -120,12 +119,23 @@ export const trustScoresRouter = createTRPCRouter({
       }
 
       const snapshots = await db
-        .select()
+        .select({
+          overallScore: scoreSnapshot.overallScore,
+          reliabilityScore: scoreSnapshot.reliabilityScore,
+          consistencyScore: scoreSnapshot.consistencyScore,
+          costEfficiencyScore: scoreSnapshot.costEfficiencyScore,
+          sampleSize: scoreSnapshot.sampleSize,
+          snapshotDate: scoreSnapshot.snapshotDate,
+          providerId: scoreSnapshot.providerId,
+        })
         .from(scoreSnapshot)
         .where(and(...conditions))
         .orderBy(scoreSnapshot.snapshotDate);
 
-      return { snapshots };
+      return {
+        model: { name: modelData.name, slug: modelData.slug },
+        snapshots,
+      };
     }),
 
   /**
