@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { eq, and, gte, sql, desc } from "drizzle-orm";
+import { env } from "~/env";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
 import { subscription, usageTracking } from "@/server/db/schema";
@@ -200,7 +201,7 @@ export const billingRouter = createTRPCRouter({
         });
       }
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const appUrl = env.NEXT_PUBLIC_APP_URL;
 
       // If user already has an active subscription, update it (mid-cycle switch)
       if (existingSub?.stripeSubscriptionId && existingSub.status === "active") {
@@ -240,7 +241,7 @@ export const billingRouter = createTRPCRouter({
       });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const appUrl = env.NEXT_PUBLIC_APP_URL;
 
     const portalSession = await createPortalSession({
       customerId: sub.stripeCustomerId,
