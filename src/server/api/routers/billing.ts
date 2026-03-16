@@ -31,7 +31,7 @@ export const billingRouter = createTRPCRouter({
       return {
         tier: "free" as const,
         status: "active" as const,
-        billingInterval: "monthly" as const,
+        billingInterval: "month" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
         stripeCurrentPeriodEnd: null,
@@ -55,7 +55,7 @@ export const billingRouter = createTRPCRouter({
     .input(
       z.object({
         plan: z.enum(["pro", "team"]),
-        interval: z.enum(["monthly", "annual"]).default("monthly"),
+        interval: z.enum(["month", "year"]).default("month"),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -110,11 +110,21 @@ export const billingRouter = createTRPCRouter({
           stripeCustomerId: customerId,
           tier: "free",
           status: "active",
-          interval: "monthly",
+          interval: "month",
         });
       }
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+      // If user already has an active subscription, update it (mid-cycle switch)
+      if (existingSub?.stripeSubscriptionId && existingSub.status === "active") {
+        const { updateSubscriptionPrice } = await import("@/lib/stripe");
+        await updateSubscriptionPrice({
+          subscriptionId: existingSub.stripeSubscriptionId,
+          newPriceId: priceId,
+        });
+        return { url: `${appUrl}/dashboard/settings?checkout=success` };
+      }
 
       const checkoutSession = await createCheckoutSession({
         customerId,
@@ -161,7 +171,7 @@ export const billingRouter = createTRPCRouter({
   switchInterval: protectedProcedure
     .input(
       z.object({
-        interval: z.enum(["monthly", "annual"]),
+        interval: z.enum(["month", "year"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
