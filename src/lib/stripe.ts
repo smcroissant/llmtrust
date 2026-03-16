@@ -10,52 +10,68 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "sk_test_place
 });
 
 // ============================================
-// Plan Pricing — Price IDs via env vars, amounts from Stripe API
+// Plan Pricing — Price IDs via env vars, amounts for display
 // ============================================
 
-export type BillingInterval = "monthly" | "annual";
+export type BillingInterval = "month" | "year";
 
 export const PLANS = {
   pro: {
     name: "Pro",
     monthly: {
       priceId: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "price_pro_monthly_placeholder",
+      price: 1900, // $19/month in cents
+      interval: "month" as const,
     },
     annual: {
       priceId: process.env.STRIPE_PRICE_PRO_ANNUAL ?? "price_pro_annual_placeholder",
+      price: 18200, // $182/year in cents ($15.17/mo effective, ~20% off)
+      interval: "year" as const,
     },
     features: [
-      "Unlimited model access",
+      "Everything in Free",
+      "Cloud inference (run models without GPU)",
+      "Unlimited API access",
+      "Advanced benchmarks & analytics",
       "Priority support",
-      "Advanced analytics",
-      "API access",
+      "Custom watchlists",
     ],
   },
   team: {
     name: "Team",
     monthly: {
       priceId: process.env.STRIPE_PRICE_TEAM_MONTHLY ?? "price_team_monthly_placeholder",
+      price: 4900, // $49/month in cents
+      interval: "month" as const,
     },
     annual: {
       priceId: process.env.STRIPE_PRICE_TEAM_ANNUAL ?? "price_team_annual_placeholder",
+      price: 47000, // $470/year in cents ($39.17/mo effective, ~20% off)
+      interval: "year" as const,
     },
     features: [
       "Everything in Pro",
-      "Up to 10 seats",
-      "Team management",
-      "Custom integrations",
+      "5 seats",
+      "Shared workspaces",
+      "Admin dashboard",
+      "Usage analytics",
       "SSO",
+      "API management",
     ],
   },
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
 
+// ============================================
+// Helper Functions
+// ============================================
+
 /**
  * Get price ID for a plan + interval combination
  */
 export function getPlanPriceId(plan: PlanKey, interval: BillingInterval): string {
-  return PLANS[plan][interval].priceId;
+  return PLANS[plan][interval === "year" ? "annual" : "monthly"].priceId;
 }
 
 /**
@@ -64,27 +80,51 @@ export function getPlanPriceId(plan: PlanKey, interval: BillingInterval): string
 export function getPlanFromPriceId(priceId: string): { plan: PlanKey; interval: BillingInterval } | null {
   for (const planKey of Object.keys(PLANS) as PlanKey[]) {
     const plan = PLANS[planKey];
-    for (const interval of ["monthly", "annual"] as const) {
-      if (plan[interval].priceId === priceId) {
-        return { plan: planKey, interval };
-      }
+    if (plan.monthly.priceId === priceId) {
+      return { plan: planKey, interval: "month" };
+    }
+    if (plan.annual.priceId === priceId) {
+      return { plan: planKey, interval: "year" };
     }
   }
   return null;
 }
 
 /**
- * Get tier from Stripe price ID
- * @deprecated Use getPlanFromPriceId instead
+ * Determine tier from Stripe price ID (monthly or annual)
  */
 export function getTierFromPriceId(priceId: string): "pro" | "team" {
-  const result = getPlanFromPriceId(priceId);
-  return result?.plan ?? "pro";
+  if (
+    priceId === PLANS.team.monthly.priceId ||
+    priceId === PLANS.team.annual.priceId
+  ) {
+    return "team";
+  }
+  return "pro";
 }
 
-// ============================================
-// Helper Functions
-// ============================================
+/**
+ * Determine billing interval from Stripe price ID
+ */
+export function getIntervalFromPriceId(priceId: string): BillingInterval {
+  if (
+    priceId === PLANS.pro.annual.priceId ||
+    priceId === PLANS.team.annual.priceId
+  ) {
+    return "year";
+  }
+  return "month";
+}
+
+/**
+ * Get the annual savings percentage for display
+ */
+export function getAnnualSavings(planKey: PlanKey): number {
+  const plan = PLANS[planKey];
+  const monthlyTotal = plan.monthly.price * 12;
+  const annualPrice = plan.annual.price;
+  return Math.round(((monthlyTotal - annualPrice) / monthlyTotal) * 100);
+}
 
 /**
  * Create a Stripe Customer for a user
@@ -131,7 +171,35 @@ export async function createCheckoutSession(params: {
       metadata: {
         userId: params.userId,
       },
+      // Enable proration for mid-cycle switches
+      proration_behavior: "create_prorations",
     },
+  });
+}
+
+/**
+ * Update an existing subscription to a new price (mid-cycle switch)
+ * Handles proration automatically
+ */
+export async function updateSubscriptionPrice(params: {
+  subscriptionId: string;
+  newPriceId: string;
+}): Promise<Stripe.Subscription> {
+  const sub = await stripe.subscriptions.retrieve(params.subscriptionId);
+  const currentItem = sub.items.data[0];
+
+  if (!currentItem) {
+    throw new Error("No subscription item found");
+  }
+
+  return stripe.subscriptions.update(params.subscriptionId, {
+    items: [
+      {
+        id: currentItem.id,
+        price: params.newPriceId,
+      },
+    ],
+    proration_behavior: "create_prorations",
   });
 }
 

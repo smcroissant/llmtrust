@@ -24,65 +24,132 @@ import {
   Loader2,
 } from "lucide-react";
 
-const plansData = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    description: "Perfect for exploring open-source AI models",
-    icon: Sparkles,
-    cta: "Get Started",
-    href: "/models",
-    featured: false,
-    isCheckout: false,
-    features: [
-      "Browse unlimited models",
-      "Compare models",
-      "Download models (unlimited)",
-      "Community reviews",
-      "Basic API access (100 calls/day)",
-    ],
-  },
-  {
-    name: "Pro",
-    price: "$9.99",
-    period: "/mo",
-    description: "For developers who need more power",
-    icon: Zap,
-    cta: "Upgrade to Pro",
-    plan: "pro" as const,
-    featured: true,
-    isCheckout: true,
-    features: [
-      "Everything in Free",
-      "Cloud inference (run models without GPU)",
-      "Unlimited API access",
-      "Advanced benchmarks & analytics",
-      "Priority support",
-      "Custom watchlists",
-    ],
-  },
-  {
-    name: "Team",
-    price: "$29.99",
-    period: "/mo",
-    description: "Collaborate with your team on AI model selection",
-    icon: Users,
-    cta: "Upgrade to Team",
-    plan: "team" as const,
-    featured: false,
-    isCheckout: true,
-    features: [
-      "Everything in Pro",
-      "5 seats",
-      "Shared workspaces",
-      "Admin dashboard",
-      "Usage analytics",
-      "SSO",
-      "API management",
-    ],
-  },
-];
+type BillingInterval = "month" | "year";
+
+const plansData = {
+  month: [
+    {
+      name: "Free",
+      price: "$0",
+      period: "forever",
+      description: "Perfect for exploring open-source AI models",
+      icon: Sparkles,
+      cta: "Get Started",
+      href: "/models",
+      featured: false,
+      isCheckout: false,
+      features: [
+        "Browse unlimited models",
+        "Compare models",
+        "Download models (unlimited)",
+        "Community reviews",
+        "Basic API access (100 calls/day)",
+      ],
+    },
+    {
+      name: "Pro",
+      price: "$19",
+      period: "/mo",
+      description: "For developers who need more power",
+      icon: Zap,
+      cta: "Upgrade to Pro",
+      plan: "pro" as const,
+      featured: true,
+      isCheckout: true,
+      features: [
+        "Everything in Free",
+        "Cloud inference (run models without GPU)",
+        "Unlimited API access",
+        "Advanced benchmarks & analytics",
+        "Priority support",
+        "Custom watchlists",
+      ],
+    },
+    {
+      name: "Team",
+      price: "$49",
+      period: "/mo",
+      description: "Collaborate with your team on AI model selection",
+      icon: Users,
+      cta: "Upgrade to Team",
+      plan: "team" as const,
+      featured: false,
+      isCheckout: true,
+      features: [
+        "Everything in Pro",
+        "5 seats",
+        "Shared workspaces",
+        "Admin dashboard",
+        "Usage analytics",
+        "SSO",
+        "API management",
+      ],
+    },
+  ],
+  year: [
+    {
+      name: "Free",
+      price: "$0",
+      period: "forever",
+      description: "Perfect for exploring open-source AI models",
+      icon: Sparkles,
+      cta: "Get Started",
+      href: "/models",
+      featured: false,
+      isCheckout: false,
+      features: [
+        "Browse unlimited models",
+        "Compare models",
+        "Download models (unlimited)",
+        "Community reviews",
+        "Basic API access (100 calls/day)",
+      ],
+    },
+    {
+      name: "Pro",
+      price: "$182",
+      period: "/yr",
+      originalPrice: "$228",
+      savings: "Save 20%",
+      description: "For developers who need more power",
+      icon: Zap,
+      cta: "Upgrade to Pro",
+      plan: "pro" as const,
+      featured: true,
+      isCheckout: true,
+      features: [
+        "Everything in Free",
+        "Cloud inference (run models without GPU)",
+        "Unlimited API access",
+        "Advanced benchmarks & analytics",
+        "Priority support",
+        "Custom watchlists",
+      ],
+    },
+    {
+      name: "Team",
+      price: "$470",
+      period: "/yr",
+      originalPrice: "$588",
+      savings: "Save 20%",
+      description: "Collaborate with your team on AI model selection",
+      icon: Users,
+      cta: "Upgrade to Team",
+      plan: "team" as const,
+      featured: false,
+      isCheckout: true,
+      features: [
+        "Everything in Pro",
+        "5 seats",
+        "Shared workspaces",
+        "Admin dashboard",
+        "Usage analytics",
+        "SSO",
+        "API management",
+      ],
+    },
+  ],
+} as const;
 
 const comparisonFeatures = [
   {
@@ -136,12 +203,12 @@ const faqs = [
   {
     question: "What do I get with Pro?",
     answer:
-      "Pro ($9.99/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, custom watchlists, and priority support.",
+      "Pro ($19/mo) includes everything in Free, plus cloud inference (run models without needing a GPU), unlimited API access, advanced benchmarks & analytics, custom watchlists, and priority support.",
   },
   {
     question: "What's included in the Team plan?",
     answer:
-      "Team ($29.99/mo) includes everything in Pro, plus 5 seats, shared workspaces, an admin dashboard, usage analytics, SSO, and API management tools.",
+      "Team ($49/mo) includes everything in Pro, plus 5 seats, shared workspaces, an admin dashboard, usage analytics, SSO, and API management tools.",
   },
   {
     question: "Can I upgrade from Free to Pro later?",
@@ -151,7 +218,7 @@ const faqs = [
   {
     question: "Do you offer annual billing?",
     answer:
-      "Yes, annual plans come with a 20% discount. Pro annual is $95.90/yr ($7.99/mo) and Team annual is $287.90/yr ($23.99/mo).",
+      "Yes, annual plans come with a 20% discount. Pro annual is $182/yr ($15.17/mo) and Team annual is $470/yr ($39.17/mo).",
   },
   {
     question: "What models are available?",
@@ -177,6 +244,7 @@ function FeatureCell({ value }: { value: boolean | string }) {
 
 export default function PricingPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>("month");
   const createCheckout = trpc.billing.createCheckout.useMutation({
     onSuccess: (data) => {
       if (data.url) {
@@ -191,8 +259,10 @@ export default function PricingPage() {
 
   const handleUpgrade = (plan: "pro" | "team") => {
     setLoadingPlan(plan);
-    createCheckout.mutate({ plan });
+    createCheckout.mutate({ plan, interval: billingInterval });
   };
+
+  const currentPlans = plansData[billingInterval];
 
   return (
     <>
@@ -222,10 +292,40 @@ export default function PricingPage() {
                 Scale when ready.
               </span>
             </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+            <p className="text-muted-foreground max-w-xl mx-auto text-lg mb-8">
               Discover and compare open-source AI models without paying a cent.
               Upgrade when you need more power.
             </p>
+
+            {/* Billing Toggle */}
+            <div className="inline-flex items-center gap-3 rounded-full border border-border/60 bg-card p-1.5">
+              <button
+                onClick={() => setBillingInterval("month")}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  billingInterval === "month"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingInterval("year")}
+                className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  billingInterval === "year"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Annual
+                <Badge
+                  variant="secondary"
+                  className="ml-1.5 text-[10px] py-0 px-1.5 bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+                >
+                  -20%
+                </Badge>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -233,7 +333,7 @@ export default function PricingPage() {
         <section className="pb-20">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {plansData.map((plan) => (
+              {currentPlans.map((plan) => (
                 <GlowCard
                   key={plan.name}
                   className={`relative flex flex-col p-6 ${
@@ -256,7 +356,20 @@ export default function PricingPage() {
                       <span className="text-muted-foreground text-sm">
                         {plan.period}
                       </span>
+                      {"originalPrice" in plan && (
+                        <span className="text-sm text-muted-foreground line-through ml-2">
+                          {plan.originalPrice}
+                        </span>
+                      )}
                     </div>
+                    {"savings" in plan && (
+                      <Badge
+                        variant="secondary"
+                        className="mt-2 bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+                      >
+                        {plan.savings}
+                      </Badge>
+                    )}
                     <p className="text-sm text-muted-foreground mt-2">
                       {plan.description}
                     </p>
