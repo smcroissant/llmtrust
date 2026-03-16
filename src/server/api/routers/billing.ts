@@ -110,7 +110,7 @@ export const billingRouter = createTRPCRouter({
           stripeCustomerId: customerId,
           tier: "free",
           status: "active",
-          billingInterval: "monthly",
+          interval: "monthly",
         });
       }
 
@@ -186,7 +186,7 @@ export const billingRouter = createTRPCRouter({
       }
 
       const newInterval = input.interval as BillingInterval;
-      if (sub.billingInterval === newInterval) {
+      if (sub.interval === newInterval) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: `Already on ${newInterval} billing.`,
@@ -220,7 +220,7 @@ export const billingRouter = createTRPCRouter({
       await db
         .update(subscription)
         .set({
-          billingInterval: newInterval,
+          interval: newInterval,
           updatedAt: new Date(),
         })
         .where(eq(subscription.userId, ctx.userId));

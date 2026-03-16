@@ -215,50 +215,6 @@ async function handleSubscriptionDeleted(stripeSubscription: Stripe.Subscription
     return;
   }
 
-  const priceId = stripeSubscription.items.data[0]?.price.id;
-  const tier = priceId ? getTierFromPriceId(priceId) : "pro";
-  const currentPeriodEnd = getCurrentPeriodEnd(stripeSubscription);
-
-  // Check if we have a newer subscription update (out-of-order handling)
-  const eventTimestamp = new Date(stripeSubscription.created * 1000);
-  const existingSub = await db.query.subscription.findFirst({
-    where: eq(subscription.userId, userId),
-  });
-  if (existingSub?.updatedAt && existingSub.updatedAt > eventTimestamp) {
-    logger.info("subscription.updated: skipping — newer update exists");
-    return;
-  }
-
-  await db
-    .update(subscription)
-    .set({
-      tier,
-      status: stripeSubscription.status,
-      stripeCurrentPeriodEnd: currentPeriodEnd,
-      updatedAt: new Date(),
-    })
-    .where(eq(subscription.userId, userId));
-
-  logger.info("Subscription updated", {
-    userId,
-    tier,
-    status: stripeSubscription.status,
-  });
-}
-
-/**
- * customer.subscription.deleted
- * Subscription canceled/expired
- */
-async function handleSubscriptionDeleted(
-  stripeSubscription: Stripe.Subscription,
-) {
-  const userId = stripeSubscription.metadata?.userId;
-  if (!userId) {
-    logger.error("customer.subscription.deleted: missing userId in metadata");
-    return;
-  }
-
   await db
     .update(subscription)
     .set({
