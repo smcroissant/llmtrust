@@ -30,10 +30,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-<<<<<<< HEAD
 
   "exclude": ["node_modules", "packages", "vitest.config.ts"]
-=======
-  "exclude": ["node_modules", "vitest.config.ts"]
->>>>>>> ab1c7d9 (fix(tsconfig): exclude vitest.config.ts from type checking)
 }
