@@ -1,8 +1,8 @@
 {
   "agent": "isaac",
   "role": "Senior Developer",
-  "lastSession": "2026-03-16T15:17:00+01:00",
-  "completedIssues": [30, 162],
+  "lastSession": "2026-03-16T17:40:00+01:00",
+  "completedIssues": [30, 162, 251],
   "inProgress": {
     "issue": 90,
     "title": "LangChain & Vercel AI SDK integrations",
@@ -12,6 +12,13 @@
     "status": "ci-fixed"
   },
   "recentWork": [
+    {
+      "pr": 251,
+      "title": "fix: resolve TS errors in stripe.ts (duplicate env import)",
+      "status": "merged",
+      "completedAt": "2026-03-16T17:40:00+01:00",
+      "summary": "Removed duplicate `import { env } from \"~/env\"` in src/lib/stripe.ts (lines 2-3). Fixed TS2300 duplicate identifier error. All tsc --noEmit checks pass. PR merged with --delete-branch."
+    },
     {
       "pr": 154,
       "issue": 90,
@@ -48,6 +55,7 @@
     "Wire usageEnforcedProcedure to API routers (models, trust-scores, etc.)",
     "Add X-RateLimit-Remaining header to 429 responses",
     "Build usage dashboard component showing quota vs. consumption",
-    "PR #118 is green and ready for Salomé to merge"
+    "PR #118 is green and ready for Salomé to merge",
+    "PR #251 ✅ Merged — TS errors fixed"
   ]
 }
