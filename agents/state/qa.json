@@ -1,8 +1,8 @@
 {
   "agent": "esther",
   "role": "QA Engineer",
-  "lastSession": "2026-03-15T23:27:00+01:00",
-  "lastRun": "2026-03-15T23:27:00+01:00",
+  "lastSession": "2026-03-16T07:20:00+01:00",
+  "lastRun": "2026-03-16T07:20:00+01:00",
   "reviews": [
     {
       "pr": 51,
@@ -21,7 +21,66 @@
         "Hardcoded latency values will drift stale"
       ],
       "commentUrl": "https://github.com/smcroissant/llmtrust/pull/51#issuecomment-4064045641"
+    },
+    {
+      "pr": 118,
+      "issue": 43,
+      "title": "feat: trust score tRPC router enhancements (#43)",
+      "status": "approved",
+      "reviewedAt": "2026-03-16T07:20:00+01:00",
+      "verdict": "approve",
+      "reason": "All checks green, clean merge state",
+      "findings": [
+        "ESLint: SUCCESS",
+        "TypeScript Check: SUCCESS",
+        "Security Audit: SUCCESS",
+        "Build: SUCCESS",
+        "Vercel: SUCCESS",
+        "Merge state: CLEAN"
+      ],
+      "commentUrl": "https://github.com/smcroissant/llmtrust/pull/118#issuecomment-4065325478"
+    },
+    {
+      "pr": 71,
+      "title": "feat: Annual Billing Toggle with 20% Discount",
+      "status": "ready",
+      "reviewedAt": "2026-03-16T07:20:00+01:00",
+      "verdict": "ready-to-merge",
+      "reason": "Title still says [WIP] but no longer draft, labeled status:ready, all checks green, mergeable",
+      "findings": [
+        "isDraft: false",
+        "Label: status:ready (QA approved)",
+        "All CI checks passing",
+        "Merge state: CLEAN"
+      ]
+    },
+    {
+      "pr": 101,
+      "title": "fix(pricing): align UI prices with Stripe ($9.99/$29.99)",
+      "status": "blocked",
+      "reviewedAt": "2026-03-16T07:20:00+01:00",
+      "verdict": "cannot-merge",
+      "reason": "Rebase needed — merge conflicts (CONFLICTING, DIRTY)",
+      "findings": [
+        "Merge state: DIRTY",
+        "Mergeable: CONFLICTING",
+        "Label: status:ready but cannot merge until rebased",
+        "CI checks passing on branch"
+      ]
+    },
+    {
+      "pr": 92,
+      "title": "feat: Usage Metering & Stripe Webhook Handler (#42)",
+      "status": "blocked",
+      "reviewedAt": "2026-03-16T07:20:00+01:00",
+      "verdict": "cannot-merge",
+      "reason": "Rebase needed — merge conflicts (CONFLICTING, DIRTY)",
+      "findings": [
+        "Merge state: DIRTY",
+        "Mergeable: CONFLICTING",
+        "CI checks passing on branch"
+      ]
     }
   ],
-  "activeReviews": [51]
+  "activeReviews": [51, 101, 92]
 }

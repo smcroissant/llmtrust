@@ -694,3 +694,79 @@ export const scoreSnapshot = pgTable(
     index("snapshot_model_date_idx").on(table.modelId, table.providerId, table.snapshotDate),
   ],
 );
+
+// ============================================
+// TRUST-ADJUSTED COST (TAC) — True cost metrics
+// ============================================
+
+/**
+ * Computed Trust-Adjusted Cost scores per model+provider.
+ * TAC = nominalCost * reliabilityMultiplier * hallucinationOverhead * consistencyPenalty * compliancePenalty
+ * Recomputed hourly by cron job from trust signals.
+ */
+export const tacScore = pgTable(
+  "tac_score",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    modelId: uuid("model_id")
+      .notNull()
+      .references(() => model.id, { onDelete: "cascade" }),
+    providerId: varchar("provider_id", { length: 100 }).notNull(),
+
+    // Cost data (USD per million tokens)
+    nominalCostPerMToken: varchar("nominal_cost_per_mtoken", { length: 20 }).notNull(),
+    tacPerMToken: varchar("tac_per_mtoken", { length: 20 }).notNull(),
+
+    // Score inputs (0-100)
+    reliabilityScore: integer("reliability_score").notNull(),
+    consistencyScore: integer("consistency_score").notNull(),
+    complianceScore: integer("compliance_score").notNull(),
+
+    // Derived factors
+    hallucinationRate: varchar("hallucination_rate", { length: 10 }).notNull(), // 0-1
+    reliabilityMultiplier: varchar("reliability_multiplier", { length: 10 }).notNull(),
+    hallucinationOverhead: varchar("hallucination_overhead", { length: 10 }).notNull(),
+    consistencyPenalty: varchar("consistency_penalty", { length: 10 }).notNull(),
+    compliancePenalty: varchar("compliance_penalty", { length: 10 }).notNull(),
+
+    // Metadata
+    sampleSize: integer("sample_size").notNull().default(0),
+    computedAt: timestamp("computed_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("tac_score_model_idx").on(table.modelId),
+    index("tac_score_provider_idx").on(table.providerId),
+    index("tac_score_tac_idx").on(table.tacPerMToken),
+    index("tac_score_unique_idx").on(table.modelId, table.providerId),
+    index("tac_score_computed_idx").on(table.computedAt),
+  ],
+);
+
+/**
+ * Historical TAC snapshots for trend analysis.
+ * One snapshot per model+provider per day.
+ */
+export const tacHistory = pgTable(
+  "tac_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    modelId: uuid("model_id")
+      .notNull()
+      .references(() => model.id, { onDelete: "cascade" }),
+    providerId: varchar("provider_id", { length: 100 }).notNull(),
+
+    nominalCostPerMToken: varchar("nominal_cost_per_mtoken", { length: 20 }).notNull(),
+    tacPerMToken: varchar("tac_per_mtoken", { length: 20 }).notNull(),
+    reliabilityScore: integer("reliability_score").notNull(),
+    hallucinationRate: varchar("hallucination_rate", { length: 10 }).notNull(),
+    consistencyScore: integer("consistency_score").notNull(),
+    complianceScore: integer("compliance_score").notNull(),
+
+    snapshotDate: timestamp("snapshot_date").notNull().defaultNow(),
+  },
+  (table) => [
+    index("tac_history_model_idx").on(table.modelId),
+    index("tac_history_date_idx").on(table.snapshotDate),
+    index("tac_history_model_date_idx").on(table.modelId, table.providerId, table.snapshotDate),
+  ],
+);
