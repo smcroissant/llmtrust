@@ -383,11 +383,39 @@ export const subscription = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" })
       .unique(),
-    stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+
+    // Plan details
     tier: varchar("tier", { length: 20 }).notNull().default("free"),
-    status: varchar("status", { length: 30 }).notNull().default("active"),
-    currentPeriodEnd: timestamp("current_period_end"),
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+
+    // Billing interval
+    interval: varchar("interval", { length: 10 }), // monthly | annual
+
+    // Stripe references
+    stripeCustomerId: text("stripe_customer_id").unique(),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+    stripePriceId: text("stripe_price_id"),
+    stripeCurrentPeriodEnd: timestamp("stripe_current_period_end"),
+
+    // Team specifics
+    seatsIncluded: integer("seats_included").notNull().default(1),
+    seatsUsed: integer("seats_used").notNull().default(1),
+
+    // Trial
+    trialEndsAt: timestamp("trial_ends_at"),
+    trialConvertedAt: timestamp("trial_converted_at"),
+
+    // Cancellation
+    cancelAtPeriodEnd: boolean("cancel_at_period_end")
+      .notNull()
+      .default(false),
+    canceledAt: timestamp("canceled_at"),
+    cancellationReason: text("cancellation_reason"),
+
+    // Grace period
+    gracePeriodEndsAt: timestamp("grace_period_ends_at"),
+
+    // Timestamps
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -395,6 +423,8 @@ export const subscription = pgTable(
     index("subscription_user_idx").on(table.userId),
     index("subscription_stripe_customer_idx").on(table.stripeCustomerId),
     index("subscription_stripe_sub_idx").on(table.stripeSubscriptionId),
+    index("subscription_status_idx").on(table.status),
+    index("subscription_tier_idx").on(table.tier),
   ],
 );
 
@@ -418,6 +448,10 @@ export const payment = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    subscriptionId: uuid("subscription_id").references(
+      () => subscription.id,
+      { onDelete: "set null" },
+    ),
     stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
     amount: integer("amount").notNull(), // in cents
     currency: varchar("currency", { length: 3 }).notNull().default("usd"),
@@ -428,6 +462,60 @@ export const payment = pgTable(
   (table) => [
     index("payment_user_idx").on(table.userId),
     index("payment_stripe_intent_idx").on(table.stripePaymentIntentId),
+    index("payment_subscription_idx").on(table.subscriptionId),
+  ],
+);
+
+// ============================================
+// USAGE TRACKING — Metered billing & quotas
+// ============================================
+
+export const resourceType = ["api_call", "inference_tokens"] as const;
+export type ResourceType = (typeof resourceType)[number];
+
+export const usageTracking = pgTable(
+  "usage_tracking",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    subscriptionId: uuid("subscription_id").references(
+      () => subscription.id,
+      { onDelete: "set null" },
+    ),
+
+    resourceType: varchar("resource_type", { length: 30 }).notNull(),
+    // api_call | inference_tokens
+
+    quantity: integer("quantity").notNull().default(1),
+
+    periodStart: timestamp("period_start").notNull(),
+    periodEnd: timestamp("period_end").notNull(),
+
+    metadata: jsonb("metadata")
+      .$type<{
+        endpoint?: string;
+        model?: string;
+        tokensInput?: number;
+        tokensOutput?: number;
+        latencyMs?: number;
+        statusCode?: number;
+      }>()
+      .default({}),
+
+    recordedAt: timestamp("recorded_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("usage_user_idx").on(table.userId),
+    index("usage_resource_type_idx").on(table.resourceType),
+    index("usage_period_idx").on(table.periodStart, table.periodEnd),
+    index("usage_user_resource_period_idx").on(
+      table.userId,
+      table.resourceType,
+      table.periodStart,
+    ),
   ],
 );
 
