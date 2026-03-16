@@ -335,9 +335,9 @@ export default function SettingsPage() {
                       <p className="text-xs text-muted-foreground mt-1 capitalize">
                         Status: {subscriptionData?.status ?? "active"}
                       </p>
-                      {subscriptionData?.currentPeriodEnd && (
+                      {subscriptionData?.stripeCurrentPeriodEnd && (
                         <p className="text-xs text-muted-foreground">
-                          Renews: {new Date(subscriptionData.currentPeriodEnd).toLocaleDateString()}
+                          Renews: {new Date(subscriptionData.stripeCurrentPeriodEnd).toLocaleDateString()}
                         </p>
                       )}
                     </div>
