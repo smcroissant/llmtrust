@@ -57,7 +57,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 // Applies to API-key-authenticated requests (Electron app, API consumers)
 // Web session requests are not metered (they use the web UI, not the API)
 export const meteredProcedure = protectedProcedure.use(
-  async ({ ctx, next, path }) => {
+  async ({ ctx, next }) => {
     // Only meter API key auth (Electron/API consumers)
     // Web users with session auth are not subject to API rate limits
     if (!ctx.isApiKeyAuth) {
@@ -278,7 +278,6 @@ async function getSessionFromRequest(
 ): Promise<{ user: { id: string } } | null> {
   try {
     const { auth } = await import("@/server/auth");
-    const cookies = req.headers.get("cookie") ?? "";
     // Better Auth handles session validation internally
     // For tRPC context, we extract session from cookies
     const session = await auth.api.getSession({

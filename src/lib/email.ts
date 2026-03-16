@@ -387,7 +387,6 @@ export async function sendNewsletterConfirmation(
   token: string,
 ) {
   const confirmUrl = `${APP_URL}/newsletter/confirm?token=${token}`;
-  const unsubscribeUrl = `${APP_URL}/newsletter/unsubscribe?token=${token}`;
 
   const body = `
     <div style="text-align:center;">
