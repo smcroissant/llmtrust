@@ -10,7 +10,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TrustScore, TrustBand } from "../types";
+import type { TrustScore } from "../types";
 import { BAND_COLORS, BAND_EMOJI } from "../types";
 import { getDefaultClient } from "../client";
 
