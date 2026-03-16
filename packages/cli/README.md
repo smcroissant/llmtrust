@@ -23,6 +23,28 @@ llmtrust compare gpt-4o claude-3.5-sonnet gemini-1.5-pro
 
 Shows latency, cost, and context window for each model.
 
+### `search` — Find models by keyword or filters
+
+```bash
+llmtrust search "vision"                           # search by keyword
+llmtrust search "code" --max-cost 5                # filter by max cost
+llmtrust search "fast" --max-latency 500           # filter by latency
+llmtrust search "cheap" --min-trust 80             # filter by trust score
+llmtrust search "text" --capability function-calling --provider OpenAI
+```
+
+Filters: `--max-latency`, `--max-cost`, `--min-context`, `--capability`, `--provider`, `--min-trust`
+
+### `score` — View trust scores
+
+```bash
+llmtrust score                      # leaderboard of all models
+llmtrust score gpt-4o               # detailed score for one model
+llmtrust score --sort asc           # lowest scores first
+```
+
+Trust scores are multi-dimensional: reliability, latency, cost efficiency, and safety.
+
 ### `models` — List all models
 
 ```bash

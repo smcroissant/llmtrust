@@ -2,8 +2,8 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { getAllModels, findModel, getModelsByProvider, getProviders } from "./models.js";
-import { renderComparisonTable, renderModelDetail, renderModelsList, renderCTA } from "./output.js";
+import { getAllModels, findModel, getModelsByProvider, getProviders, searchModels, getModelsByTrustScore, SearchFilter } from "./models.js";
+import { renderComparisonTable, renderModelDetail, renderModelsList, renderCTA, renderSearchResults, renderTrustScore, renderScoreBoard } from "./output.js";
 
 const program = new Command();
 
@@ -102,6 +102,75 @@ program
       console.log(`  ${chalk.cyan("●")} ${p} ${chalk.dim(`(${count} model${count > 1 ? "s" : ""})`)}`);
     }
     console.log();
+  });
+
+// ─── search command ───────────────────────────────────────────
+
+program
+  .command("search")
+  .description("Search for models by name, provider, or capability")
+  .argument("<query>", "Search query (e.g., 'code generation', 'vision', 'cheap')")
+  .option("--max-latency <ms>", "Maximum latency in ms", parseFloat)
+  .option("--max-cost <dollars>", "Maximum cost per 1M tokens (input & output)", parseFloat)
+  .option("--min-context <tokens>", "Minimum context window", parseInt)
+  .option("--capability <cap>", "Filter by capability (text, vision, function-calling, etc.)")
+  .option("--provider <name>", "Filter by provider")
+  .option("--min-trust <score>", "Minimum trust score (0-100)", parseInt)
+  .option("--no-telemetry", "Disable anonymous usage telemetry")
+  .action((query: string, opts: {
+    maxLatency?: number;
+    maxCost?: number;
+    minContext?: number;
+    capability?: string;
+    provider?: string;
+    minTrust?: number;
+    telemetry: boolean;
+  }) => {
+    const filters: SearchFilter = {};
+    if (opts.maxLatency !== undefined) filters.maxLatency = opts.maxLatency;
+    if (opts.maxCost !== undefined) filters.maxCost = opts.maxCost;
+    if (opts.minContext !== undefined) filters.minContext = opts.minContext;
+    if (opts.capability) filters.capability = opts.capability;
+    if (opts.provider) filters.provider = opts.provider;
+    if (opts.minTrust !== undefined) filters.minTrustScore = opts.minTrust;
+
+    const results = searchModels(query, Object.keys(filters).length > 0 ? filters : undefined);
+
+    if (results.length === 0) {
+      console.log(chalk.yellow(`\n  ⚠ No models found for "${query}"\n`));
+      console.log(chalk.dim("  Try a different search term or remove some filters.\n"));
+      console.log(chalk.dim("  Run 'llmtrust models' to see all available models.\n"));
+      process.exit(1);
+    }
+
+    renderSearchResults(results, query);
+  });
+
+// ─── score command ────────────────────────────────────────────
+
+program
+  .command("score")
+  .description("View trust scores for models")
+  .argument("[model]", "Model ID (omit to see leaderboard)")
+  .option("--all", "Show all models on the leaderboard")
+  .option("--sort <order>", "Sort order: desc (default) or asc", "desc")
+  .option("--no-telemetry", "Disable anonymous usage telemetry")
+  .action((modelId: string | undefined, opts: { all: boolean; sort: string; telemetry: boolean }) => {
+    if (modelId) {
+      // Show detailed score for a specific model
+      const model = findModel(modelId);
+      if (!model) {
+        console.error(chalk.yellow(`\n  ⚠ Model not found: ${modelId}\n`));
+        console.log(chalk.dim("  Run 'llmtrust models' to see available models.\n"));
+        process.exit(1);
+      }
+      renderTrustScore(model);
+    } else {
+      // Show leaderboard
+      const sortOrder = opts.sort === "asc" ? "asc" : "desc";
+      const models = getModelsByTrustScore(sortOrder);
+      renderScoreBoard(models);
+    }
   });
 
 // ─── parse ────────────────────────────────────────────────────
