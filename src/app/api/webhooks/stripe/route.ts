@@ -150,7 +150,7 @@ async function handleCheckoutCompleted(
         stripeSubscriptionId: subscriptionId,
         tier,
         status: stripeSubscription.status,
-        currentPeriodEnd,
+        stripeCurrentPeriodEnd: currentPeriodEnd,
         updatedAt: new Date(),
       })
       .where(eq(subscription.userId, userId));
@@ -162,7 +162,7 @@ async function handleCheckoutCompleted(
       stripeSubscriptionId: subscriptionId,
       tier,
       status: stripeSubscription.status,
-      currentPeriodEnd,
+      stripeCurrentPeriodEnd: currentPeriodEnd,
     });
   }
 
@@ -195,7 +195,7 @@ async function handleSubscriptionUpdated(
     .set({
       tier,
       status: stripeSubscription.status,
-      currentPeriodEnd,
+      stripeCurrentPeriodEnd: currentPeriodEnd,
       updatedAt: new Date(),
     })
     .where(eq(subscription.userId, userId));
