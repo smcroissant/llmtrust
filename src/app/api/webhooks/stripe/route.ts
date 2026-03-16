@@ -136,7 +136,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const billingInterval = planInfo?.interval ?? "monthly";
 
   const currentPeriodEnd = new Date(
-    (stripeSubscription as any).current_period_end * 1000,
+    (stripeSubscription.items.data[0]?.current_period_end ?? 0) * 1000,
   );
 
   // Upsert subscription record
@@ -277,7 +277,10 @@ async function handleSubscriptionDeleted(
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = (invoice as any).subscription as string | null;
+  const subscriptionId =
+    "subscription" in invoice && typeof invoice.subscription === "string"
+      ? invoice.subscription
+      : null;
 
   if (!subscriptionId) return;
 
@@ -334,7 +337,7 @@ async function updateSubscriptionRecord(
   const status = statusMap[stripeSubscription.status] ?? "active";
 
   const currentPeriodEnd = new Date(
-    (stripeSubscription as any).current_period_end * 1000,
+    (stripeSubscription.items.data[0]?.current_period_end ?? 0) * 1000,
   );
 
   await db
