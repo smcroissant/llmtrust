@@ -1,0 +1,83 @@
+name: CLI Build & Publish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/cli/**"
+  pull_request:
+    paths:
+      - "packages/cli/**"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build CLI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cli
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/cli/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Test CLI commands
+        run: |
+          node dist/index.js models
+          node dist/index.js providers
+          node dist/index.js compare gpt-4o claude-3.5-sonnet
+          node dist/index.js score
+          node dist/index.js search "code"
+          node dist/index.js bench gpt-4o --suite standard
+          node dist/index.js auth status
+          node dist/index.js completions bash
+
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: [20, 22]
+    defaults:
+      run:
+        working-directory: packages/cli
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build
+      - run: node dist/index.js models
+
+  publish:
+    name: Publish to npm
+    needs: [build, test]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/cli
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
