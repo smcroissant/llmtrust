@@ -45,7 +45,7 @@ export function createLLMTrust(options?: { apiKey?: string; apiBase?: string }) 
      * Use with `experimental_wrapLanguageModel`.
      */
     withTrustScore() {
-      return async ({ provider, model, ...rest }: any) => {
+      return async ({ provider, model, ...rest }: { provider?: string; model?: string; [key: string]: unknown }) => {
         const providerId = provider ?? "unknown";
         const modelId = model ?? "unknown";
         const trustScore = await client.score(providerId, modelId);
