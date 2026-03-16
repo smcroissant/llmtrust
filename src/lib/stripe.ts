@@ -62,6 +62,14 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+export type BillingInterval = "monthly" | "annual";
+
+/**
+ * Get the Stripe price ID for a plan + interval combination
+ */
+export function getPriceId(plan: PlanKey, interval: BillingInterval): string {
+  return PLANS[plan][interval].priceId;
+}
 
 // ============================================
 // Helper Functions
