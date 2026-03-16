@@ -11,7 +11,8 @@
  */
 export function sanitizeText(input: string): string {
   return input
-    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/<[^>]*>.*?<\/[^>]*>/gi, "") // Remove paired tags and their content
+    .replace(/<[^>]*>/g, "") // Remove remaining self-closing/single tags
     .replace(/[<>&'"]/g, (char) => {
       const entities: Record<string, string> = {
         "<": "&lt;",
