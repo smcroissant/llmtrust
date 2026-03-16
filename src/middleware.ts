@@ -5,6 +5,7 @@ import {
   API_RATE_LIMIT,
   AUTH_RATE_LIMIT,
 } from "@/lib/rate-limit";
+import { generateRequestId } from "@/lib/logger";
 
 // ============================================
 // CORS Configuration
@@ -74,6 +75,9 @@ export function middleware(req: NextRequest) {
   const origin = req.headers.get("origin");
   const ip = getClientIp(req as unknown as Request);
 
+  // Generate request ID for correlation across logs, traces, and responses
+  const requestId = generateRequestId();
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     const corsHeaders = getCorsHeaders(origin);
@@ -95,12 +99,13 @@ export function middleware(req: NextRequest) {
     const result = checkRateLimit(`auth:${ip}`, AUTH_RATE_LIMIT);
     if (!result.allowed) {
       return new NextResponse(
-        JSON.stringify({ error: "Too many authentication attempts" }),
+        JSON.stringify({ error: "Too many authentication attempts", requestId }),
         {
           status: 429,
           headers: {
             "Content-Type": "application/json",
             "Retry-After": String(result.retryAfter ?? 60),
+            "X-Request-ID": requestId,
             ...getSecurityHeaders(),
           },
         },
@@ -113,12 +118,13 @@ export function middleware(req: NextRequest) {
     const result = checkRateLimit(`api:${ip}`, API_RATE_LIMIT);
     if (!result.allowed) {
       return new NextResponse(
-        JSON.stringify({ error: "Rate limit exceeded" }),
+        JSON.stringify({ error: "Rate limit exceeded", requestId }),
         {
           status: 429,
           headers: {
             "Content-Type": "application/json",
             "Retry-After": String(result.retryAfter ?? 60),
+            "X-Request-ID": requestId,
             ...getSecurityHeaders(),
           },
         },
@@ -130,6 +136,9 @@ export function middleware(req: NextRequest) {
   // Build response
   // -------------------------------------------
   const response = NextResponse.next();
+
+  // Attach correlation ID to every response
+  response.headers.set("X-Request-ID", requestId);
 
   // Apply security headers
   const securityHeaders = getSecurityHeaders();
