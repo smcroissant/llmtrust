@@ -3,6 +3,14 @@
   "role": "Senior Developer",
   "lastSession": "2026-03-16T00:45:00+01:00",
   "completedIssues": [30],
+  "inProgress": {
+    "issue": 45,
+    "title": "Free Developer CLI — LLM Comparison from Terminal",
+    "branch": "feature/45-free-developer-cli",
+    "draftPR": 51,
+    "startedAt": "2026-03-15T23:11:00+01:00",
+    "status": "ready-for-review"
+  },
   "recentWork": [
     {
       "pr": 53,
@@ -10,6 +18,14 @@
       "status": "in-review",
       "completedAt": "2026-03-16T00:45:00+01:00",
       "summary": "Fixed auth bypass, rate limiting, zod validation, migration tables. Additional: changed costUsd from integer to bigint to prevent overflow, created missing trust-scores-client.tsx component with tRPC router for trust score data display"
+    },
+    {
+      "issue": 45,
+      "title": "Free Developer CLI — LLM Comparison from Terminal",
+      "status": "ready-for-review",
+      "startedAt": "2026-03-15T23:11:00+01:00",
+      "draftPR": 51,
+      "summary": "Built core CLI (packages/cli): compare, models, info, providers commands. 20 models, 7 providers. Styled tables. Telemetry with --no-telemetry opt-in. Conversion CTA. CI workflow. Fixed .gitignore, removed dist/ from tracking. PR marked ready for review."
     },
     {
       "issue": 30,
