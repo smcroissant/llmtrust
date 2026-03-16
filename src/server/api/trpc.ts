@@ -1,12 +1,32 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { type NextRequest } from "next/server";
+import { ZodError } from "zod";
+import { logger } from "@/lib/logger";
+
+// Map tRPC error codes to HTTP status codes
+const ERROR_CODE_TO_HTTP_STATUS: Record<string, number> = {
+  PARSE_ERROR: 400,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  METHOD_NOT_SUPPORTED: 405,
+  TIMEOUT: 408,
+  CONFLICT: 409,
+  PRECONDITION_FAILED: 412,
+  PAYLOAD_TOO_LARGE: 413,
+  TOO_MANY_REQUESTS: 429,
+  CLIENT_CLOSED_REQUEST: 499,
+  INTERNAL_SERVER_ERROR: 500,
+};
 
 // Context for web (session-based) and Electron (API key-based)
 export type CreateContextOptions = {
   req?: NextRequest;
   userId?: string;
   isApiKeyAuth?: boolean;
+  requestId?: string;
 };
 
 export async function createTRPCContext(opts: {
@@ -14,26 +34,60 @@ export async function createTRPCContext(opts: {
 }): Promise<CreateContextOptions> {
   const { req } = opts;
 
+  // Extract or generate request ID for log correlation
+  const requestId = req.headers.get("x-request-id") ?? undefined;
+
   // Try API key auth first (for Electron)
   const apiKey = req.headers.get("x-api-key");
   if (apiKey) {
     const userId = await validateApiKey(apiKey);
     if (userId) {
-      return { req, userId, isApiKeyAuth: true };
+      return { req, userId, isApiKeyAuth: true, requestId };
     }
   }
 
   // Fall back to session auth (for web)
   const session = await getSessionFromRequest(req);
   if (session?.user?.id) {
-    return { req, userId: session.user.id, isApiKeyAuth: false };
+    return { req, userId: session.user.id, isApiKeyAuth: false, requestId };
   }
 
-  return { req };
+  return { req, requestId };
 }
 
 const t = initTRPC.context<CreateContextOptions>().create({
   transformer: superjson,
+  errorFormatter({ shape, error, path }) {
+    const isProd = process.env.NODE_ENV === "production";
+
+    // Log server errors for observability
+    if (error.code === "INTERNAL_SERVER_ERROR") {
+      logger.error("tRPC internal error", {
+        path: path ?? "unknown",
+        message: error.message,
+      }, error.cause instanceof Error ? error.cause : undefined);
+    }
+
+    // Build consistent error response
+    const httpStatus = ERROR_CODE_TO_HTTP_STATUS[error.code] ?? 500;
+
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        httpStatus,
+        // Only include Zod validation details (safe for clients)
+        zodError:
+          error.code === "BAD_REQUEST" && error.cause instanceof ZodError
+            ? error.cause.flatten()
+            : null,
+        // Strip stack traces in production
+        ...(isProd
+          ? { stack: undefined }
+          : { stack: error.stack }),
+      },
+    };
+  },
 });
 
 export const createTRPCRouter = t.router;
