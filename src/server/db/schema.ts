@@ -429,6 +429,46 @@ export const subscription = pgTable(
 );
 
 // ============================================
+// WEBHOOK EVENTS — Idempotency tracking for Stripe webhooks
+// ============================================
+
+export const webhookEvent = pgTable(
+  "webhook_event",
+  {
+    id: text("id").primaryKey(), // Stripe event ID (evt_xxx)
+    type: varchar("type", { length: 100 }).notNull(), // e.g., customer.subscription.updated
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    processedAt: timestamp("processed_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("webhook_event_type_idx").on(table.type),
+  ],
+);
+
+// ============================================
+// API USAGE — Daily API call tracking per user
+// ============================================
+
+export const apiUsage = pgTable(
+  "api_usage",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+    callCount: integer("call_count").notNull().default(0),
+    endpoint: text("endpoint"), // nullable — specific endpoint if needed
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("api_usage_user_date_idx").on(table.userId, table.date),
+    index("api_usage_date_idx").on(table.date),
+  ],
+);
+
+// ============================================
 // PAYMENTS — Stripe payment records
 // ============================================
 

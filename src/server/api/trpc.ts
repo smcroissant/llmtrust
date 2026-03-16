@@ -53,6 +53,36 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   });
 });
 
+// Metered procedure — protected + usage metering (enforces tier limits)
+// Applies to API-key-authenticated requests (Electron app, API consumers)
+// Web session requests are not metered (they use the web UI, not the API)
+export const meteredProcedure = protectedProcedure.use(
+  async ({ ctx, next, path }) => {
+    // Only meter API key auth (Electron/API consumers)
+    // Web users with session auth are not subject to API rate limits
+    if (!ctx.isApiKeyAuth) {
+      return next({ ctx });
+    }
+
+    const { checkAndIncrementUsage } = await import("@/lib/usage-metering");
+    const usage = await checkAndIncrementUsage(ctx.userId);
+
+    if (!usage.allowed) {
+      throw new TRPCError({
+        code: "TOO_MANY_REQUESTS",
+        message: `API limit exceeded. ${usage.limit} calls/day on your plan. Resets at midnight UTC.`,
+      });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        usage,
+      },
+    });
+  },
+);
+
 // ============================================
 // Usage Enforcement — #69
 // ============================================
